@@ -82,13 +82,13 @@ public class MainActivity extends AppCompatActivity
 
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_dashboard) {
 
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_leaderboard) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_profile) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();
         }
