@@ -1,5 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -87,7 +89,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_leaderboard) {
 
         } else if (id == R.id.nav_profile) {
-
+            Intent myIntent = new Intent(MainActivity.this, ProfileActivity.class);
+            MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();
