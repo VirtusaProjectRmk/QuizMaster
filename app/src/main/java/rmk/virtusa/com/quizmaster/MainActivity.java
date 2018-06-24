@@ -88,7 +88,12 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_leaderboard) {
 
-        } else if (id == R.id.nav_profile) {
+        }
+        else if (id == R.id.nav_quiz) {
+            Intent myIntent = new Intent(MainActivity.this, StartActivity.class);
+            MainActivity.this.startActivity(myIntent);
+        }
+        else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(MainActivity.this, ProfileActivity.class);
             MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_logout) {

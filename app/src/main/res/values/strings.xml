@@ -7,4 +7,24 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="Questions">Questions appear here...</string>
+    <string name="take_quiz">Take Quiz</string>
+    <string name="instructions1">1. Do not navigate out of the quiz screen. If you do so, the test will be closed.</string>
+    <string name="instructions2">2. You cannot navigate to the previous question.</string>
+    <string name="instructions3">3. You will have 12 questions in this test.</string>
+    <string name="instructions4">4. Each question carries 1 mark.</string>
+    <string name="instructions">INSTRUCTIONS :</string>
+    <string name="next">Next</string>
+    <string name="A">A</string>
+    <string name="B">B</string>
+    <string name="C">C</string>
+    <string name="D">D</string>
+    <string name="your_score">You Scored </string>
+    <string name="question">Question: 1/12</string>
+    <string name="completion">You have successfully completed today\'s quiz.</string>
+    <string name="back">You navigated out of the quiz screen.\nYou cannot take the quiz again.\nDo not repeat this.</string>
+    <string name="welcome">Welcome to VirtusaQuiz!!!</string>
+    <string name="start">Start Quiz</string>
+    <string name="ok">Ok</string>
+    <string name="init_30">00:30</string>
 </resources>
