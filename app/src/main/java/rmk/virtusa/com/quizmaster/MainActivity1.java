@@ -24,12 +24,12 @@ public class MainActivity1 extends AppCompatActivity {
         startQuizButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-				if(day == Calendar.SATURDAY || day==Calendar.SUNDAY) {
-                    startActivity(new Intent(MainActivity1.this,NoTestActivity.class));
+		if(day == Calendar.SATURDAY || day==Calendar.SUNDAY) {
+                    	startActivity(new Intent(MainActivity1.this,NoTestActivity.class));
 
                 } else {
-					Intent intent = new Intent(MainActivity1.this, QuizActivity.class);
-					startActivity(intent);
+			Intent intent = new Intent(MainActivity1.this, QuizActivity.class);
+			startActivity(intent);
                 }
             }
         });
