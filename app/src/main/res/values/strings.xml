@@ -25,6 +25,13 @@
     <string name="back">You navigated out of the quiz screen.\nYou cannot take the quiz again.\nDo not repeat this.</string>
     <string name="welcome">Welcome to VirtusaQuiz!!!</string>
     <string name="start">Start Quiz</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="init_30">00:30</string>
+    <string name="No">You don\'t have any test scheduled today...</string>
+    <string name="username">Username</string>
+    <string name="update">Update</string>
+    <string name="user">User</string>
+    <string name="prev">Prev</string>
+    <string name="finish">Finish Test</string>
+    <string name="timeup">Your time is up...</string>
 </resources>
