@@ -30,14 +30,14 @@ public class BackActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(BackActivity.this, StartActivity.class));
+                startActivity(new Intent(BackActivity.this, MainActivity.class));
             }
         });
 
     }
 
     public void onBackPressed() {
-        startActivity(new Intent(BackActivity.this,StartActivity.class));
+        startActivity(new Intent(BackActivity.this,MainActivity.class));
     }
 
 }

@@ -34,5 +34,8 @@ public class StartActivity extends AppCompatActivity {
         });
 
     }
+    public void onBackPressed() {
+        startActivity(new Intent(StartActivity.this,MainActivity.class));
+    }
 
 }

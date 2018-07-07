@@ -26,14 +26,14 @@ public class FinishActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(FinishActivity.this, StartActivity.class));
+                startActivity(new Intent(FinishActivity.this, MainActivity.class));
             }
         });
 
     }
 
     public void onBackPressed() {
-        startActivity(new Intent(FinishActivity.this,StartActivity.class));
+        startActivity(new Intent(FinishActivity.this,MainActivity.class));
     }
 
 }
