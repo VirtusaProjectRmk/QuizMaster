@@ -90,8 +90,15 @@ public class MainActivity extends AppCompatActivity
 
         }
         else if (id == R.id.nav_quiz) {
-            Intent myIntent = new Intent(MainActivity.this, StartActivity.class);
-            MainActivity.this.startActivity(myIntent);
+            Calendar calendar = Calendar.getInstance();
+            int day = calendar.get(Calendar.DAY_OF_WEEK);
+            if(day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+                Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
+                MainActivity.this.startActivity(myIntent);
+            } else {
+                Intent myIntent = new Intent(MainActivity.this, MainActivity1.class);
+                MainActivity.this.startActivity(myIntent);
+            }
         }
         else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(MainActivity.this, ProfileActivity.class);
