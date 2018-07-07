@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity
 
         }
         else if (id == R.id.nav_quiz) {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
             int day = calendar.get(Calendar.DAY_OF_WEEK);
             if(day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
                 Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
