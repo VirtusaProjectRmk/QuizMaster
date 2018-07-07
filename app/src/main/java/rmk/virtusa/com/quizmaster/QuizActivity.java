@@ -116,7 +116,7 @@ public class QuizActivity extends AppCompatActivity {
 
         rg.clearCheck();
 
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
         int day = calendar.get(Calendar.DAY_OF_WEEK);
         String url = "url";
         switch (day) {
