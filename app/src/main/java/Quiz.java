@@ -1,5 +1,3 @@
-package rmk.virtusa.com.quizmaster;
-
 import android.app.Application;
 
 import com.firebase.client.Firebase;

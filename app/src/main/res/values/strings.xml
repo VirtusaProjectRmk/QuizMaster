@@ -35,4 +35,8 @@
     <string name="prev">Prev</string>
     <string name="finish">Finish Test</string>
     <string name="timeup">Your time is up...</string>
+    <string name="questions_total_attended">Questions total attended</string>
+    <string name="questions_total_answered">Questions total answered</string>
+    <string name="total_points">Total Points</string>
+    <string name="statistics">Statistics</string>
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,9 +13,19 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+
+import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.model.User;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -22,6 +33,41 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private ProgressBar progressBar;
     private Button btnLogin;
+
+    static final String TAG = "LoginActivity";
+
+    void getDetails() {
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        firestore.setFirestoreSettings(settings);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        CollectionReference cRef = db.collection("users");
+
+        DocumentReference dRef = cRef.document(auth.getCurrentUser().getUid());
+
+
+        Task<DocumentSnapshot> snap = dRef
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        Log.i(TAG, "Success");
+                        User user = documentSnapshot.toObject(User.class);
+                        ResourceHandler.getInstance().setUser(user);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "Failed");
+                    }
+                });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
+            getDetails();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
 
@@ -38,8 +85,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         inputEmail = findViewById(R.id.email);
         inputPassword = findViewById(R.id.password);
-        progressBar =  findViewById(R.id.progressBar);
-        btnLogin =findViewById(R.id.btn_login);
+        progressBar = findViewById(R.id.progressBar);
+        btnLogin = findViewById(R.id.btn_login);
 
         auth = FirebaseAuth.getInstance();
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
+                                    getDetails();
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(intent);
 
