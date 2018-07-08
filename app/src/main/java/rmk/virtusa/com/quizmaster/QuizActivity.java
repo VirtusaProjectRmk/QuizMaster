@@ -23,6 +23,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+
 public class QuizActivity extends AppCompatActivity {
 
     private TextView mQuestion, quesNum, timer;
@@ -33,10 +36,11 @@ public class QuizActivity extends AppCompatActivity {
     public String mAnswer;
     public int questionCounter = 1;
     public int score = 0;
-    public Integer mQuestionNumber[] = {0,1,2,3,4,5,6,7,8,9,10,11};
+    public Integer mQuestionNumber[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     ArrayList<Integer> list;
     public long timeLeftInMillis = 1200000;
     int c = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -77,16 +81,16 @@ public class QuizActivity extends AppCompatActivity {
 
     public void onBackPressed() {
 
-        Intent intent = new Intent(QuizActivity.this,BackActivity.class);
-        intent.putExtra("arg",score);
+        Intent intent = new Intent(QuizActivity.this, BackActivity.class);
+        intent.putExtra("arg", score);
         startActivity(intent);
 
     }
 
     protected void onUserLeaveHint() {
 
-        Intent intent = new Intent(QuizActivity.this,BackActivity.class);
-        intent.putExtra("arg",score);
+        Intent intent = new Intent(QuizActivity.this, BackActivity.class);
+        intent.putExtra("arg", score);
         startActivity(intent);
         super.onUserLeaveHint();
 
@@ -97,7 +101,7 @@ public class QuizActivity extends AppCompatActivity {
         public void onTick(long millisUntilFinished) {
             String timeToShow = String.format(Locale.getDefault(), "%02d:%02d", (int) (timeLeftInMillis / 1000) / 60, (int) (timeLeftInMillis / 1000) % 60);
             timer.setText(timeToShow);
-            if(timeLeftInMillis < 10000) {
+            if (timeLeftInMillis < 10000) {
                 timer.setTextColor(Color.RED);
             }
             timeLeftInMillis = millisUntilFinished;
@@ -121,23 +125,28 @@ public class QuizActivity extends AppCompatActivity {
         String url = "url";
         switch (day) {
             case Calendar.MONDAY:
-                url = "https://quizmaster-89038.firebaseio.com/0/questions1/";break;
+                url = "https://quizmaster-89038.firebaseio.com/0/questions1/";
+                break;
             case Calendar.TUESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/1/questions2/";break;
+                url = "https://quizmaster-89038.firebaseio.com/1/questions2/";
+                break;
             case Calendar.WEDNESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/2/questions3/";break;
+                url = "https://quizmaster-89038.firebaseio.com/2/questions3/";
+                break;
             case Calendar.THURSDAY:
-                url = "https://quizmaster-89038.firebaseio.com/3/questions4/";break;
+                url = "https://quizmaster-89038.firebaseio.com/3/questions4/";
+                break;
             case Calendar.FRIDAY:
-                url = "https://quizmaster-89038.firebaseio.com/4/questions5/";break;
+                url = "https://quizmaster-89038.firebaseio.com/4/questions5/";
+                break;
         }
         Firebase.setAndroidContext(this);
-        mQuestionRef = new Firebase( url+ mQuestionNumber[c] + "/question");
+        mQuestionRef = new Firebase(url + mQuestionNumber[c] + "/question");
         mChoice1Ref = new Firebase(url + mQuestionNumber[c] + "/choice1");
         mChoice2Ref = new Firebase(url + mQuestionNumber[c] + "/choice2");
         mChoice3Ref = new Firebase(url + mQuestionNumber[c] + "/choice3");
         mChoice4Ref = new Firebase(url + mQuestionNumber[c] + "/choice4");
-        mAnswerRef = new Firebase(url+ mQuestionNumber[c] + "/answer");
+        mAnswerRef = new Firebase(url + mQuestionNumber[c] + "/answer");
 
         mQuestionRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -147,7 +156,8 @@ public class QuizActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) { }
+            public void onCancelled(FirebaseError firebaseError) {
+            }
         });
 
         mChoice1Ref.addValueEventListener(new ValueEventListener() {
@@ -211,13 +221,13 @@ public class QuizActivity extends AppCompatActivity {
 
             }
         });
-        if(questionCounter == 12){
+        if (questionCounter == 12) {
             String ans = "Submit";
             nextButton.setText(ans);
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(rg.getCheckedRadioButtonId() == -1) {
+                    if (rg.getCheckedRadioButtonId() == -1) {
                         Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
                     } else {
                         checkAnswer();
@@ -231,7 +241,6 @@ public class QuizActivity extends AppCompatActivity {
 
         String ans = "Question: " + questionCounter + "/" + 12;
         quesNum.setText(ans);
-
         questionCounter++;
         c++;
 
@@ -249,11 +258,14 @@ public class QuizActivity extends AppCompatActivity {
 
         int selected = rg.getCheckedRadioButtonId();
         RadioButton rbSelected = findViewById(selected);
-        if(rbSelected.getText().equals(mAnswer)) {
+        if (rbSelected.getText().equals(mAnswer)) {
             score++;
+            ResourceHandler.getInstance().incQAnsTot();
+            ResourceHandler.getInstance().incPointsTot(1);
         }
-        if(questionCounter <= 12) {
+        if (questionCounter <= 12) {
             updateQuestion();
+            ResourceHandler.getInstance().incAAttTot();
         }
 
     }

@@ -89,7 +89,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 String name = profile.getDisplayName();
                                 TextView t= findViewById(R.id.user);
                                 t.setText(name);
-
                             }
                         }
                     }
