@@ -1,7 +1,9 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -29,6 +31,8 @@ import rmk.virtusa.com.quizmaster.model.User;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private Context context = this;
+
     private EditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private ProgressBar progressBar;
@@ -36,29 +40,47 @@ public class LoginActivity extends AppCompatActivity {
 
     static final String TAG = "LoginActivity";
 
-    void getDetails() {
-
+    LoginActivity() {
+        super();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         firestore.setFirestoreSettings(settings);
+    }
+
+    void getDetails() {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        CollectionReference cRef = db.collection("users");
-
+        final CollectionReference cRef = db.collection("users");
         DocumentReference dRef = cRef.document(auth.getCurrentUser().getUid());
-
-
-        Task<DocumentSnapshot> snap = dRef
-                .get()
+       dRef.get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         Log.i(TAG, "Success");
-                        User user = documentSnapshot.toObject(User.class);
-                        ResourceHandler.getInstance().setUser(user);
+                        //if user object, get for local use
+                        if (documentSnapshot.exists()) {
+                            User user = documentSnapshot.toObject(User.class);
+                            ResourceHandler.getInstance().setUser(user);
+                        } else {
+                            //if user object does'nt exist, create one
+                            User user = new User(0, 0, 0, auth.getCurrentUser().getUid());
+                            cRef.document(auth.getCurrentUser().getUid())
+                                    .set(user)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.i(TAG, "Added new user to firestore");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
+                                        }
+                                    });
+                        }
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -73,14 +95,12 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
             getDetails();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
-
 
         setContentView(R.layout.activity_login);
         inputEmail = findViewById(R.id.email);
@@ -124,7 +144,6 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    getDetails();
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(intent);
 
