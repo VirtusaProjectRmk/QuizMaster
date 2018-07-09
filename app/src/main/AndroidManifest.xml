@@ -20,9 +20,9 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity android:name=".MainActivity1" />
-        <activity android:name=".StartActivity" />
         <activity android:name=".NoTestActivity" />
         <activity android:name=".QuizActivity" />
         <activity android:name=".BackActivity" />

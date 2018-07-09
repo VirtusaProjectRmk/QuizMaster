@@ -35,8 +35,9 @@
     <string name="prev">Prev</string>
     <string name="finish">Finish Test</string>
     <string name="timeup">Your time is up...</string>
-    <string name="questions_total_attended">Total questions attended</string>
-    <string name="questions_total_answered">Total questions answered correctly</string>
-    <string name="total_points">Total Points</string>
+    <string name="questions_total_attended">Attended</string>
+    <string name="questions_total_answered">Answered correctly</string>
+    <string name="total_points">Points</string>
     <string name="statistics">Statistics</string>
+    <string name="profile_add_summary">+ Add user summary</string>
 </resources>
