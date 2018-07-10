@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
     tools:context=".LoginActivity">
 
     <ImageView
         android:id="@+id/loginBgImageView"
-        android:scaleType="centerCrop"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
 
 
     <LinearLayout
@@ -20,6 +20,12 @@
         android:gravity="center"
         android:orientation="vertical"
         android:padding="10dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginBottom="@dimen/activity_horizontal_margin"
+            android:src="@drawable/virtusa_logo" />
 
 
         <EditText
@@ -45,14 +51,14 @@
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_login"
-            android:backgroundTint="@android:color/white"
-            android:src="@drawable/chevron_right_icon"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/chevron_right_icon"
             android:text="Login"
-            app:borderWidth="0dp"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            app:borderWidth="0dp" />
     </LinearLayout>
 
     <ProgressBar

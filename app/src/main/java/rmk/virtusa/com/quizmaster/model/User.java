@@ -18,8 +18,8 @@ public class User {
     private int aAttTot;
 
     private int pointsTot;
-    
-    public User(){
+
+    public User() {
 
     }
 
@@ -40,57 +40,52 @@ public class User {
         return branch;
     }
 
-    public String getName(){
+    public String getName() {
         return this.name;
     }
 
-    public void setString(String name){
+    public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getId() {
         return this.id;
     }
-    
-    
+
+
     public void setId(String id) {
         this.id = id;
     }
-    
 
-    
+
     public int getQAnsTot() {
         return this.qAnsTot;
     }
-    
-    
+
+
     public void setQAnsTot(Integer qAnsTot) {
         this.qAnsTot = qAnsTot;
     }
-    
-    
-    
+
+
     public int getAAttTot() {
         return this.aAttTot;
     }
-    
-    
+
+
     public void setAAttTot(Integer aAttTot) {
         this.aAttTot = aAttTot;
     }
-    
-    
-    
+
+
     public int getPointsTot() {
         return this.pointsTot;
     }
-    
-    
+
+
     public void setPointsTot(Integer pointsTot) {
         this.pointsTot = pointsTot;
     }
-    
-    
-    
-    
+
+
 }

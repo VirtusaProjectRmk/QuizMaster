@@ -31,6 +31,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.model.User;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -93,26 +94,9 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     public void update(View view) {
-        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        EditText t1 = findViewById(R.id.name);
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setDisplayName(t1.getText().toString().trim())
-                .build();
-
-        user.updateProfile(profileUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(), "User Profile updated", Toast.LENGTH_LONG).show();
-                            for (UserInfo profile : user.getProviderData()) {
-                                // Name
-                                String name = profile.getDisplayName();
-                                profileActivity.name.setText(name);
-                            }
-                        }
-                    }
-                });
+        User user = resHandler.getUser();
+        user.setName(name.getText().toString());
+        resHandler.setUser(user);
     }
 
 }

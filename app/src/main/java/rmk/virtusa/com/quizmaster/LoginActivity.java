@@ -53,56 +53,14 @@ public class LoginActivity extends AppCompatActivity {
         firestore.setFirestoreSettings(settings);
     }
 
-    void getDetails() {
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        final CollectionReference cRef = db.collection("users");
-        DocumentReference dRef = cRef.document(auth.getCurrentUser().getUid());
-       dRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Log.i(TAG, "Success");
-                        //if user object, get for local use
-                        if (documentSnapshot.exists()) {
-                            User user = documentSnapshot.toObject(User.class);
-                            ResourceHandler.getInstance().setUser(user);
-                        } else {
-                            //if user object does'nt exist, create one
-                            User user = new User(0, 0, 0, auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), new String());
-                            cRef.document(auth.getCurrentUser().getUid())
-                                    .set(user)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.i(TAG, "Added new user to firestore");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
-                                        }
-                                    });
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i(TAG, "Failed");
-                    }
-                });
-    }
-
-    @Override
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            getDetails();
+            ResourceHandler.getInstance().updateUserFromAuth();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
 
@@ -151,6 +109,7 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
+                                    ResourceHandler.getInstance().updateUserFromAuth();
                                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                     startActivity(intent);
 
