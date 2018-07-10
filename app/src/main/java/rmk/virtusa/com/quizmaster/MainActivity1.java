@@ -26,6 +26,10 @@ public class MainActivity1 extends AppCompatActivity {
 		startActivity(intent);
             }
         });
+	/*if((BackActivity.s == 1) || (FinishActivity.s == 1) || (TimeUpActivity.s == 1)) {
+		startQuizButton.setVisibility(View.INVISIBLE);
+		startQuizButton.setEnabled(false);
+	}
     }
 
 }
