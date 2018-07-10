@@ -13,7 +13,12 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import rmk.virtusa.com.quizmaster.model.User;
 
@@ -35,8 +40,41 @@ public class ResourceHandler {
 
     private User user;
 
+    List<User> users = new ArrayList<>();
+
     public User getUser(){
         return user;
+    }
+
+    public List<User> getUsers(){
+        updateUsersCache();
+        return users;
+    }
+
+    private Task<QuerySnapshot> updateUsersCache(){
+        CollectionReference usersRef = db.collection("users");
+        Task<QuerySnapshot> snapshotTask = usersRef
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                        if (queryDocumentSnapshots.isEmpty()) {
+                            Log.d(TAG, "onSuccess: LIST EMPTY");
+                            return;
+                        } else {
+                            List<User> types = queryDocumentSnapshots.toObjects(User.class);
+                            users = types;
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Failure");
+                    }
+                });
+        return snapshotTask;
     }
 
     public void setUser(User user){
@@ -81,5 +119,6 @@ public class ResourceHandler {
 
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+        updateUsersCache();
     }
 }
