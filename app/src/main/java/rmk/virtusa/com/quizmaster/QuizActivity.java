@@ -39,6 +39,7 @@ public class QuizActivity extends AppCompatActivity {
     public Integer mQuestionNumber[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     ArrayList<Integer> list;
     public long timeLeftInMillis = 1200000;
+    public Boolean isClicked = false;
     int c = 0;
 
     @Override
@@ -88,12 +89,13 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     protected void onUserLeaveHint() {
-
-        Intent intent = new Intent(QuizActivity.this, BackActivity.class);
-        intent.putExtra("arg", score);
-        startActivity(intent);
-        super.onUserLeaveHint();
-
+        
+        if(!isClicked) {
+            Intent intent = new Intent(QuizActivity.this, BackActivity.class);
+            intent.putExtra("arg", score);
+            startActivity(intent);
+            super.onUserLeaveHint();
+        }
     }
 
     CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
@@ -227,6 +229,7 @@ public class QuizActivity extends AppCompatActivity {
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    isClicked = true;
                     if (rg.getCheckedRadioButtonId() == -1) {
                         Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
                     } else {
