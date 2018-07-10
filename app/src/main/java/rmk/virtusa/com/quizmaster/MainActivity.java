@@ -86,9 +86,8 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_dashboard) {
-
+            startActivity(new Intent(this, DashActivity.class));
         } else if (id == R.id.nav_leaderboard) {
-
         }
         else if (id == R.id.nav_quiz) {
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));

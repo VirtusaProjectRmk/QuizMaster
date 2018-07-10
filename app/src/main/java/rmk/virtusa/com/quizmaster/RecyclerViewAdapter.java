@@ -1,5 +1,6 @@
 package com.example.sony.dashboard;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -14,6 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import rmk.virtusa.com.quizmaster.DashActivity;
+import rmk.virtusa.com.quizmaster.QuizActivity;
+import rmk.virtusa.com.quizmaster.R;
 
 /**
  * Created by sony on 18-06-2018.
@@ -65,7 +70,7 @@ int count = 0;
                        // case 0:
 
 
-                        intent = new Intent(mContext, DashActivity.class);
+                        intent = new Intent(mContext, QuizActivity.class);
                          count ++;
                          mContext.startActivity(intent);
                          view.setEnabled(false);

@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fitsSystemWindows="true"
-    android:background="@drawable/texas"
     tools:context=".LoginActivity">
+
+    <ImageView
+        android:id="@+id/loginBgImageView"
+        android:scaleType="centerCrop"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@drawable/texas"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="10dp">
@@ -37,16 +43,16 @@
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white" />
 
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/btn_login"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/chevron_right_icon"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
-            android:background="@color/colorAccent"
             android:text="Login"
+            app:borderWidth="0dp"
             android:textColor="@android:color/black" />
-
-
     </LinearLayout>
 
     <ProgressBar
@@ -56,4 +62,4 @@
         android:layout_gravity="center|bottom"
         android:layout_marginBottom="20dp"
         android:visibility="gone" />
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

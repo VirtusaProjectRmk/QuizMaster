@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.jackandphantom.blurimage.BlurImage;
 
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.User;
@@ -36,7 +39,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private ProgressBar progressBar;
-    private Button btnLogin;
+    private FloatingActionButton btnLogin;
+    private ImageView imageView;
 
     static final String TAG = "LoginActivity";
 
@@ -107,6 +111,9 @@ public class LoginActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btn_login);
+        imageView = findViewById(R.id.loginBgImageView);
+
+        BlurImage.with(getApplicationContext()).load(R.drawable.texas).intensity(20).Async(true).into(imageView);
 
         auth = FirebaseAuth.getInstance();
         btnLogin.setOnClickListener(new View.OnClickListener() {
