@@ -9,6 +9,10 @@ public class User {
 
     private String id;
 
+    private String name;
+
+    private String branch;
+
     private int qAnsTot;
 
     private int aAttTot;
@@ -19,11 +23,29 @@ public class User {
 
     }
 
-    public User(int aAttTot, int qAnsTot, int pointsTot, String id) {
+    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String name, String branch) {
         this.qAnsTot = qAnsTot;
         this.aAttTot = aAttTot;
         this.id = id;
         this.pointsTot = pointsTot;
+        this.name = name;
+        this.branch = branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public String getName(){
+        return this.name;
+    }
+
+    public void setString(String name){
+        this.name = name;
     }
     
     public String getId() {

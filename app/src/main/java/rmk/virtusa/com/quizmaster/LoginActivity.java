@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
 
     static final String TAG = "LoginActivity";
 
-    LoginActivity() {
+    public LoginActivity() {
         super();
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -65,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                             ResourceHandler.getInstance().setUser(user);
                         } else {
                             //if user object does'nt exist, create one
-                            User user = new User(0, 0, 0, auth.getCurrentUser().getUid());
+                            User user = new User(0, 0, 0, auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), new String());
                             cRef.document(auth.getCurrentUser().getUid())
                                     .set(user)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
