@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,19 +42,12 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FloatingActionButton btnLogin;
     private ImageView imageView;
+    private ImageView bgImageView;
+    private ImageView overlayIV;
 
     static final String TAG = "LoginActivity";
 
-    public LoginActivity() {
-        super();
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        firestore.setFirestoreSettings(settings);
-    }
-
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -70,8 +64,15 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btn_login);
         imageView = findViewById(R.id.loginBgImageView);
+        bgImageView = findViewById(R.id.loginBgImageView);
+        overlayIV = findViewById(R.id.overlayIV);
 
-        BlurImage.with(getApplicationContext()).load(R.drawable.texas).intensity(20).Async(true).into(imageView);
+        Glide.with(context)
+                .asGif()
+                .load(R.drawable.texas)
+                .into(bgImageView);
+
+        BlurImage.with(getApplicationContext()).load(R.drawable.overlay_black).intensity(20).Async(true).into(overlayIV);
 
         auth = FirebaseAuth.getInstance();
         btnLogin.setOnClickListener(new View.OnClickListener() {
