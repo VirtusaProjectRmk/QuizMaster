@@ -28,7 +28,6 @@
         <activity android:name=".NoTestActivity" />
         <activity android:name=".QuizActivity" />
         <activity android:name=".FinishActivity" />
-        <activity android:name=".LeaderboardActivity"/>
     </application>
 
 </manifest>
