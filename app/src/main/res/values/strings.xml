@@ -23,6 +23,7 @@
     <string name="your_score">You Scored </string>
     <string name="question">Question: 1/12</string>
     <string name="completion">You have successfully completed today\'s quiz.</string>
+    <string name="quiz_submit_error">Fatal error occurred cannot submit scores, Please try again later.</string>
     <string name="back">You navigated out of the quiz screen.\nYou cannot take the quiz again.\nDo not repeat this.</string>
     <string name="welcome">Welcome to VirtusaQuiz!!!</string>
     <string name="start">Start Quiz</string>

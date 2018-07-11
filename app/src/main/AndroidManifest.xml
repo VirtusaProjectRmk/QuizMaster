@@ -27,7 +27,6 @@
         <activity android:name=".MainActivity1" />
         <activity android:name=".NoTestActivity" />
         <activity android:name=".QuizActivity" />
-        <activity android:name=".BackActivity" />
         <activity android:name=".FinishActivity" />
     </application>
 

@@ -9,31 +9,56 @@ import android.widget.TextView;
 
 public class FinishActivity extends AppCompatActivity {
 
+    final static int QUIZ_COMPLETED = 1;
+    final static int BACK_PRESSED = 2;
+    final static int TIME_UP = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finish);
 
-        TextView txt = findViewById(R.id.score);
 
-        int score = getIntent().getExtras().getInt("arg");
+        TextView finishDesTextView = findViewById(R.id.finishDesTextView);
+        TextView finishScoreTextView = findViewById(R.id.finishScoreTextView);
+        Button finishOkButton = findViewById(R.id.finishOkButton);
 
-        String ans = "You Scored: "+score+" points";
 
-        txt.setText(ans);
+        int type = -1;
+        int score = 0;
+        try {
+            score = getIntent().getExtras().getInt("score");
+            type = getIntent().getExtras().getInt("type");
+        } catch (NullPointerException npe){
+            //TODO report error
+        }
+        switch (type) {
+            case QUIZ_COMPLETED:
+                finishDesTextView.setText(getString(R.string.completion));
+                break;
+            case BACK_PRESSED:
+                finishDesTextView.setText(getString(R.string.back));
+                break;
+            case TIME_UP:
+                finishDesTextView.setText(getString(R.string.timeup));
+                break;
+            default:
+                finishDesTextView.setText(getString(R.string.quiz_submit_error));
+                break;
+        }
 
-        Button button = findViewById(R.id.ok);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(FinishActivity.this, MainActivity.class));
-            }
+        finishScoreTextView.setText("You Scored: " + score + " points");
+
+        finishOkButton.setOnClickListener(v -> {
+            finish();
+            startActivity(new Intent(FinishActivity.this, MainActivity.class));
         });
 
     }
 
     public void onBackPressed() {
-        startActivity(new Intent(FinishActivity.this,MainActivity.class));
+        finish();
+        startActivity(new Intent(this, MainActivity.class));
     }
 
 }

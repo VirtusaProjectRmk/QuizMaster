@@ -7,18 +7,18 @@
     tools:context=".FinishActivity">
 
     <TextView
+        android:id="@+id/finishDesTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="200dp"
-        android:text="@string/completion"
         android:textColor="@android:color/black"
         android:textSize="18sp" />
 
     <TextView
-        android:id="@+id/score"
+        android:id="@+id/finishScoreTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -30,7 +30,7 @@
         android:textSize="18sp" />
 
     <Button
-        android:id="@+id/ok"
+        android:id="@+id/finishOkButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

@@ -82,8 +82,9 @@ public class QuizActivity extends AppCompatActivity {
 
     public void onBackPressed() {
 
-        Intent intent = new Intent(QuizActivity.this, BackActivity.class);
-        intent.putExtra("arg", score);
+        Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
+        intent.putExtra("score", score);
+        intent.putExtra("type", FinishActivity.BACK_PRESSED);
         startActivity(intent);
 
     }
@@ -91,8 +92,9 @@ public class QuizActivity extends AppCompatActivity {
     protected void onUserLeaveHint() {
         
         if(!isClicked) {
-            Intent intent = new Intent(QuizActivity.this, BackActivity.class);
-            intent.putExtra("arg", score);
+            Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
+            intent.putExtra("score", score);
+            intent.putExtra("type", FinishActivity.BACK_PRESSED);
             startActivity(intent);
             super.onUserLeaveHint();
         }
@@ -113,7 +115,8 @@ public class QuizActivity extends AppCompatActivity {
         public void onFinish() {
             checkAnswer();
             Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-            intent.putExtra("arg", score);
+            intent.putExtra("score", score);
+            intent.putExtra("type", FinishActivity.TIME_UP);
             startActivity(intent);
         }
     }.start();
@@ -235,7 +238,8 @@ public class QuizActivity extends AppCompatActivity {
                     } else {
                         checkAnswer();
                         Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-                        intent.putExtra("arg", score);
+                        intent.putExtra("score", score);
+                        intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
                         startActivity(intent);
                     }
                 }
