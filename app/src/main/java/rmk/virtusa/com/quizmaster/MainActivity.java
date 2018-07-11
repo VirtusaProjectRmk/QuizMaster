@@ -108,6 +108,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();
+            startActivity(new Intent(this, LoginActivity.class));
         }
         else if (id == R.id.nav_share) {
 
