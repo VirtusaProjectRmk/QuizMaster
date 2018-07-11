@@ -60,6 +60,8 @@ public class ProfileActivity extends AppCompatActivity {
     TextView useremail;
     @BindView(R.id.profileToolbarLayout)
     CollapsingToolbarLayout profileToolbarLayout;
+    @BindView(R.id.profileBranch)
+    TextView profileBranch;
 
 
     @Override
@@ -110,6 +112,7 @@ public class ProfileActivity extends AppCompatActivity {
                 ansTV.setText(String.valueOf(resHandler.getUser().getQAnsTot()));
                 attTV.setText(String.valueOf(resHandler.getUser().getAAttTot()));
                 poiTV.setText(String.valueOf(resHandler.getUser().getPointsTot()));
+                profileBranch.setText(String.valueOf(resHandler.getUser().getBranch()));
             }
         }
     }

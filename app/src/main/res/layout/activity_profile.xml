@@ -180,6 +180,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                     <TextView
+                        android:id="@+id/profileBranch"
                         android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         style="@style/Base.TextAppearance.AppCompat.Title"
                         android:text="CSE"
