@@ -29,9 +29,9 @@
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:layout_marginBottom="64dp"
-            android:src="@drawable/virtusa_logo" />
+            android:layout_height="100dp"
+            android:layout_marginBottom="32dp"
+            android:src="@drawable/virtusa_logo2" />
 
 
         <EditText
@@ -71,7 +71,8 @@
         android:id="@+id/progressBar"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_gravity="center|bottom"
-        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="64dp"
         android:visibility="gone" />
 </RelativeLayout>
