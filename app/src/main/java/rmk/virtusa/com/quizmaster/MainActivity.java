@@ -90,6 +90,9 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_dashboard) {
             startActivity(new Intent(this, DashActivity.class));
         } else if (id == R.id.nav_leaderboard) {
+
+            Intent myIntent=new Intent(MainActivity.this,LeaderboardActivity.class);
+            MainActivity.this.startActivity(myIntent);
         }
         else if (id == R.id.nav_quiz) {
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
