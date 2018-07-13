@@ -41,4 +41,15 @@
     <string name="total_points">Points</string>
     <string name="statistics">Statistics</string>
     <string name="profile_add_summary">+ Add user summary</string>
+
+    <!--intent extras-->
+    <string name="extra_profile_editable">extraProfileEditable</string>
+    <string name="extra_profile_firebase_uid">extraProfileFirebaseUid</string>
+
+    <string name="announcement_fragment_title">Announcement</string>
+    <string name="inbox_fragment_title">Inbox</string>
+
+    <!--temps-->
+    <string name="under_construction_text">Page under construction</string>
+
 </resources>

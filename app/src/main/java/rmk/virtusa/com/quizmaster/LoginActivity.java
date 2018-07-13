@@ -41,7 +41,6 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private ProgressBar progressBar;
     private FloatingActionButton btnLogin;
-    private ImageView imageView;
     private ImageView bgImageView;
     private ImageView overlayIV;
 
@@ -63,7 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         inputPassword = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btn_login);
-        imageView = findViewById(R.id.loginBgImageView);
         bgImageView = findViewById(R.id.loginBgImageView);
         overlayIV = findViewById(R.id.overlayIV);
 

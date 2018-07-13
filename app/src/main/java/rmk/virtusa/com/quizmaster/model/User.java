@@ -9,6 +9,8 @@ public class User {
 
     private String id;
 
+    private String firebaseUid;
+
     private String name;
 
     private String branch;
@@ -23,10 +25,11 @@ public class User {
 
     }
 
-    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String name, String branch) {
+    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String branch) {
         this.qAnsTot = qAnsTot;
         this.aAttTot = aAttTot;
         this.id = id;
+        this.firebaseUid = firebaseUid;
         this.pointsTot = pointsTot;
         this.name = name;
         this.branch = branch;
@@ -52,11 +55,17 @@ public class User {
         return this.id;
     }
 
-
     public void setId(String id) {
         this.id = id;
     }
 
+    public String getFirebaseUid(){
+        return this.firebaseUid;
+    }
+
+    public void setFirebaseUid(String firebaseUid){
+        this.firebaseUid = firebaseUid;
+    }
 
     public int getQAnsTot() {
         return this.qAnsTot;

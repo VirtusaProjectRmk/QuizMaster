@@ -1,6 +1,8 @@
 package rmk.virtusa.com.quizmaster.handler;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -15,7 +17,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -40,12 +46,57 @@ public class ResourceHandler {
     FirebaseFirestore db;
     FirebaseAuth auth;
 
-    private User user = new User(0, 0, 0, "", "", "");
+    String dp;
+
+    void setDp(InputStream is) {
+
+    }
+
+    void setDp(String dp) {
+        this.dp = dp;
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference imagesRef = storageRef.child("images/");
+        //add
+        imagesRef.child(getUser().getFirebaseUid())
+                .putFile(null)
+                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        Log.i(TAG, "Success");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.i(TAG, "Success");
+                    }
+                });
+
+    }
+
+    String getDp() {
+        return dp;
+    }
+
+    private User user = new User(0, 0, 0, "", "", "", "");
 
     /*
      * Cached users list for leaderboard purposes
      */
     List<User> users = new ArrayList<>();
+
+    @Nullable
+    public User getUser(String firebaseUid) {
+        if (getUser().getFirebaseUid().equals(firebaseUid)) return getUser();
+        for (User user : getUsers()) {
+            if (user.getFirebaseUid() == null) continue;
+            if (user.getFirebaseUid().equals(firebaseUid)) {
+                return user;
+            }
+        }
+        return null;
+    }
 
     public User getUser() {
         if (user == null) {
@@ -87,7 +138,7 @@ public class ResourceHandler {
                             }
                         } else {
                             //if user object does'nt exist, create one
-                            User user = new User(0, 0, 0, auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "");
+                            User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "");
                             cRef.document(auth.getCurrentUser().getUid())
                                     .set(user)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -153,7 +204,7 @@ public class ResourceHandler {
         if (auth.getCurrentUser() == null) return;
         DocumentReference dRef = db.collection("users").document(auth.getCurrentUser().getUid());
         //if the user name changes in object update in FirebaseAuth
-        if(!user.getName().equals(this.user.getName())){
+        if (!user.getName().equals(this.user.getName())) {
             UserProfileChangeRequest userUpdate = new UserProfileChangeRequest.Builder()
                     .setDisplayName(user.getName())
                     .build();
@@ -161,7 +212,7 @@ public class ResourceHandler {
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            if(!task.isSuccessful()){
+                            if (!task.isSuccessful()) {
                                 Log.e(TAG, "User name update failed");
                             } else {
                                 Log.i(TAG, "User name update success");
@@ -205,7 +256,9 @@ public class ResourceHandler {
         public void run() {
             updateUsersCache();
         }
-    };
+    }
+
+    ;
 
     private ResourceHandler() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
