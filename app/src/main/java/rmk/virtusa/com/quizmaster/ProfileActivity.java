@@ -3,6 +3,7 @@ package rmk.virtusa.com.quizmaster;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.GravityCompat;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -62,6 +64,8 @@ public class ProfileActivity extends AppCompatActivity {
     CollapsingToolbarLayout profileToolbarLayout;
     @BindView(R.id.profileBranch)
     TextView profileBranch;
+    @BindView(R.id.profileAppBarLayout)
+    AppBarLayout profileAppBarLayout;
 
     public static final int PICK_IMAGE = 1;
 

@@ -1,6 +1,5 @@
 package rmk.virtusa.com.quizmaster.handler;
 
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -72,7 +71,6 @@ public class ResourceHandler {
                         Log.i(TAG, "Success");
                     }
                 });
-
     }
 
     String getDp() {
