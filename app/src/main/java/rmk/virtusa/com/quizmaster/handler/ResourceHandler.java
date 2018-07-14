@@ -21,11 +21,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.User;
 
 /*
@@ -83,6 +86,7 @@ public class ResourceHandler {
      * Cached users list for leaderboard purposes
      */
     List<User> users = new ArrayList<>();
+    List<Announcement> announcements = new ArrayList<>();
 
     @Nullable
     public User getUser(String firebaseUid) {
@@ -101,6 +105,20 @@ public class ResourceHandler {
             updateUserFromAuth();
         }
         return user;
+    }
+
+    //TODO Get data from Firestore
+    public List<Announcement> getAnnouncements() {
+        Date expiry = new Date();
+        List<String> attachments = new ArrayList<>();
+        attachments.add("document_quiz.pdf");
+        attachments.add("regulation_change.docx");
+        expiry.setDate(26);
+        expiry.setMonth(7);
+        expiry.setYear(2018);
+        Announcement announcement = new Announcement("", "Do your quiz regularly!", "Find the attached files to help up with your quiz", attachments, new Date(), expiry);
+        announcements.add(announcement);
+        return announcements;
     }
 
     /*
