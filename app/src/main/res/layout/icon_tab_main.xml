@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
+    android:orientation="horizontal"
+    android:id="@+id/mainTabHeader"
+    android:gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-</android.support.constraint.ConstraintLayout>
+    <TextView
+        android:textColor="@android:color/white"
+        style="@style/Base.Widget.AppCompat.ActionBar.TabText"
+        android:id="@+id/tabHeaderText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:layout_marginLeft="8dp"
+        android:id="@+id/tabHeaderBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent" />
+</LinearLayout>
