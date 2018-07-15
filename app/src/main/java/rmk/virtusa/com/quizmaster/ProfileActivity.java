@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,11 +28,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 import butterknife.BindView;
@@ -51,7 +55,7 @@ public class ProfileActivity extends AppCompatActivity {
     @BindView(R.id.ansTV)
     TextView ansTV;
     @BindView(R.id.fab)
-    FloatingActionButton fab;
+    Button fab;
     @BindView(R.id.profileToolbar)
     Toolbar profileToolbar;
     @BindView(R.id.profileImage)
@@ -146,7 +150,8 @@ public class ProfileActivity extends AppCompatActivity {
             for (UserInfo profile : user.getProviderData()) {
                 // Name
                 String name = profile.getDisplayName();
-                this.name.setText(name);
+                EditText t= findViewById(R.id.name);
+               t.setText(name);
                 String email = user.getEmail();
                 this.useremail.setText(email);
             }
@@ -167,10 +172,32 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     public void update(View view) {
-        User user = resHandler.getUser();
-        user.setName(name.getText().toString());
-        resHandler.setUser(user);
-        fab.setEnabled(false);
-    }
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        EditText t1= findViewById(R.id.name);
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setDisplayName(t1.getText().toString().trim())
+                .build();
 
+        user.updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(getApplicationContext(), "User Profile updated", Toast.LENGTH_LONG).show();
+                            for (UserInfo profile : user.getProviderData()) {
+                                // Name
+                                String name = profile.getDisplayName();
+                                t1.setText(name);
+                                Map<String,Object> userMap = new HashMap<>();
+                                userMap.put("name",name);
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                      db
+                                        .collection("users")
+                                        .document(profile.getUid())
+                                        .update(userMap);
+                            }
+                        }
+                    }
+                });
+    }
 }
