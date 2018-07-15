@@ -148,17 +148,8 @@ public class MainActivity extends AppCompatActivity
 
             Intent myIntent = new Intent(MainActivity.this, LeaderboardActivity.class);
             MainActivity.this.startActivity(myIntent);
-        } else if (id == R.id.nav_quiz) {
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
-            int day = calendar.get(Calendar.DAY_OF_WEEK);
-            if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
-                Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
-                MainActivity.this.startActivity(myIntent);
-            } else {
-                Intent myIntent = new Intent(MainActivity.this, MainActivity1.class);
-                MainActivity.this.startActivity(myIntent);
-            }
-        } else if (id == R.id.nav_profile) {
+        }
+        else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(this, ProfileActivity.class);
             myIntent.putExtra(getString(R.string.extra_profile_editable), true);
             myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), ResourceHandler.getInstance().getUser().getFirebaseUid());

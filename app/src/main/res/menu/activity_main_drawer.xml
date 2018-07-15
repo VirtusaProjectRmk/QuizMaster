@@ -9,14 +9,11 @@
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Profile" />
-        <item
-            android:id="@+id/nav_quiz"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Quiz" />
+
         <item
             android:id="@+id/nav_dashboard"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Dashboard " />
+            android:title="Schedule" />
         <item
             android:id="@+id/nav_leaderboard"
             android:icon="@drawable/ic_menu_gallery"

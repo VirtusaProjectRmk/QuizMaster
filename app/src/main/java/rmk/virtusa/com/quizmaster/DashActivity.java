@@ -61,10 +61,15 @@ public class DashActivity extends AppCompatActivity  {
         mButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-                Intent intent = new Intent(DashActivity.this, QuizActivity.class);
-                startActivity(intent);
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
+                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+                    Intent myIntent = new Intent(DashActivity.this, NoTestActivity.class);
+                    DashActivity.this.startActivity(myIntent);
+                } else {
+                    Intent myIntent = new Intent(DashActivity.this, MainActivity1.class);
+                    DashActivity.this.startActivity(myIntent);
+                }
             }
         });
 
