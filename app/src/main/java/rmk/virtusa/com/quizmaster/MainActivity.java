@@ -143,7 +143,15 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_dashboard) {
-            startActivity(new Intent(this, DashActivity.class));
+                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
+                int day = calendar.get(Calendar.DAY_OF_WEEK);
+                if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+                    Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
+                    MainActivity.this.startActivity(myIntent);
+                } else {
+                    Intent myIntent = new Intent(MainActivity.this, DashActivity.class);
+                    MainActivity.this.startActivity(myIntent);
+                }
         } else if (id == R.id.nav_leaderboard) {
 
             Intent myIntent = new Intent(MainActivity.this, LeaderboardActivity.class);
