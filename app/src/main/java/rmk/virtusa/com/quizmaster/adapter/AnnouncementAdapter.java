@@ -1,10 +1,13 @@
 package rmk.virtusa.com.quizmaster.adapter;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +33,7 @@ import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
+    private static final String TAG = "AnnouncementAdapter";
     Context context;
     List<Announcement> announcements;
 
@@ -123,7 +127,16 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         public void onBindViewHolder(@NonNull AttachmentViewHolder holder, int position) {
             String fileUrl = attachments.get(position);
             //TODO Get filename from url
-            String fileName = fileUrl;
+            holder.itemView.setOnClickListener(view -> {
+                try {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(fileUrl));
+                    context.startActivity(i);
+                } catch (ActivityNotFoundException anfe){
+                    Log.e(TAG, anfe.getMessage());
+                }
+            });
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);;
             holder.attachmentName.setText(fileName);
             Glide.with(context).load(R.drawable.unknown_file_download).into(holder.attachmentImage);
         }
