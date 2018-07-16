@@ -34,6 +34,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
+import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 
 public class MainActivity extends AppCompatActivity
@@ -54,6 +55,13 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fabAdd;
     @BindView(R.id.fabSearch)
     FloatingActionButton fabSearch;
+
+    @OnClick({R.id.fabAdd})
+    public void fabAddClick(View view) {
+        AnnounceFragment fragment = new AnnounceFragment();
+        fragment.show(getFragmentManager(), "Showned");
+
+    }
 
     private void animateFab(int position) {
         switch (position) {
@@ -160,8 +168,10 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(this, ProfileActivity.class);
             myIntent.putExtra(getString(R.string.extra_profile_editable), true);
-            myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), ResourceHandler.getInstance().getUser().getFirebaseUid());
-            MainActivity.this.startActivity(myIntent);
+            ResourceHandler.getInstance().getUser((user, flag) -> {
+                myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
+                MainActivity.this.startActivity(myIntent);
+            });
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();

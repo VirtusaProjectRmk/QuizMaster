@@ -1,32 +1,21 @@
 package rmk.virtusa.com.quizmaster.handler;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.User;
@@ -38,28 +27,72 @@ import rmk.virtusa.com.quizmaster.model.User;
  *
  */
 public class ResourceHandler {
+
+    public static final int UPDATED = 0;
+    public static final int FAILED = 1;
+    public static final int OVERTIME = 2;
+
     private static final String TAG = "ResourceHandler";
     private static final ResourceHandler ourInstance = new ResourceHandler();
+    /*
+     * Cached users list for leaderboard purposes
+     */
+    List<User> users = new ArrayList<>();
+    List<Announcement> announcements = new ArrayList<>();
+    private CollectionReference userCollectionRef = null;
+    private CollectionReference announcementCollectionRef = null;
+    private FirebaseFirestore db;
+    private FirebaseAuth auth;
+    private User user = null;
+    private ResourceHandler() {
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
+
+        userCollectionRef = db.collection("users");
+        announcementCollectionRef = db.collection("announcements");
+
+        getUser(auth.getCurrentUser().getUid(), (user, flag) -> {
+            ResourceHandler.this.user = user;
+        });
+
+    }
 
     public static ResourceHandler getInstance() {
         return ourInstance;
     }
 
-    FirebaseFirestore db;
-    FirebaseAuth auth;
-
-    String dp;
-
-    void setDp(InputStream is) {
-
+    public void getUsers(OnUserUpdateListener onUserUpdateListener) {
+        //TODO call method as soon as we get a user than fetching all users at a time
+        userCollectionRef
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                    for (User user : users) {
+                        onUserUpdateListener.onUserUpdate(user, UPDATED);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                });
     }
 
-    void setDp(String dp) {
-        this.dp = dp;
+    /*
+     * TODO save to device then upload to FirebaseStorage
+     * Upload image with current firebase Uid
+     * Returns the uploaded files reference string
+     */
+    String uploadImage(ByteStreams byteStreams) {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageRef = storage.getReference();
         StorageReference imagesRef = storageRef.child("images/");
         //add
+        /*
         imagesRef.child(getUser().getFirebaseUid())
                 .putFile(null)
                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -74,219 +107,158 @@ public class ResourceHandler {
                         Log.i(TAG, "Success");
                     }
                 });
+        */
+        return new String();
     }
 
-    String getDp() {
-        return dp;
-    }
-
-    private User user = new User(0, 0, 0, "", "", "", "");
-
-    /*
-     * Cached users list for leaderboard purposes
-     */
-    List<User> users = new ArrayList<>();
-    List<Announcement> announcements = new ArrayList<>();
-
-    @Nullable
-    public User getUser(String firebaseUid) {
-        if (getUser().getFirebaseUid().equals(firebaseUid)) return getUser();
-        for (User user : getUsers()) {
-            if (user.getFirebaseUid() == null) continue;
-            if (user.getFirebaseUid().equals(firebaseUid)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    public User getUser() {
-        if (user == null) {
-            updateUserFromAuth();
-        }
-        return user;
-    }
-
-    //TODO Get data from Firestore
-    public List<Announcement> getAnnouncements() {
-        Date expiry = new Date();
-        List<String> attachments = new ArrayList<>();
-        attachments.add("document_quiz.pdf");
-        attachments.add("regulation_change.docx");
-        expiry.setDate(26);
-        expiry.setMonth(7);
-        expiry.setYear(2018);
-        Announcement announcement = new Announcement("", "Do your quiz regularly!", "Find the attached files to help up with your quiz", attachments, new Date(), expiry);
-        announcements.add(announcement);
-        return announcements;
-    }
-
-    /*
-     * Returns a cached list of users, might not always reflect the Firestore absolutely everytime
-     */
-    public List<User> getUsers() {
-        updateUsersCache();
-        return users;
-    }
-
-    /*
-     * Updates the locally used global user object from Firestore if exists
-     * else creates one based on the FirebaseAuth
-     */
-    public void updateUserFromAuth() {
-        final CollectionReference cRef = db.collection("users");
-        DocumentReference dRef = cRef.document(auth.getCurrentUser().getUid());
-        dRef.get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        Log.i(TAG, "Success");
-                        //if user object exists, get for local use
-                        if (documentSnapshot.exists()) {
-                            try {
-                                User user = documentSnapshot.toObject(User.class);
-                                if (user == null) {
-                                    Log.e(TAG, "FATAL Error while retreiving user");
-                                }
-                                ResourceHandler.getInstance().setUser(user);
-                            } catch (Exception e) {
-                                Log.e(TAG, e.getMessage());
-                            }
-                        } else {
-                            //if user object does'nt exist, create one
-                            User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "");
-                            cRef.document(auth.getCurrentUser().getUid())
-                                    .set(user)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.i(TAG, "Added new user to firestore");
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
-                                        }
-                                    });
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i(TAG, "Failed");
-                    }
-                });
-    }
-
-    /*
-     * Updates the global users cache
-     * Documents are fetched from firestore if they exist
-     * and saved to instance variable users
-     */
-    //TODO synchronize only changes rather than downloading and uploading the whole list of users everytime
-    private Task<QuerySnapshot> updateUsersCache() {
-        CollectionReference usersRef = db.collection("users");
-        Task<QuerySnapshot> snapshotTask = usersRef
+    public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUserUpdateListener onUserUpdateListener) {
+        userCollectionRef.document(firebaseUid)
                 .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Log.e(TAG, "User already exist");
+                        User user = documentSnapshot.toObject(User.class);
+                        onUserUpdateListener.onUserUpdate(user, UPDATED);
+                    } else {
+                        User user = new User(0, 0, 0, "", firebaseUid, "", "");
+                        userCollectionRef.document(firebaseUid)
+                                .set(user, SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> {
+                                    onUserUpdateListener.onUserUpdate(user, UPDATED);
+                                })
+                                .addOnFailureListener(e -> {
+                                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Cannot get user info");
+                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                });
+    }
 
-                        if (queryDocumentSnapshots.isEmpty()) {
-                            Log.d(TAG, "onSuccess: LIST EMPTY");
-                        } else {
-                            List<User> types = queryDocumentSnapshots.toObjects(User.class);
-                            users = types;
-                        }
+    /*
+     * Gets the user based on the specified firebaseUid
+     */
+    public void getUser(@NonNull String firebaseUid, @NonNull OnUserUpdateListener onUserUpdateListener) {
+        if (firebaseUid.isEmpty()) {
+            onUserUpdateListener.onUserUpdate(null, FAILED);
+            return;
+        }
+        userCollectionRef.document(firebaseUid)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        onUserUpdateListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                    }
+                })
+                .addOnFailureListener(e -> onUserUpdateListener.onUserUpdate(null, FAILED));
+    }
+
+    /*
+     * Gets the user registered in firebase auth
+     */
+    public void getUser(@NonNull OnUserUpdateListener onUserUpdateListener) {
+        userCollectionRef
+                .document(auth.getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        onUserUpdateListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                    } else {
+                        //if user object does'nt exist, create one
+                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "");
+                        userCollectionRef.document(auth.getCurrentUser().getUid())
+                                .set(user, SetOptions.merge())
+                                .addOnSuccessListener(aVoid -> {
+                                    onUserUpdateListener.onUserUpdate(user, UPDATED);
+                                    Log.i(TAG, "Added new user to firestore");
+                                })
+                                .addOnFailureListener(e -> {
+                                    onUserUpdateListener.onUserUpdate(user, FAILED);
+                                    Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
+                                });
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Failure");
+                        onUserUpdateListener.onUserUpdate(user, FAILED);
                     }
                 });
-        return snapshotTask;
     }
 
-
     /*
-     * sets the given user object to the document with id of the FirebaseAuth user
+     * Sets the user registered in firebase auth
      */
-    //TODO add return type of Task<Boolean> for handling success and failure cases
-    public void setUser(User user) {
-        if (auth.getCurrentUser() == null) return;
-        DocumentReference dRef = db.collection("users").document(auth.getCurrentUser().getUid());
+    public void setUser(User user, OnUserUpdateListener onUserUpdateListener) {
+        CollectionReference usersCollectionRef = db.collection("users");
+        if (user == null) {
+            onUserUpdateListener.onUserUpdate(user, FAILED);
+            return;
+        }
+        if (user.getFirebaseUid() == null) {
+            onUserUpdateListener.onUserUpdate(user, FAILED);
+            return;
+        }
         //if the user name changes in object update in FirebaseAuth
         if (!user.getName().equals(this.user.getName())) {
             UserProfileChangeRequest userUpdate = new UserProfileChangeRequest.Builder()
                     .setDisplayName(user.getName())
                     .build();
             auth.getCurrentUser().updateProfile(userUpdate)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e(TAG, "User name update failed");
-                            } else {
-                                Log.i(TAG, "User name update success");
-                            }
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.e(TAG, "User name update failed");
+                        } else {
+                            Log.i(TAG, "User name update success");
                         }
                     });
         }
-        dRef.set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "Success");
+        usersCollectionRef.document(user.getFirebaseUid())
+                .set(user, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> onUserUpdateListener.onUserUpdate(user, UPDATED))
+                .addOnFailureListener(e -> onUserUpdateListener.onUserUpdate(user, FAILED));
+    }
+
+    public void addAnnouncement(Announcement announcement, OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
+        announcementCollectionRef.document()
+                .set(announcement, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, UPDATED);
+                })
+                .addOnFailureListener(e -> {
+                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, FAILED);
+                });
+    }
+
+    /*
+     * Listener is called for every announcemet
+     */
+    public void getAnnouncements(OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
+        //FIXME only retreive elements if they are before expiry date
+        announcementCollectionRef
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Announcement> announcements = queryDocumentSnapshots.toObjects(Announcement.class);
+                    for (Announcement announcement : announcements) {
+                        onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, UPDATED);
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Cache update failed");
-                    }
+                .addOnFailureListener(e -> {
+                    onAnnouncementUpdateListener.onAnnouncementUpdate(null, FAILED);
                 });
-        this.user = user;
+        /*
+        announcementRef
+                .whereLessThan("expiryDate");
+        */
     }
 
-    public void incQAnsTot() {
-        user.setQAnsTot(user.getQAnsTot() + 1);
-        setUser(user);
+    public interface OnUserUpdateListener {
+        public void onUserUpdate(User user, int flags);
     }
 
-    public void incAAttTot() {
-        user.setAAttTot(user.getAAttTot() + 1);
-        setUser(user);
-    }
-
-    public void incPointsTot(int points) {
-        user.setPointsTot(user.getPointsTot() + points);
-        setUser(user);
-    }
-
-    class CacheUpdateTask extends TimerTask {
-        @Override
-        public void run() {
-            updateUsersCache();
-        }
-    }
-
-    ;
-
-    private ResourceHandler() {
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        firestore.setFirestoreSettings(settings);
-
-        db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-
-        Timer timer = new Timer();
-        timer.schedule(new CacheUpdateTask(), 45 * 1000);
+    public interface OnAnnouncementUpdateListener {
+        public void onAnnouncementUpdate(Announcement announcement, int flags);
     }
 }

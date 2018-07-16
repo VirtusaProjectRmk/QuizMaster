@@ -2,13 +2,17 @@ package rmk.virtusa.com.quizmaster.fragment;
 
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -19,6 +23,9 @@ import rmk.virtusa.com.quizmaster.adapter.AnnouncementAdapter;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link AnnouncementFragment#newInstance} factory method to
@@ -27,6 +34,7 @@ import rmk.virtusa.com.quizmaster.model.Announcement;
 public class AnnouncementFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
+    List<Announcement> announcements;
     @BindView(R.id.announcementRecyclerView)
     RecyclerView announcementRecyclerView;
     Unbinder unbinder;
@@ -60,6 +68,7 @@ public class AnnouncementFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
+        announcements = new ArrayList<>();
     }
 
     @Override
@@ -68,9 +77,24 @@ public class AnnouncementFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_announcement, container, false);
         unbinder = ButterKnife.bind(this, view);
-        List<Announcement> announcements = ResourceHandler.getInstance().getAnnouncements();
+
+        AnnouncementAdapter adapter = new AnnouncementAdapter(getContext(), announcements);
+        announcementRecyclerView.setAdapter(adapter);
         announcementRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        announcementRecyclerView.setAdapter(new AnnouncementAdapter(getContext(), announcements));
+
+        ResourceHandler.getInstance().getAnnouncements((announcement, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    announcements.add(announcement);
+                    Handler handler = new Handler(getContext().getMainLooper());
+                    adapter.notifyDataSetChanged();
+                    break;
+                case FAILED:
+                    Toast.makeText(AnnouncementFragment.this.getContext(), "Cannot fetch announcements", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
+
         return view;
     }
 

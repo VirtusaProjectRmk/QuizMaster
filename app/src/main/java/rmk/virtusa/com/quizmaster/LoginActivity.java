@@ -33,6 +33,9 @@ import com.jackandphantom.blurimage.BlurImage;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+
 public class LoginActivity extends AppCompatActivity {
 
     private Context context = this;
@@ -53,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            ResourceHandler.getInstance().updateUserFromAuth();
+            //ResourceHandler.getInstance().updateUserFromAuth();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
 
@@ -108,9 +111,17 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    ResourceHandler.getInstance().updateUserFromAuth();
-                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                    startActivity(intent);
+                                    ResourceHandler.getInstance().updateUserFromAuth(auth.getUid(), (user, flag) -> {
+                                        switch (flag) {
+                                            case UPDATED:
+                                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                startActivity(intent);
+                                                break;
+                                            case FAILED:
+                                                Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
+                                                break;
+                                        }
+                                    });
 
                                 }
                             }

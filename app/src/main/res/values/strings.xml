@@ -49,6 +49,13 @@
     <string name="announcement_fragment_title">Announcement</string>
     <string name="inbox_fragment_title">Inbox</string>
 
+    <!--fragment_announce-->
+    <string name="announce_title_hint">Title</string>
+    <string name="announce_message_hint">Message</string>
+    <string name="announce_post_anonymous">Post as Anonymous</string>
+    <string name="announce_action_announce">Announce</string>
+    <string name="announce_action_add_attachment">Add attachment</string>
+
     <!--temps-->
     <string name="under_construction_text">Page under construction</string>
 

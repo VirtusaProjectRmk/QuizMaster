@@ -10,6 +10,8 @@ public class Announcement {
 
     private String firebaseUid;
 
+    private Boolean isAnonymousPost;
+
     private String title;
 
     private String message;
@@ -20,8 +22,12 @@ public class Announcement {
 
     private Date expiryDate;
 
+    public Announcement() {
 
-    public Announcement(String firebaseUid, String title, String message, List<String> attachments, Date announceDate, Date expiryDate) {
+    }
+
+    public Announcement(String firebaseUid, Boolean isAnonymousPost, String title, String message, List<String> attachments, Date announceDate, Date expiryDate) {
+        this.isAnonymousPost = isAnonymousPost;
         this.message = message;
         this.attachments = attachments;
         this.firebaseUid = firebaseUid;
@@ -30,16 +36,21 @@ public class Announcement {
         this.announceDate = announceDate;
     }
 
-
     public String getFirebaseUid() {
         return this.firebaseUid;
     }
-
 
     public void setFirebaseUid(String firebaseUid) {
         this.firebaseUid = firebaseUid;
     }
 
+    public Boolean getAnonymousPost() {
+        return isAnonymousPost;
+    }
+
+    public void setAnonymousPost(Boolean anonymousPost) {
+        isAnonymousPost = anonymousPost;
+    }
 
     public String getTitle() {
         return this.title;

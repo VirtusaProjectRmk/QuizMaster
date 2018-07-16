@@ -1,5 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +27,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.model.User;
+
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -41,6 +47,8 @@ public class QuizActivity extends AppCompatActivity {
     public long timeLeftInMillis = 1200000;
     public Boolean isClicked = false;
     int c = 0;
+
+    User user = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,34 +72,46 @@ public class QuizActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.next);
 
 
-        updateQuestion();
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (questionCounter <= 12) {
-                    if (rg.getCheckedRadioButtonId() == -1) {
-                        Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                    } else {
-                        checkAnswer();
+                /*
+                 * Fetch user information first before entering into quiz
+                 */
+                ResourceHandler.getInstance().getUser((user, flags) -> {
+                    switch (flags) {
+                        case UPDATED:
+                            QuizActivity.this.user = user;
+                            updateQuestion();
+                            if (questionCounter <= 12) {
+                                if (rg.getCheckedRadioButtonId() == -1) {
+                                    Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    checkAnswer();
+                                }
+                            }
+                            break;
+                        case FAILED:
+                            //TODO Show dismissable dialog than Toast
+                            Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
+                            finish();
+                            break;
                     }
-                }
+                });
             }
         });
     }
 
     public void onBackPressed() {
-
         Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
         intent.putExtra("score", score);
         intent.putExtra("type", FinishActivity.BACK_PRESSED);
         startActivity(intent);
-
     }
 
     protected void onUserLeaveHint() {
-        
-        if(!isClicked) {
+        if (!isClicked) {
             Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
             intent.putExtra("score", score);
             intent.putExtra("type", FinishActivity.BACK_PRESSED);
@@ -229,19 +249,16 @@ public class QuizActivity extends AppCompatActivity {
         if (questionCounter == 12) {
             String ans = "Submit";
             nextButton.setText(ans);
-            nextButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    isClicked = true;
-                    if (rg.getCheckedRadioButtonId() == -1) {
-                        Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                    } else {
-                        checkAnswer();
-                        Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-                        intent.putExtra("score", score);
-                        intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
-                        startActivity(intent);
-                    }
+            nextButton.setOnClickListener(v -> {
+                isClicked = true;
+                if (rg.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                } else {
+                    checkAnswer();
+                    Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
+                    intent.putExtra("score", score);
+                    intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
+                    startActivity(intent);
                 }
             });
         }
@@ -250,6 +267,19 @@ public class QuizActivity extends AppCompatActivity {
         quesNum.setText(ans);
         questionCounter++;
         c++;
+
+        user.setAAttTot(questionCounter);
+        user.setQAnsTot(c);
+        //TODO add multiplier for points
+        user.setPointsTot(c);
+        ResourceHandler.getInstance().setUser(user, (user, flags) -> {
+            switch (flags) {
+                case FAILED:
+                    //TODO use dismissable dialog than Toast
+                    Toast.makeText(QuizActivity.this, "Quiz submit failed, please try again later", Toast.LENGTH_LONG).show();
+                    finish();
+            }
+        });
 
     }
 
@@ -267,12 +297,9 @@ public class QuizActivity extends AppCompatActivity {
         RadioButton rbSelected = findViewById(selected);
         if (rbSelected.getText().equals(mAnswer)) {
             score++;
-            ResourceHandler.getInstance().incQAnsTot();
-            ResourceHandler.getInstance().incPointsTot(1);
         }
         if (questionCounter <= 12) {
             updateQuestion();
-            ResourceHandler.getInstance().incAAttTot();
         }
 
     }
