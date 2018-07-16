@@ -24,7 +24,7 @@ public class MainPagerFragmentAdapter extends FragmentPagerAdapter {
         if (position == 0) {
             return AnnouncementFragment.newInstance("");
         } else {
-            return InboxFragment.newInstance("", "");
+            return InboxFragment.newInstance();
         }
     }
 

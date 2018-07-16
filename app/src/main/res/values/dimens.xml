@@ -11,4 +11,6 @@
 
     <dimen name="button_radius_normal">4dp</dimen>
     <dimen name="attachment_card_radius">12dp</dimen>
+
+    <dimen name="fading_edge_length">4dp</dimen>
 </resources>

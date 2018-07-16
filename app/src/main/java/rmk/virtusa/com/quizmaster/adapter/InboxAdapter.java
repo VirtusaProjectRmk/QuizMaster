@@ -1,0 +1,70 @@
+package rmk.virtusa.com.quizmaster.adapter;
+
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
+import rmk.virtusa.com.quizmaster.ChatActivity;
+import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.model.Inbox;
+
+public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHolder> {
+    Context context;
+    List<Inbox> inboxes;
+
+    public InboxAdapter(Context context, List<Inbox> inboxes) {
+        this.context = context;
+        this.inboxes = inboxes;
+    }
+
+    @NonNull
+    @Override
+    public InboxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.inbox_item, parent, false);
+        return new InboxViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull InboxViewHolder holder, int position) {
+        Inbox inbox = inboxes.get(position);
+        holder.inboxName.setText(inbox.getName());
+        holder.inboxStatus.setText(inbox.getStatus());
+        Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);
+        holder.itemView.setOnClickListener(view -> {
+            Intent intent = new Intent(context, ChatActivity.class);
+            context.startActivity(intent);
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return inboxes.size();
+    }
+
+    public class InboxViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.inboxName)
+        TextView inboxName;
+        @BindView(R.id.inboxStatus)
+        TextView inboxStatus;
+        @BindView(R.id.inboxImageView)
+        CircleImageView inboxImageView;
+
+        public InboxViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+
+        }
+    }
+}

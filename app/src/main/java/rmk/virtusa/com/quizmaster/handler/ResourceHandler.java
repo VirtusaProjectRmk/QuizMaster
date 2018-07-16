@@ -44,6 +44,7 @@ public class ResourceHandler {
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
+
     private ResourceHandler() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
@@ -67,18 +68,18 @@ public class ResourceHandler {
         return ourInstance;
     }
 
-    public void getUsers(OnUserUpdateListener onUserUpdateListener) {
+    public void getUsers(OnUpdateUserListener onUpdateUserListener) {
         //TODO call method as soon as we get a user than fetching all users at a time
         userCollectionRef
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<User> users = queryDocumentSnapshots.toObjects(User.class);
                     for (User user : users) {
-                        onUserUpdateListener.onUserUpdate(user, UPDATED);
+                        onUpdateUserListener.onUserUpdate(user, UPDATED);
                     }
                 })
                 .addOnFailureListener(e -> {
-                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                    onUpdateUserListener.onUserUpdate(null, FAILED);
                 });
     }
 
@@ -111,71 +112,71 @@ public class ResourceHandler {
         return new String();
     }
 
-    public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUserUpdateListener onUserUpdateListener) {
+    public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
         userCollectionRef.document(firebaseUid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
                         Log.e(TAG, "User already exist");
                         User user = documentSnapshot.toObject(User.class);
-                        onUserUpdateListener.onUserUpdate(user, UPDATED);
+                        onUpdateUserListener.onUserUpdate(user, UPDATED);
                     } else {
-                        User user = new User(0, 0, 0, "", firebaseUid, "", "");
+                        User user = new User(0, 0, 0, "", firebaseUid, "", "", new ArrayList<>());
                         userCollectionRef.document(firebaseUid)
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
-                                    onUserUpdateListener.onUserUpdate(user, UPDATED);
+                                    onUpdateUserListener.onUserUpdate(user, UPDATED);
                                 })
                                 .addOnFailureListener(e -> {
-                                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                                    onUpdateUserListener.onUserUpdate(null, FAILED);
                                 });
                     }
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Cannot get user info");
-                    onUserUpdateListener.onUserUpdate(null, FAILED);
+                    onUpdateUserListener.onUserUpdate(null, FAILED);
                 });
     }
 
     /*
      * Gets the user based on the specified firebaseUid
      */
-    public void getUser(@NonNull String firebaseUid, @NonNull OnUserUpdateListener onUserUpdateListener) {
+    public void getUser(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
         if (firebaseUid.isEmpty()) {
-            onUserUpdateListener.onUserUpdate(null, FAILED);
+            onUpdateUserListener.onUserUpdate(null, FAILED);
             return;
         }
         userCollectionRef.document(firebaseUid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        onUserUpdateListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                        onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
                     }
                 })
-                .addOnFailureListener(e -> onUserUpdateListener.onUserUpdate(null, FAILED));
+                .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(null, FAILED));
     }
 
     /*
      * Gets the user registered in firebase auth
      */
-    public void getUser(@NonNull OnUserUpdateListener onUserUpdateListener) {
+    public void getUser(@NonNull OnUpdateUserListener onUpdateUserListener) {
         userCollectionRef
                 .document(auth.getCurrentUser().getUid())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        onUserUpdateListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                        onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
                     } else {
                         //if user object does'nt exist, create one
-                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "");
+                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "", new ArrayList<>());
                         userCollectionRef.document(auth.getCurrentUser().getUid())
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
-                                    onUserUpdateListener.onUserUpdate(user, UPDATED);
+                                    onUpdateUserListener.onUserUpdate(user, UPDATED);
                                     Log.i(TAG, "Added new user to firestore");
                                 })
                                 .addOnFailureListener(e -> {
-                                    onUserUpdateListener.onUserUpdate(user, FAILED);
+                                    onUpdateUserListener.onUserUpdate(user, FAILED);
                                     Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
                                 });
                     }
@@ -183,7 +184,7 @@ public class ResourceHandler {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        onUserUpdateListener.onUserUpdate(user, FAILED);
+                        onUpdateUserListener.onUserUpdate(user, FAILED);
                     }
                 });
     }
@@ -191,14 +192,14 @@ public class ResourceHandler {
     /*
      * Sets the user registered in firebase auth
      */
-    public void setUser(User user, OnUserUpdateListener onUserUpdateListener) {
+    public void setUser(User user, OnUpdateUserListener onUpdateUserListener) {
         CollectionReference usersCollectionRef = db.collection("users");
         if (user == null) {
-            onUserUpdateListener.onUserUpdate(user, FAILED);
+            onUpdateUserListener.onUserUpdate(user, FAILED);
             return;
         }
         if (user.getFirebaseUid() == null) {
-            onUserUpdateListener.onUserUpdate(user, FAILED);
+            onUpdateUserListener.onUserUpdate(user, FAILED);
             return;
         }
         //if the user name changes in object update in FirebaseAuth
@@ -217,8 +218,8 @@ public class ResourceHandler {
         }
         usersCollectionRef.document(user.getFirebaseUid())
                 .set(user, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> onUserUpdateListener.onUserUpdate(user, UPDATED))
-                .addOnFailureListener(e -> onUserUpdateListener.onUserUpdate(user, FAILED));
+                .addOnSuccessListener(aVoid -> onUpdateUserListener.onUserUpdate(user, UPDATED))
+                .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(user, FAILED));
     }
 
     public void addAnnouncement(Announcement announcement, OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
@@ -254,7 +255,7 @@ public class ResourceHandler {
         */
     }
 
-    public interface OnUserUpdateListener {
+    public interface OnUpdateUserListener {
         public void onUserUpdate(User user, int flags);
     }
 

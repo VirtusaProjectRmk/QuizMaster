@@ -59,4 +59,7 @@
     <!--temps-->
     <string name="under_construction_text">Page under construction</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
