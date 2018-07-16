@@ -168,10 +168,8 @@ public class MainActivity extends AppCompatActivity
         else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(this, ProfileActivity.class);
             myIntent.putExtra(getString(R.string.extra_profile_editable), true);
-            ResourceHandler.getInstance().getUser((user, flag) -> {
-                myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
-                MainActivity.this.startActivity(myIntent);
-            });
+            myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
+            MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();
