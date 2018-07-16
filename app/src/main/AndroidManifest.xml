@@ -8,7 +8,8 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -20,14 +21,16 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ProfileActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".DashActivity"/>
+        <activity
+            android:name=".ProfileActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".DashActivity" />
         <activity android:name=".MainActivity1" />
         <activity android:name=".NoTestActivity" />
         <activity android:name=".QuizActivity" />
         <activity android:name=".FinishActivity" />
-        <activity android:name=".LeaderboardActivity"/>
+        <activity android:name=".LeaderboardActivity" />
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>

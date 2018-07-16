@@ -1,8 +1,7 @@
 package rmk.virtusa.com.quizmaster.model;
 
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import java.util.List;
 
 public class User {
 
@@ -21,11 +20,13 @@ public class User {
 
     private int pointsTot;
 
+    private List<String> inboxes;
+
     public User() {
 
     }
 
-    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String branch) {
+    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String branch, List<String> inboxes) {
         this.qAnsTot = qAnsTot;
         this.aAttTot = aAttTot;
         this.id = id;
@@ -33,14 +34,15 @@ public class User {
         this.pointsTot = pointsTot;
         this.name = name;
         this.branch = branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
+        this.inboxes = inboxes;
     }
 
     public String getBranch() {
         return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 
     public String getName() {
@@ -59,11 +61,11 @@ public class User {
         this.id = id;
     }
 
-    public String getFirebaseUid(){
+    public String getFirebaseUid() {
         return this.firebaseUid;
     }
 
-    public void setFirebaseUid(String firebaseUid){
+    public void setFirebaseUid(String firebaseUid) {
         this.firebaseUid = firebaseUid;
     }
 
@@ -96,5 +98,11 @@ public class User {
         this.pointsTot = pointsTot;
     }
 
+    public List<String> getInboxes() {
+        return inboxes;
+    }
 
+    public void setInboxes(List<String> inboxes) {
+        this.inboxes = inboxes;
+    }
 }
