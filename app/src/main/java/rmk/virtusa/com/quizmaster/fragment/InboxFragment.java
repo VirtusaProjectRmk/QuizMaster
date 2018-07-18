@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +20,11 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.InboxAdapter;
+import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
+import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Inbox;
+import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.EMPTY;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
@@ -31,6 +36,8 @@ public class InboxFragment extends Fragment {
     @BindView(R.id.inboxRecyclerView)
     RecyclerView inboxRecyclerView;
     Unbinder unbinder;
+    private List<Inbox> inboxes = new ArrayList<>();
+
 
     public InboxFragment() {
         // Required empty public constructor
@@ -55,10 +62,11 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
         unbinder = ButterKnife.bind(this, view);
-        List<Inbox> inboxes = new ArrayList<>();
+
         InboxAdapter inboxAdapter = new InboxAdapter(getContext(), inboxes);
         inboxRecyclerView.setAdapter(inboxAdapter);
-        inboxRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        inboxRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+
         InboxHandler.getInstance().getInboxes((inbox, flag) -> {
             switch (flag) {
                 case UPDATED:

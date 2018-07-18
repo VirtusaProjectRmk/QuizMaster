@@ -46,6 +46,9 @@
     <string name="extra_profile_editable">extraProfileEditable</string>
     <string name="extra_profile_firebase_uid">extraProfileFirebaseUid</string>
 
+    <string name="extra_chat_inboxId">extraChatInboxId</string>
+    <string name="extra_chat_userId">extraChatUserId</string>
+
     <string name="announcement_fragment_title">Announcement</string>
     <string name="inbox_fragment_title">Inbox</string>
 

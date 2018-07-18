@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.FileNotFoundException;
@@ -120,6 +121,7 @@ public class ProfileActivity extends AppCompatActivity {
                     attTV.setText(String.valueOf(user.getAAttTot()));
                     poiTV.setText(String.valueOf(user.getPointsTot()));
                     profileBranch.setText(String.valueOf(user.getBranch()));
+                    Glide.with(this).load(user.getDisplayImage()).into(profileImage);
                     break;
                 case FAILED:
                     Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();

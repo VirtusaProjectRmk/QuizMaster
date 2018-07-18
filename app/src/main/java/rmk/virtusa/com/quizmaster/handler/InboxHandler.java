@@ -67,6 +67,7 @@ public class InboxHandler {
     public void createInbox(String firebaseId, OnUpdateInboxListener onUpdateInbox) {
         List<String> users = new ArrayList<>();
         users.add(firebaseId);
+        users.add(auth.getCurrentUser().getUid());
         Inbox inbox = new Inbox("", "", users);
         List<String> inboxes = new ArrayList<>();
         DocumentReference dRef = inboxCollectionRef.document();

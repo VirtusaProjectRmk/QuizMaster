@@ -121,7 +121,7 @@ public class ResourceHandler {
                         User user = documentSnapshot.toObject(User.class);
                         onUpdateUserListener.onUserUpdate(user, UPDATED);
                     } else {
-                        User user = new User(0, 0, 0, "", firebaseUid, "", "", new ArrayList<>());
+                        User user = new User(0, 0, 0, "", firebaseUid, "", "", "", new ArrayList<>());
                         userCollectionRef.document(firebaseUid)
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
@@ -168,7 +168,7 @@ public class ResourceHandler {
                         onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
                     } else {
                         //if user object does'nt exist, create one
-                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "", new ArrayList<>());
+                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "", "", new ArrayList<>());
                         userCollectionRef.document(auth.getCurrentUser().getUid())
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
