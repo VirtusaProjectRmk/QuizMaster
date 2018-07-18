@@ -8,7 +8,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -21,6 +24,9 @@ import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
 import rmk.virtusa.com.quizmaster.model.User;
 
+import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.ChatHandler.UPDATED;
+
 public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatActivity";
@@ -28,11 +34,12 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton chatAddButton;
     @BindView(R.id.chatMessageEditText)
     EditText chatMessageEditText;
-    @BindView(R.id.chatSendBuutton)
-    ImageButton chatSendBuutton;
+    @BindView(R.id.chatSendButton)
+    ImageButton chatSendButton;
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
-
+    String userId = "";
+    String inboxId = "";
     private List<Chat> chats = new ArrayList<>();
     private List<User> members = new ArrayList<>();
     private Inbox inbox;
@@ -43,10 +50,6 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
 
-
-        String userId = "";
-        String inboxId = "";
-
         inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
         userId = getIntent().getExtras().getString(getString(R.string.extra_chat_userId));
 
@@ -55,7 +58,7 @@ public class ChatActivity extends AppCompatActivity {
                 members.add(user);
 
             });
-            InboxHandler.getInstance().createInbox(userId, (inbox, flag)->{
+            InboxHandler.getInstance().createInbox(userId, (inbox, flag) -> {
                 this.inbox = inbox;
             });
         } else if (inboxId != null) {
@@ -83,6 +86,25 @@ public class ChatActivity extends AppCompatActivity {
 
         chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         chatRecyclerView.setAdapter(new ChatAdapter(this, chats, inbox, members));
+
+        chatSendButton.setOnClickListener(view -> {
+            Chat chat = new Chat(FirebaseAuth.getInstance().getCurrentUser().getUid(), false, chatMessageEditText.getText().toString(), new Date(), null);
+            if (inboxId == null) {
+                return;
+            } else if (inboxId.isEmpty()) {
+                return;
+            }
+            ChatHandler.getInstance().addChat(inboxId, chat, (cht, flag) -> {
+                switch (flag) {
+                    case UPDATED:
+                        //TODO UI indicating success probably single tick
+                        break;
+                    case FAILED:
+                        //TODO UI indicating failure probably error icon
+                        break;
+                }
+            });
+        });
 
 
     }

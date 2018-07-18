@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ChatHandler {
                 .document(inboxId)
                 .collection(chat.getIsMedia() ? "media" : "text")
                 .document()
-                .set(chat)
+                .set(chat, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     onUpdateChat.onUpdateChat(chat, UPDATED);
                 })
