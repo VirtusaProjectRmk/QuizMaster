@@ -3,20 +3,18 @@ package rmk.virtusa.com.quizmaster;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,17 +23,21 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import org.w3c.dom.Text;
-
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
+
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
+import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.model.User;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -55,6 +57,12 @@ public class MainActivity extends AppCompatActivity
     FloatingActionButton fabAdd;
     @BindView(R.id.fabSearch)
     FloatingActionButton fabSearch;
+    @BindView(R.id.usersListRecyclerView)
+    RecyclerView usersListRecyclerView;
+
+    UsersListAdapter usersListAdapter;
+    private List<User> users = new ArrayList<>();
+
 
     @OnClick({R.id.fabAdd})
     public void fabAddClick(View view) {
@@ -81,6 +89,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @OverridingMethodsMustInvokeSuper
+    protected void onStart() {
+        super.onStart();
+        usersListRecyclerView.setAdapter(usersListAdapter);
+        usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +107,15 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
+
+        usersListAdapter = new UsersListAdapter(this, users);
+        ResourceHandler.getInstance().getUsers(((user, flags) -> {
+            if (user.getFirebaseUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
+                return;
+            users.add(user);
+            usersListAdapter.notifyDataSetChanged();
+        }));
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
@@ -101,11 +125,11 @@ public class MainActivity extends AppCompatActivity
         mainTabLayout.setupWithViewPager(mainViewPager);
 
 
-        for(int i = 0; i < 2; i++){
-            LinearLayout view = (LinearLayout)LayoutInflater.from(MainActivity.this).inflate(R.layout.icon_tab_main, null, false);
-            ((TextView)view.findViewById(R.id.tabHeaderText)).setText(getString(i == 0? R.string.announcement_fragment_title : R.string.inbox_fragment_title));
+        for (int i = 0; i < 2; i++) {
+            LinearLayout view = (LinearLayout) LayoutInflater.from(MainActivity.this).inflate(R.layout.icon_tab_main, null, false);
+            ((TextView) view.findViewById(R.id.tabHeaderText)).setText(getString(i == 0 ? R.string.announcement_fragment_title : R.string.inbox_fragment_title));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                ((ImageView)view.findViewById(R.id.tabHeaderBadge)).setImageDrawable(i == 0? null : getDrawable(R.drawable.alpha_icon));
+                ((ImageView) view.findViewById(R.id.tabHeaderBadge)).setImageDrawable(i == 0 ? null : getDrawable(R.drawable.alpha_icon));
             }
             mainTabLayout.getTabAt(i).setCustomView(view);
         }
@@ -151,21 +175,20 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_dashboard) {
-                Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
-                int day = calendar.get(Calendar.DAY_OF_WEEK);
-                if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
-                    Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
-                    MainActivity.this.startActivity(myIntent);
-                } else {
-                    Intent myIntent = new Intent(MainActivity.this, DashActivity.class);
-                    MainActivity.this.startActivity(myIntent);
-                }
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
+            int day = calendar.get(Calendar.DAY_OF_WEEK);
+            if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
+                Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
+                MainActivity.this.startActivity(myIntent);
+            } else {
+                Intent myIntent = new Intent(MainActivity.this, DashActivity.class);
+                MainActivity.this.startActivity(myIntent);
+            }
         } else if (id == R.id.nav_leaderboard) {
 
             Intent myIntent = new Intent(MainActivity.this, LeaderboardActivity.class);
             MainActivity.this.startActivity(myIntent);
-        }
-        else if (id == R.id.nav_profile) {
+        } else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(this, ProfileActivity.class);
             myIntent.putExtra(getString(R.string.extra_profile_editable), true);
             myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());

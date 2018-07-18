@@ -20,21 +20,32 @@ public class User {
 
     private int pointsTot;
 
+    private String displayImage;
+
     private List<String> inboxes;
 
     public User() {
 
     }
 
-    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String branch, List<String> inboxes) {
+    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String displayImage, String branch, List<String> inboxes) {
         this.qAnsTot = qAnsTot;
         this.aAttTot = aAttTot;
         this.id = id;
         this.firebaseUid = firebaseUid;
         this.pointsTot = pointsTot;
         this.name = name;
+        this.displayImage = displayImage;
         this.branch = branch;
         this.inboxes = inboxes;
+    }
+
+    public String getDisplayImage() {
+        return displayImage;
+    }
+
+    public void setDisplayImage(String displayImage) {
+        this.displayImage = displayImage;
     }
 
     public String getBranch() {

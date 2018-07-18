@@ -11,16 +11,16 @@ public class Inbox {
 
     private String status;
 
-    private List<String> receivers;
+    private List<String> userIds;
 
-    public Inbox(){
+    public Inbox() {
 
     }
 
-    public Inbox(String name, String status, List<String> receivers) {
+    public Inbox(String name, String status, List<String> userIds) {
         this.status = status;
         this.name = name;
-        this.receivers = receivers;
+        this.userIds = userIds;
     }
 
 
@@ -44,15 +44,15 @@ public class Inbox {
     }
 
 
-    public List<String> getReceivers() {
-        if (this.receivers == null) {
-            this.receivers = new ArrayList<>();
+    public List<String> getUserIds() {
+        if (this.userIds == null) {
+            this.userIds = new ArrayList<>();
         }
-        return this.receivers;
+        return this.userIds;
     }
 
-    public void setReceivers(List<String> receivers) {
-        this.receivers = receivers;
+    public void setUserIds(List<String> userIds) {
+        this.userIds = userIds;
     }
 
 
