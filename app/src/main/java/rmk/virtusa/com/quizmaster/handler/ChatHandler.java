@@ -5,10 +5,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+import java.util.List;
+
 import rmk.virtusa.com.quizmaster.model.Chat;
 
-class ChatHandler {
-    public static final int PUSHED = 0;
+public class ChatHandler {
+    public static final int UPDATED = 0;
     public static final int FAILED = 1;
     private static final ChatHandler ourInstance = new ChatHandler();
 
@@ -28,20 +30,37 @@ class ChatHandler {
         chatCollectionRef = db.collection("chats");
     }
 
-    static ChatHandler getInstance() {
+    public static ChatHandler getInstance() {
         return ourInstance;
     }
 
-    public void getChats(String chatId, OnUpdateChatListener onUpdateChatListener) {
+    public void addChat(String inboxId, Chat chat, OnUpdateChatListener onUpdateChat) {
         chatCollectionRef
-                .document(chatId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    Chat chat = documentSnapshot.toObject(Chat.class);
-                    onUpdateChatListener.onUpdateChat(chat, PUSHED);
+                .document(inboxId)
+                .collection(chat.getIsMedia() ? "media" : "text")
+                .document()
+                .set(chat)
+                .addOnSuccessListener(aVoid -> {
+                    onUpdateChat.onUpdateChat(chat, UPDATED);
                 })
                 .addOnFailureListener(e -> {
+                    onUpdateChat.onUpdateChat(null, FAILED);
+                });
+    }
 
+    public void getChats(String inboxId, OnUpdateChatListener onUpdateChatListener) {
+        chatCollectionRef
+                .document(inboxId)
+                .collection("text")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Chat> chats = queryDocumentSnapshots.toObjects(Chat.class);
+                    for (Chat chat : chats) {
+                        onUpdateChatListener.onUpdateChat(chat, UPDATED);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    onUpdateChatListener.onUpdateChat(null, FAILED);
                 });
     }
 

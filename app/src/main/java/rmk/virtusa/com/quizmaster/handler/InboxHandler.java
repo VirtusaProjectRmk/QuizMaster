@@ -43,25 +43,43 @@ public class InboxHandler {
         ResourceHandler.getInstance().getUser((user, flag) -> {
             if (user.getInboxes() == null) {
                 onUpdateInbox.onUpdateInbox(null, EMPTY);
-                return;
-            }
-            for (String inboxId : user.getInboxes()) {
-                inboxCollectionRef
-                        .document(inboxId)
-                        .get()
-                        .addOnSuccessListener(documentSnapshot -> {
-                            Inbox inbox = documentSnapshot.toObject(Inbox.class);
-                            if (inbox == null) {
-                                onUpdateInbox.onUpdateInbox(inbox, UPDATED);
-                            } else {
+            } else {
+                for (String inboxId : user.getInboxes()) {
+                    inboxCollectionRef
+                            .document(inboxId)
+                            .get()
+                            .addOnSuccessListener(documentSnapshot -> {
+                                Inbox inbox = documentSnapshot.toObject(Inbox.class);
+                                if (inbox == null) {
+                                    onUpdateInbox.onUpdateInbox(inbox, UPDATED);
+                                } else {
+                                    onUpdateInbox.onUpdateInbox(null, FAILED);
+                                }
+                            })
+                            .addOnFailureListener(e -> {
                                 onUpdateInbox.onUpdateInbox(null, FAILED);
-                            }
-                        })
-                        .addOnFailureListener(e -> {
-                            onUpdateInbox.onUpdateInbox(null, FAILED);
-                        });
+                            });
+                }
             }
         });
+    }
+
+    public void getInbox(String inboxId, OnUpdateInboxListener onUpdateInbox) {
+        if (inboxId == null) {
+            onUpdateInbox.onUpdateInbox(null, FAILED);
+        } else if (inboxId.isEmpty()) {
+            onUpdateInbox.onUpdateInbox(null, FAILED);
+        } else {
+            inboxCollectionRef.document(inboxId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        Inbox inbox = documentSnapshot.toObject(Inbox.class);
+                        onUpdateInbox.onUpdateInbox(inbox, UPDATED);
+                    })
+                    .addOnFailureListener(e -> {
+                        onUpdateInbox.onUpdateInbox(null, FAILED);
+                    });
+        }
     }
 
     public void createInbox(String firebaseId, OnUpdateInboxListener onUpdateInbox) {
