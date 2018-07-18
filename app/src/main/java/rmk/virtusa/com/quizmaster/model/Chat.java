@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class Chat {
 
-    private String chatId;
+    private String senderUid;
 
     private boolean isMedia;
 
@@ -18,22 +18,22 @@ public class Chat {
 
     }
 
-    public Chat(String chatId, boolean isMedia, String chat, Date sentTime, Date receivedTime) {
+    public Chat(String senderUid, boolean isMedia, String chat, Date sentTime, Date receivedTime) {
         this.sentTime = sentTime;
         this.isMedia = isMedia;
         this.receivedTime = receivedTime;
         this.chat = chat;
-        this.chatId = chatId;
+        this.senderUid = senderUid;
     }
 
 
-    public String getChatId() {
-        return this.chatId;
+    public String getSenderUid() {
+        return this.senderUid;
     }
 
 
-    public void setChatId(String chatId) {
-        this.chatId = chatId;
+    public void setSenderUid(String senderUid) {
+        this.senderUid = senderUid;
     }
 
 

@@ -18,12 +18,6 @@ import rmk.virtusa.com.quizmaster.model.Inbox;
 import rmk.virtusa.com.quizmaster.model.User;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
-    @BindView(R.id.chatContentTextView)
-    TextView chatContentTextView;
-    @BindView(R.id.chatHeaderTextView)
-    TextView chatHeaderTextView;
-    @BindView(R.id.chatSentTimeTextView)
-    TextView chatSentTimeTextView;
 
     private Context context;
     private List<Chat> chats;
@@ -47,6 +41,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
+        User usr = null;
+        for (User user : members) {
+            if (user.getFirebaseUid().equals(chat.getSenderUid())) {
+                usr = user;
+            }
+        }
+        holder.chatHeaderTextView.setText(usr.getName());
+        holder.chatSentTimeTextView.setText(chat.getSentTime().toString());
         holder.chatContentTextView.setText(chat.getChat());
     }
 
@@ -56,6 +58,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     public class ChatViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.chatHeaderTextView)
+        TextView chatHeaderTextView;
+        @BindView(R.id.chatSentTimeTextView)
+        TextView chatSentTimeTextView;
         @BindView(R.id.chatContentTextView)
         TextView chatContentTextView;
 
