@@ -157,6 +157,15 @@ public class ResourceHandler {
     }
 
     /*
+     * Queries databases for a list of users and returns them through callback
+     */
+    public void getUsers(List<String> userIds, OnUpdateUserListener onUpdateUser) {
+        for (String userId : userIds) {
+            getUser(userId, onUpdateUser);
+        }
+    }
+
+    /*
      * Gets the user registered in firebase auth
      */
     public void getUser(@NonNull OnUpdateUserListener onUpdateUserListener) {
