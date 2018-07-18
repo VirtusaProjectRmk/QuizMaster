@@ -55,6 +55,9 @@ public class ChatActivity extends AppCompatActivity {
                 members.add(user);
 
             });
+            InboxHandler.getInstance().createInbox(userId, (inbox, flag)->{
+                this.inbox = inbox;
+            });
         } else if (inboxId != null) {
             InboxHandler.getInstance().getInbox(inboxId, (inbox, flag) -> {
                 if (flag == InboxHandler.UPDATED) {
