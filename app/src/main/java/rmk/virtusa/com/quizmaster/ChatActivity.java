@@ -21,7 +21,6 @@ import rmk.virtusa.com.quizmaster.handler.ChatHandler;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
-import rmk.virtusa.com.quizmaster.model.Inbox;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
@@ -38,11 +37,9 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton chatSendButton;
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
-    String userId = "";
     String inboxId = "";
     private List<Chat> chats = new ArrayList<>();
-    private List<User> members = new ArrayList<>();
-    private Inbox inbox;
+    private ChatAdapter chatAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,53 +47,52 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
 
-        inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
-        userId = getIntent().getExtras().getString(getString(R.string.extra_chat_userId));
+        //inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
 
-        if (userId != null) {
-            ResourceHandler.getInstance().getUser(userId, (user, flag) -> {
-                members.add(user);
+        inboxId = "j0bKHLN1x43ag7dFw9ki";
 
-            });
-            InboxHandler.getInstance().createInbox(userId, (inbox, flag) -> {
-                this.inbox = inbox;
-            });
-        } else if (inboxId != null) {
-            InboxHandler.getInstance().getInbox(inboxId, (inbox, flag) -> {
-                if (flag == InboxHandler.UPDATED) {
-                    this.inbox = inbox;
-                    ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flg) -> {
-                        if (flg == ResourceHandler.UPDATED) {
-                            members.add(user);
-                        }
-                    });
-                } else {
-                    Toast.makeText(ChatActivity.this, "Cannot fetch inbox, please try again later", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-            });
-            ChatHandler.getInstance().getChats(inboxId, (chat, flag) -> {
-                chats.add(chat);
-            });
-        } else {
-            Toast.makeText(this, "Selection not valid, try again with different conversation", Toast.LENGTH_LONG).show();
+        if (inboxId == null) {
+            Toast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        if (inboxId.isEmpty()) {
+            Toast.makeText(ChatActivity.this, "InboxId error", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        chatRecyclerView.setAdapter(new ChatAdapter(this, chats, inbox, members));
+        //Get the inbox object with the given inboxId
+        InboxHandler.getInstance().getInbox(inboxId, (inbox, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    chatAdapter = new ChatAdapter(this, chats, inbox);
+                    //Get chats with the given inboxId
+                    ChatHandler.getInstance().getChats(inboxId, (chat, flg) -> {
+                        switch (flg) {
+                            case UPDATED:
+                                chats.add(chat);
+                                chatAdapter.notifyDataSetChanged();
+                                break;
+                            case FAILED:
+                                break;
+                        }
+                    });
+                    chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+                    chatRecyclerView.setAdapter(chatAdapter);
+                    break;
+                case FAILED:
+                    break;
+            }
+        });
 
         chatSendButton.setOnClickListener(view -> {
             Chat chat = new Chat(FirebaseAuth.getInstance().getCurrentUser().getUid(), false, chatMessageEditText.getText().toString(), new Date(), null);
-            if (inboxId == null) {
-                return;
-            } else if (inboxId.isEmpty()) {
-                return;
-            }
-            ChatHandler.getInstance().addChat(inboxId, chat, (cht, flag) -> {
-                switch (flag) {
+            ChatHandler.getInstance().addChat(inboxId, chat, (cht, flg) -> {
+                switch (flg) {
                     case UPDATED:
+                        chats.add(cht);
+                        chatAdapter.notifyDataSetChanged();
                         //TODO UI indicating success probably single tick
                         break;
                     case FAILED:
