@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,9 +19,7 @@ import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
 import rmk.virtusa.com.quizmaster.handler.ChatHandler;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
-import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.UPDATED;
@@ -29,12 +27,12 @@ import static rmk.virtusa.com.quizmaster.handler.ChatHandler.UPDATED;
 public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatActivity";
-    @BindView(R.id.chatAddButton)
-    ImageButton chatAddButton;
+    @BindView(R.id.chatProfileImageView)
+    ImageView chatProfileImageView;
     @BindView(R.id.chatMessageEditText)
     EditText chatMessageEditText;
     @BindView(R.id.chatSendButton)
-    ImageButton chatSendButton;
+    ImageView chatSendButton;
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
     String inboxId = "";

@@ -3,10 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="@dimen/activity_horizontal_margin"
     android:orientation="horizontal"
-    android:padding="8dp"
-    android:theme="@style/Theme.AppCompat.NoActionBar"
     tools:showIn="@layout/chat_item">
 
     <TextView
@@ -16,13 +13,11 @@
         android:layout_weight="1"
         android:fadingEdge="horizontal"
         android:fadingEdgeLength="@dimen/fading_edge_length"
-        android:text="Rick"
         android:textColor="@color/colorHardTeal" />
 
     <TextView
         android:id="@+id/chatSentTimeTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:text="7:55 PM" />
+        android:layout_marginStart="@dimen/activity_horizontal_margin" />
 </LinearLayout>

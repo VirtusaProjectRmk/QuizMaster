@@ -27,9 +27,7 @@ import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
-import rmk.virtusa.com.quizmaster.model.User;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
@@ -55,6 +53,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         ResourceHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
             switch (flag) {
                 case UPDATED:
+                    Glide.with(context).load(announcement.getAnonymousPost() ? R.drawable.default_user : user.getDisplayImage()).into(holder.announcerImage);
                     holder.announcerImage.setOnClickListener((view -> {
                         if (announcement.getAnonymousPost()) {
                             Toast.makeText(context, "Posted Anonymously only admin users can view the profile", Toast.LENGTH_LONG).show();
@@ -132,11 +131,12 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
                     Intent i = new Intent(Intent.ACTION_VIEW);
                     i.setData(Uri.parse(fileUrl));
                     context.startActivity(i);
-                } catch (ActivityNotFoundException anfe){
+                } catch (ActivityNotFoundException anfe) {
                     Log.e(TAG, anfe.getMessage());
                 }
             });
-            String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);;
+            String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+            ;
             holder.attachmentName.setText(fileName);
             Glide.with(context).load(R.drawable.unknown_file_download).into(holder.attachmentImage);
         }

@@ -8,7 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -25,11 +29,23 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     private Context context;
     private List<Chat> chats;
     private Inbox inbox;
+    private Map<String, String> memebers = new HashMap<>();
+
 
     public ChatAdapter(Context context, List<Chat> chats, Inbox inbox) {
         this.context = context;
         this.chats = chats;
         this.inbox = inbox;
+
+        ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    memebers.put(user.getFirebaseUid(), user.getName());
+                    break;
+                case FAILED:
+                    break;
+            }
+        });
     }
 
     @NonNull
@@ -43,15 +59,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
         //FIXME user cached members list
-        ResourceHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    holder.chatHeaderTextView.setText(user.getName());
-                    break;
-                case FAILED:
-                    break;
-            }
-        });
+        holder.chatHeaderTextView.setText(memebers.get(chat.getSenderUid()));
+        if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+            holder.itemView.setBackgroundColor(context.getColor(R.color.colorSoftGrey));
+        }
         holder.chatSentTimeTextView.setText(chat.getSentTime().toString());
         holder.chatContentTextView.setText(chat.getChat());
     }
