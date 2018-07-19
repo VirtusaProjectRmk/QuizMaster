@@ -82,42 +82,55 @@ public class InboxHandler {
         }
     }
 
+
     public void checkForInboxRedundancy(String userId1, OnUpdateInboxListener onUpdateInboxListener) {
         //TODO check if current user exist in userId2 inbox or vice-versa
         //return fail if does not exist
         //return update if user exist
-        onUpdateInboxListener.onUpdateInbox(null, UPDATED);
+        int flg = 0;
+        getInboxes((inbox, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    for (String userId : inbox.getUserIds()) {
+                        if (userId.equals(userId1)) {
+                            onUpdateInboxListener.onUpdateInbox(inbox, UPDATED);
+                            break;
+                        }
+                    }
+                    break;
+                case FAILED:
+                    onUpdateInboxListener.onUpdateInbox(null, FAILED);
+                    break;
+            }
+        });
     }
 
     public void createInbox(String firebaseId, OnUpdateInboxListener onUpdateInbox) {
         List<String> users = new ArrayList<>();
         users.add(firebaseId);
         users.add(auth.getCurrentUser().getUid());
-        checkForInboxRedundancy(firebaseId, new OnUpdateInboxListener() {
-            @Override
-            public void onUpdateInbox(Inbox inb, int flg) {
-                if (flg == FAILED) {
-                    Inbox inbox = new Inbox("", "", users);
-                    List<String> inboxes = new ArrayList<>();
-                    DocumentReference dRef = inboxCollectionRef.document();
-                    inboxes.add(dRef.getId());
-                    ResourceHandler.getInstance().getUser((user, flag) -> {
-                        if (flag == FAILED) return;
-                        user.setInboxes(inboxes);
-                        ResourceHandler.getInstance().setUser(user, (usr, fl) -> {
-                            if (fl == FAILED) return;
-                            onUpdateInbox.onUpdateInbox(inbox, UPDATED);
-                        });
+        checkForInboxRedundancy(firebaseId, (inb, flg) -> {
+            if (flg == UPDATED) {
+                Inbox inbox = new Inbox("", "", users);
+                List<String> inboxes = new ArrayList<>();
+                DocumentReference dRef = inboxCollectionRef.document();
+                inboxes.add(dRef.getId());
+                ResourceHandler.getInstance().getUser((user, flag) -> {
+                    if (flag == FAILED) return;
+                    user.setInboxes(inboxes);
+                    ResourceHandler.getInstance().setUser(user, (usr, fl) -> {
+                        if (fl == FAILED) return;
+                        onUpdateInbox.onUpdateInbox(inbox, UPDATED);
                     });
-                    dRef.set(inbox)
-                            .addOnSuccessListener(aVoid -> {
-                                onUpdateInbox.onUpdateInbox(inbox, UPDATED);
-                            })
-                            .addOnFailureListener(e -> {
-                                onUpdateInbox.onUpdateInbox(null, FAILED);
-                            });
-                } else onUpdateInbox.onUpdateInbox(inb, UPDATED);
-            }
+                });
+                dRef.set(inbox)
+                        .addOnSuccessListener(aVoid -> {
+                            onUpdateInbox.onUpdateInbox(inbox, UPDATED);
+                        })
+                        .addOnFailureListener(e -> {
+                            onUpdateInbox.onUpdateInbox(null, FAILED);
+                        });
+            } else onUpdateInbox.onUpdateInbox(inb, UPDATED);
         });
     }
 

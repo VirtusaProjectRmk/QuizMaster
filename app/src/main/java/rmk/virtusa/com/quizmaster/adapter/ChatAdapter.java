@@ -13,22 +13,23 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
-import rmk.virtusa.com.quizmaster.model.User;
+
+import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     private Context context;
     private List<Chat> chats;
     private Inbox inbox;
-    private List<User> members;
 
-    public ChatAdapter(Context context, List<Chat> chats, Inbox inbox, List<User> members) {
+    public ChatAdapter(Context context, List<Chat> chats, Inbox inbox) {
         this.context = context;
         this.chats = chats;
         this.inbox = inbox;
-        this.members = members;
     }
 
     @NonNull
@@ -41,13 +42,16 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
-        User usr = null;
-        for (User user : members) {
-            if (user.getFirebaseUid().equals(chat.getSenderUid())) {
-                usr = user;
+        //FIXME user cached members list
+        ResourceHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    holder.chatHeaderTextView.setText(user.getName());
+                    break;
+                case FAILED:
+                    break;
             }
-        }
-        holder.chatHeaderTextView.setText(usr.getName());
+        });
         holder.chatSentTimeTextView.setText(chat.getSentTime().toString());
         holder.chatContentTextView.setText(chat.getChat());
     }
