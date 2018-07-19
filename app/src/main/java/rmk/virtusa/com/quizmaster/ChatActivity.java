@@ -48,13 +48,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
 
-        //inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
-
-        inboxId = "j0bKHLN1x43ag7dFw9ki";
-
-        ResourceHandler.getInstance().getUser((user, flag) -> {
-            Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
-        });
+        inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
 
         if (inboxId == null) {
             Toast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();
@@ -66,6 +60,10 @@ public class ChatActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        ResourceHandler.getInstance().getUser((user, flag) -> {
+            Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
+        });
 
         //Get the inbox object with the given inboxId
         InboxHandler.getInstance().getInbox(inboxId, (inbox, flag) -> {

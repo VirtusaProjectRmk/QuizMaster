@@ -6,6 +6,7 @@ import java.util.List;
 
 public class Inbox {
 
+    private String inboxId;
 
     private String name;
 
@@ -17,12 +18,26 @@ public class Inbox {
 
     }
 
+    public Inbox(String inboxId, String name, String status, List<String> userIds) {
+        this.inboxId = inboxId;
+        this.status = status;
+        this.name = name;
+        this.userIds = userIds;
+    }
+
     public Inbox(String name, String status, List<String> userIds) {
         this.status = status;
         this.name = name;
         this.userIds = userIds;
     }
 
+    public String getInboxId() {
+        return inboxId;
+    }
+
+    public void setInboxId(String inboxId) {
+        this.inboxId = inboxId;
+    }
 
     public String getName() {
         return this.name;

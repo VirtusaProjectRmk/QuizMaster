@@ -44,6 +44,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
         Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);
         holder.itemView.setOnClickListener(view -> {
             Intent intent = new Intent(context, ChatActivity.class);
+            //FIXME Update code to select any chatroom
+            intent.putExtra(context.getString(R.string.extra_chat_inboxId), "j0bKHLN1x43ag7dFw9ki");
             context.startActivity(intent);
         });
     }
