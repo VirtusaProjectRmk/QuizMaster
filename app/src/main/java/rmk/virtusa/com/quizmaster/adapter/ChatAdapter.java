@@ -61,7 +61,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         //FIXME user cached members list
         holder.chatHeaderTextView.setText(memebers.get(chat.getSenderUid()));
         if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            holder.itemView.setBackgroundColor(context.getColor(R.color.colorSoftGrey));
+            //holder.itemView.setBackgroundColor(context.getColor(R.color.colorPrimary));
         }
         holder.chatSentTimeTextView.setText(chat.getSentTime().toString());
         holder.chatContentTextView.setText(chat.getChat());

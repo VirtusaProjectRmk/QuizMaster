@@ -51,9 +51,9 @@ public class InboxHandler {
                             .addOnSuccessListener(documentSnapshot -> {
                                 Inbox inbox = documentSnapshot.toObject(Inbox.class);
                                 if (inbox == null) {
-                                    onUpdateInbox.onUpdateInbox(inbox, UPDATED);
-                                } else {
                                     onUpdateInbox.onUpdateInbox(null, FAILED);
+                                } else {
+                                    onUpdateInbox.onUpdateInbox(inbox, UPDATED);
                                 }
                             })
                             .addOnFailureListener(e -> {

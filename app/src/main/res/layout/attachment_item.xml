@@ -5,10 +5,11 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:clickable="true"
-    android:elevation="@dimen/cardview_default_elevation"
+    android:elevation="1dp"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardCornerRadius="@dimen/attachment_card_radius"
+    android:theme="@style/Theme.AppCompat.Light.NoActionBar"
     app:cardElevation="6dp">
 
     <LinearLayout

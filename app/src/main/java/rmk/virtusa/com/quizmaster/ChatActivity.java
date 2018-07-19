@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -16,9 +17,11 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
 import rmk.virtusa.com.quizmaster.handler.ChatHandler;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
+import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
@@ -28,7 +31,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private static final String TAG = "ChatActivity";
     @BindView(R.id.chatProfileImageView)
-    ImageView chatProfileImageView;
+    CircleImageView chatProfileImageView;
     @BindView(R.id.chatMessageEditText)
     EditText chatMessageEditText;
     @BindView(R.id.chatSendButton)
@@ -48,6 +51,10 @@ public class ChatActivity extends AppCompatActivity {
         //inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
 
         inboxId = "j0bKHLN1x43ag7dFw9ki";
+
+        ResourceHandler.getInstance().getUser((user, flag) -> {
+            Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
+        });
 
         if (inboxId == null) {
             Toast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();

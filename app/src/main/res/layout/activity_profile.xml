@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorPrimary"
     android:theme="@style/AppTheme.AppBarOverlay"
     tools:context=".ProfileActivity">
 
@@ -127,7 +126,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:background="@color/colorAccent"
         android:onClick="update"
         android:src="@drawable/tick_icon"
         android:translationZ="13dp" />
