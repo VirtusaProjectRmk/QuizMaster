@@ -9,14 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,8 +34,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     private Context context;
     private List<Chat> chats;
     private Inbox inbox;
-    private Map<String, String> memebers = new HashMap<>();
-
 
     public ChatAdapter(Context context, List<Chat> chats, Inbox inbox) {
         this.context = context;
@@ -45,15 +42,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
         dateFormat = SimpleDateFormat.getTimeInstance();
 
-        ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    memebers.put(user.getFirebaseUid(), user.getName());
-                    break;
-                case FAILED:
-                    break;
-            }
-        });
+
     }
 
     @NonNull
@@ -66,17 +55,27 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
-        //FIXME user cached members list
-        holder.chatHeaderTextView.setText(memebers.get(chat.getSenderUid()));
+        //FIXME cache members list
+        ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    if (user.getFirebaseUid().equals(chat.getSenderUid())) {
+                        holder.chatHeaderTextView.setText(user.getName());
+                    }
+                    break;
+                case FAILED:
+                    Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
+                    break;
+            }
+        });
+        holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
+        holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
         if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
             TypedValue typedValue = new TypedValue();
             if (context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true)) {
                 holder.itemView.setBackgroundColor(typedValue.data);
             }
         }
-
-        holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
-        holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
     }
 
     @Override
