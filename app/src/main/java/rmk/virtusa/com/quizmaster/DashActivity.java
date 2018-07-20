@@ -43,7 +43,7 @@ public class DashActivity extends AppCompatActivity  {
    Button mButton;
    String egs,fgs;
    public Firebase href,gref;
-    int flag=0;
+    static int flag=0;
 
 
 
@@ -105,7 +105,6 @@ public class DashActivity extends AppCompatActivity  {
             @Override
             public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                 fgs=dataSnapshot.getValue(String.class);
-                flag=0;
                 Log.v(TAG, fgs);
                 mEnd.setText(fgs);
                 Date currentTime= new Date();
