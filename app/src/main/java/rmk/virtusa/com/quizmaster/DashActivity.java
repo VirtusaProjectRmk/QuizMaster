@@ -90,7 +90,7 @@ public class DashActivity extends AppCompatActivity  {
             public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                 egs=dataSnapshot.getValue(String.class);
                 mStart.setText(egs);
-                flag=0;
+                
 
             }
 
