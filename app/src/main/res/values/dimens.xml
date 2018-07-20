@@ -9,6 +9,7 @@
     <dimen name="image_tiny">42dp</dimen>
     <dimen name="image_small">64dp</dimen>
     <dimen name="image_medium">128dp</dimen>
+    <dimen name="image_large">164dp</dimen>
 
     <dimen name="button_radius_normal">4dp</dimen>
     <dimen name="attachment_card_radius">12dp</dimen>

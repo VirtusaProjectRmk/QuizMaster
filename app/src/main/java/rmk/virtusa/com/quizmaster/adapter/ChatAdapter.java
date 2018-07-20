@@ -3,19 +3,24 @@ package rmk.virtusa.com.quizmaster.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import rmk.virtusa.com.quizmaster.ChatViewFactory;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
@@ -26,6 +31,7 @@ import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
+    private DateFormat dateFormat;
     private Context context;
     private List<Chat> chats;
     private Inbox inbox;
@@ -36,6 +42,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         this.context = context;
         this.chats = chats;
         this.inbox = inbox;
+
+        dateFormat = SimpleDateFormat.getTimeInstance();
 
         ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flag) -> {
             switch (flag) {
@@ -61,10 +69,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         //FIXME user cached members list
         holder.chatHeaderTextView.setText(memebers.get(chat.getSenderUid()));
         if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            //holder.itemView.setBackgroundColor(context.getColor(R.color.colorPrimary));
+            TypedValue typedValue = new TypedValue();
+            if (context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true)) {
+                holder.itemView.setBackgroundColor(typedValue.data);
+            }
         }
-        holder.chatSentTimeTextView.setText(chat.getSentTime().toString());
-        holder.chatContentTextView.setText(chat.getChat());
+
+        holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
+        holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
     }
 
     @Override
@@ -78,8 +90,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         TextView chatHeaderTextView;
         @BindView(R.id.chatSentTimeTextView)
         TextView chatSentTimeTextView;
-        @BindView(R.id.chatContentTextView)
-        TextView chatContentTextView;
+        @BindView(R.id.chatContentContainer)
+        LinearLayout chatContentContainer;
 
         public ChatViewHolder(View itemView) {
             super(itemView);

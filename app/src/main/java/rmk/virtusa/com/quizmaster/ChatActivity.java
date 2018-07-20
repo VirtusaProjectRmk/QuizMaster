@@ -1,7 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,13 +19,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
-import rmk.virtusa.com.quizmaster.handler.ChatHandler;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 
-import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ChatHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
 public class ChatActivity extends AppActivity {
 
@@ -76,7 +74,7 @@ public class ChatActivity extends AppActivity {
                 case UPDATED:
                     chatAdapter = new ChatAdapter(this, chats, inbox);
                     //Get chats with the given inboxId
-                    ChatHandler.getInstance().getChats(inboxId, (chat, flg) -> {
+                    InboxHandler.getInstance().getChats(inboxId, (chat, flg) -> {
                         switch (flg) {
                             case UPDATED:
                                 chats.add(chat);
@@ -96,7 +94,7 @@ public class ChatActivity extends AppActivity {
 
         chatSendButton.setOnClickListener(view -> {
             Chat chat = new Chat(FirebaseAuth.getInstance().getCurrentUser().getUid(), false, chatMessageEditText.getText().toString(), new Date(), null);
-            ChatHandler.getInstance().addChat(inboxId, chat, (cht, flg) -> {
+            InboxHandler.getInstance().addChat(inboxId, chat, (cht, flg) -> {
                 switch (flg) {
                     case UPDATED:
                         chats.add(cht);

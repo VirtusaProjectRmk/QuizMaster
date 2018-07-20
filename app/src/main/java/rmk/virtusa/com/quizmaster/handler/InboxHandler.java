@@ -5,10 +5,12 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
 
 public class InboxHandler {
@@ -134,8 +136,42 @@ public class InboxHandler {
         });
     }
 
+
+    public void addChat(String inboxId, Chat chat, OnUpdateChatListener onUpdateChat) {
+        CollectionReference chatCollectionRef = inboxCollectionRef.document(inboxId).collection("chats");
+        chatCollectionRef
+                .document()
+                .set(chat, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    onUpdateChat.onUpdateChat(chat, UPDATED);
+                })
+                .addOnFailureListener(e -> {
+                    onUpdateChat.onUpdateChat(null, FAILED);
+                });
+    }
+
+    public void getChats(String inboxId, OnUpdateChatListener onUpdateChatListener) {
+        CollectionReference chatCollectionRef = inboxCollectionRef.document(inboxId).collection("chats");
+        chatCollectionRef
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Chat> chats = queryDocumentSnapshots.toObjects(Chat.class);
+                    for (Chat chat : chats) {
+                        onUpdateChatListener.onUpdateChat(chat, UPDATED);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    onUpdateChatListener.onUpdateChat(null, FAILED);
+                });
+    }
+
     public interface OnUpdateInboxListener {
         public void onUpdateInbox(Inbox inbox, int flag);
+    }
+
+
+    public interface OnUpdateChatListener {
+        public void onUpdateChat(Chat chat, int flag);
     }
 
 

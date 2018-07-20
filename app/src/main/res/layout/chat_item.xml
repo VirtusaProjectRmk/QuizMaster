@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:background="@color/cardview_dark_background"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="fill_horizontal"
+    android:orientation="vertical"
+    android:padding="8dp">
 
+
+    <!--chat header-->
     <LinearLayout
-        android:padding="8dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <include layout="@layout/chat_header" />
+        android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/chatContentTextView"
+            android:id="@+id/chatHeaderTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp" />
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="@dimen/fading_edge_length"
+            android:textColor="@color/colorHardTeal" />
 
+        <TextView
+            android:id="@+id/chatSentTimeTextView"
+            style="@style/Base.TextAppearance.AppCompat.Caption"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:textAlignment="viewEnd" />
     </LinearLayout>
 
-</android.support.v7.widget.CardView>
+    <!--chat body-->
+    <LinearLayout
+        android:id="@+id/chatContentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>
+
