@@ -43,6 +43,7 @@ public class DashActivity extends AppCompatActivity  {
    Button mButton;
    String egs,fgs;
    public Firebase href,gref;
+    int flag=0;
 
 
 
@@ -89,6 +90,7 @@ public class DashActivity extends AppCompatActivity  {
             public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                 egs=dataSnapshot.getValue(String.class);
                 mStart.setText(egs);
+                flag=0;
 
             }
 
@@ -103,6 +105,7 @@ public class DashActivity extends AppCompatActivity  {
             @Override
             public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
                 fgs=dataSnapshot.getValue(String.class);
+                flag=0;
                 Log.v(TAG, fgs);
                 mEnd.setText(fgs);
                 Date currentTime= new Date();
@@ -138,12 +141,19 @@ public class DashActivity extends AppCompatActivity  {
 
 
                 try {
-                    if (d3.getTime() >= d1.getTime() && d3.getTime() <= d2.getTime()) {
+                    if (d3.getTime() >= d1.getTime() && d3.getTime() <= d2.getTime() && flag==0) {
+                        
+                        flag=1;
                         mButton.setClickable(true);
                         sample.setText("enabled");
                         Toast.makeText(getApplicationContext(), "Button Enabled", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "onCreate: buttoncalled.");
 
+                    }
+                    else
+                    {
+                    mButton.setClickable(false);
+                        
                     }
                 } catch (NullPointerException e){
                     e.printStackTrace();
