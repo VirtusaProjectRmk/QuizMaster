@@ -31,7 +31,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.text.ParseException;
 
-public class DashActivity extends AppCompatActivity  {
+public class DashActivity extends AppActivity  {
 
 
     private static final String TAG =DashActivity.class.getSimpleName();

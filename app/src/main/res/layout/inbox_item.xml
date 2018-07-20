@@ -5,8 +5,7 @@
     android:clickable="true"
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
-    android:orientation="horizontal"
-    android:theme="@style/Theme.AppCompat.NoActionBar">
+    android:orientation="horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/inboxImageView"

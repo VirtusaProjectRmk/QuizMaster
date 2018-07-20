@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -27,7 +28,7 @@ import rmk.virtusa.com.quizmaster.model.Chat;
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ChatHandler.UPDATED;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppActivity {
 
     private static final String TAG = "ChatActivity";
     @BindView(R.id.chatProfileImageView)
@@ -48,7 +49,11 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         ButterKnife.bind(this);
 
-        inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
+        try {
+            inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
+        } catch (NullPointerException npe) {
+            Log.e(TAG, "Intent extra inboxId not foud");
+        }
 
         if (inboxId == null) {
             Toast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();

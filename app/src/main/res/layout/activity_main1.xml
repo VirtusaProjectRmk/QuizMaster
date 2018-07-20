@@ -13,8 +13,7 @@
         android:padding="8dp"
         android:text="@string/instructions"
         android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black" />
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="match_parent"
@@ -22,8 +21,7 @@
         android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="@string/instructions1"
-        android:textSize="15sp"
-        android:textColor="@android:color/black" />
+        android:textSize="15sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -31,7 +29,6 @@
         android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="@string/instructions2"
-        android:textColor="@android:color/black"
         android:textSize="15sp" />
 
     <TextView
@@ -40,7 +37,6 @@
         android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="@string/instructions3"
-        android:textColor="@android:color/black"
         android:textSize="15sp" />
 
     <TextView
@@ -49,7 +45,6 @@
         android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="@string/instructions4"
-        android:textColor="@android:color/black"
         android:textSize="15sp" />
 
     <TextView
@@ -58,7 +53,6 @@
         android:layout_marginBottom="30dp"
         android:padding="8dp"
         android:text="@string/instructions5"
-        android:textColor="@android:color/black"
         android:textSize="15sp" />
 
     <Button

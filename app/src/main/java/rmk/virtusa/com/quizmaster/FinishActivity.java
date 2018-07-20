@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class FinishActivity extends AppCompatActivity {
+public class FinishActivity extends AppActivity {
 
     final static int QUIZ_COMPLETED = 1;
     final static int BACK_PRESSED = 2;

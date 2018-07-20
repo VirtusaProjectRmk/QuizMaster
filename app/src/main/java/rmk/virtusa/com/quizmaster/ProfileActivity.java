@@ -32,7 +32,7 @@ import rmk.virtusa.com.quizmaster.model.User;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileActivity extends AppActivity {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";

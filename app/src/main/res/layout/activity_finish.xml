@@ -14,7 +14,6 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="200dp"
-        android:textColor="@android:color/black"
         android:textSize="18sp" />
 
     <TextView
@@ -26,7 +25,6 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:text="@string/your_score"
-        android:textColor="@android:color/black"
         android:textSize="18sp" />
 
     <Button

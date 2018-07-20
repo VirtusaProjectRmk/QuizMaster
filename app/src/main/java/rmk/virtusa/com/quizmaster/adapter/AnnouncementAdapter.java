@@ -53,7 +53,13 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         ResourceHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
             switch (flag) {
                 case UPDATED:
-                    Glide.with(context).load(announcement.getAnonymousPost() ? R.drawable.default_user : user.getDisplayImage()).into(holder.announcerImage);
+                    if (user.getDisplayImage() == null) {
+                        Glide.with(context).load(R.drawable.default_user).into(holder.announcerImage);
+                    } else {
+                        Glide.with(context).load(announcement.getAnonymousPost() || user.getDisplayImage().isEmpty() ?
+                                R.drawable.default_user :
+                                user.getDisplayImage()).into(holder.announcerImage);
+                    }
                     holder.announcerImage.setOnClickListener((view -> {
                         if (announcement.getAnonymousPost()) {
                             Toast.makeText(context, "Posted Anonymously only admin users can view the profile", Toast.LENGTH_LONG).show();

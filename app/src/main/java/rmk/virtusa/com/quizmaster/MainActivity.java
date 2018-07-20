@@ -10,7 +10,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -39,7 +38,7 @@ import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 
@@ -193,6 +192,9 @@ public class MainActivity extends AppCompatActivity
             myIntent.putExtra(getString(R.string.extra_profile_editable), true);
             myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
             MainActivity.this.startActivity(myIntent);
+        } else if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             finish();

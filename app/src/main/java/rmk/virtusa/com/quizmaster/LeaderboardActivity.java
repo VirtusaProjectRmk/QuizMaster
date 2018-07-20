@@ -20,7 +20,7 @@ import rmk.virtusa.com.quizmaster.model.User;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
-public class LeaderboardActivity extends AppCompatActivity {
+public class LeaderboardActivity extends AppActivity {
 
     ListView listviewusers;
     List<User> ulist;

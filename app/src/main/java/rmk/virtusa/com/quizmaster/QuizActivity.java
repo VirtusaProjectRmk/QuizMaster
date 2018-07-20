@@ -32,7 +32,7 @@ import rmk.virtusa.com.quizmaster.model.User;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
 
-public class QuizActivity extends AppCompatActivity {
+public class QuizActivity extends AppActivity {
 
     private TextView mQuestion, quesNum, timer;
     public Firebase mQuestionRef, mChoice1Ref, mChoice2Ref, mChoice3Ref, mChoice4Ref, mAnswerRef;
