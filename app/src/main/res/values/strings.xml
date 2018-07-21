@@ -67,4 +67,6 @@
     <string name="settings_isDark">settingsIsDark</string>
     <string name="settings_theme_toggle">Dark Theme</string>
 
+    <string name="chat_action_video_call">Video Call</string>
+
 </resources>

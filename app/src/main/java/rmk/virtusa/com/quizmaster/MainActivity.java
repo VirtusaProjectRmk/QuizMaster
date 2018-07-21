@@ -27,8 +27,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -88,7 +86,7 @@ public class MainActivity extends AppActivity
         }
     }
 
-    @OverridingMethodsMustInvokeSuper
+    @Override
     protected void onStart() {
         super.onStart();
         usersListRecyclerView.setAdapter(usersListAdapter);

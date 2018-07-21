@@ -3,9 +3,15 @@ package rmk.virtusa.com.quizmaster;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -17,6 +23,7 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
@@ -38,14 +45,50 @@ public class ChatActivity extends AppActivity {
     @BindView(R.id.chatRecyclerView)
     RecyclerView chatRecyclerView;
     String inboxId = "";
+    @BindView(R.id.chatToolbar)
+    Toolbar chatToolbar;
+    @BindView(R.id.chatToolbarInboxImage)
+    CircleImageView chatToolbarInboxImage;
+    @BindView(R.id.chatToolbarTitle)
+    TextView chatToolbarTitle;
+    @BindView(R.id.chatToolbarInboxContainer)
+    LinearLayout chatToolbarInboxContainer;
     private List<Chat> chats = new ArrayList<>();
     private ChatAdapter chatAdapter;
+
+    @OnClick({R.id.chatToolbarInboxContainer})
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.chatToolbarInboxContainer:
+                Toast.makeText(this, "Show indepth view of current inbox", Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_chat_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.chatVideoCallBtn:
+                //TODO implement video call
+                Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
+                return true;
+            case android.R.id.home:
+                super.onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
-        ButterKnife.bind(this);
 
         try {
             inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
@@ -64,6 +107,13 @@ public class ChatActivity extends AppActivity {
             return;
         }
 
+        setContentView(R.layout.activity_chat);
+        ButterKnife.bind(this);
+
+        setSupportActionBar(chatToolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         ResourceHandler.getInstance().getUser((user, flag) -> {
             Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
         });
@@ -72,6 +122,8 @@ public class ChatActivity extends AppActivity {
         InboxHandler.getInstance().getInbox(inboxId, (inbox, flag) -> {
             switch (flag) {
                 case UPDATED:
+                    chatToolbarTitle.setText(inbox.getName());
+                    Glide.with(this).load(inbox.getInboxImage()).into(chatToolbarInboxImage);
                     chatAdapter = new ChatAdapter(this, chats, inbox);
                     //Get chats with the given inboxId
                     InboxHandler.getInstance().getChats(inboxId, (chat, flg) -> {

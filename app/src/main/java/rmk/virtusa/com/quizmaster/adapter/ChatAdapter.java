@@ -41,8 +41,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         this.inbox = inbox;
 
         dateFormat = SimpleDateFormat.getTimeInstance();
-
-
     }
 
     @NonNull
@@ -56,12 +54,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
         //FIXME cache members list
-        ResourceHandler.getInstance().getUsers(inbox.getUserIds(), (user, flag) -> {
+        ResourceHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
             switch (flag) {
                 case UPDATED:
-                    if (user.getFirebaseUid().equals(chat.getSenderUid())) {
-                        holder.chatHeaderTextView.setText(user.getName());
-                    }
+                    holder.chatHeaderTextView.setText(user.getName());
                     break;
                 case FAILED:
                     Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
