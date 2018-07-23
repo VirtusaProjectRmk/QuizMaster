@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +18,8 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.InboxAdapter;
-import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
 import rmk.virtusa.com.quizmaster.model.Inbox;
-import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.EMPTY;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;

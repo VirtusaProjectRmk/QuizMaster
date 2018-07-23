@@ -8,6 +8,8 @@ public class Chat {
 
     private boolean isMedia;
 
+    private int mediaType;
+
     private String chat;
 
     private Date sentTime;
@@ -26,6 +28,22 @@ public class Chat {
         this.senderUid = senderUid;
     }
 
+    public Chat(String senderUid, boolean isMedia, int mediaType, String chat, Date sentTime, Date receivedTime) {
+        this.sentTime = sentTime;
+        this.isMedia = isMedia;
+        this.mediaType = mediaType;
+        this.receivedTime = receivedTime;
+        this.chat = chat;
+        this.senderUid = senderUid;
+    }
+
+    public int getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(int mediaType) {
+        this.mediaType = mediaType;
+    }
 
     public String getSenderUid() {
         return this.senderUid;

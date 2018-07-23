@@ -10,6 +10,7 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -26,11 +27,11 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class ProfileActivity extends AppActivity {
 
@@ -58,9 +59,10 @@ public class ProfileActivity extends AppActivity {
     TextView profileBranch;
     @BindView(R.id.profileAppBarLayout)
     AppBarLayout profileAppBarLayout;
-    ArrayList<String> stats = new ArrayList<>();
 
-    User user = null;
+    private ArrayList<String> stats = new ArrayList<>();
+    private User user = null;
+    private Boolean isEditable = false;
 
 
     @Override
@@ -81,10 +83,28 @@ public class ProfileActivity extends AppActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (!isEditable) {
+            getMenuInflater().inflate(R.menu.activity_profile_menu, menu);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
                 super.onBackPressed();
+                return true;
+            case R.id.profileMessageBtn:
+                if (user == null) {
+                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                Intent intent = new Intent(this, ChatActivity.class);
+                //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
+                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -96,20 +116,29 @@ public class ProfileActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
         ButterKnife.bind(this);
-        Boolean isEditable = false;
-        String firebaseUid = "";
+        String firebaseUid = null;
 
         try {
-            isEditable = getIntent().getExtras().getBoolean(getString(R.string.extra_profile_editable));
             firebaseUid = getIntent().getExtras().getString(getString(R.string.extra_profile_firebase_uid));
         } catch (NullPointerException npe) {
             Log.e(TAG, "Fatal error");
         }
 
-        ResourceHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
+        if (firebaseUid == null) {
+            finish();
+            return;
+        }
+        if (firebaseUid.isEmpty()) {
+            finish();
+            return;
+        }
+
+        isEditable = (firebaseUid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+
+        UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
             switch (flags) {
                 case UPDATED:
-                    ProfileActivity.this.user = user;
+                    this.user = user;
                     name.setText(user.getName());
                     useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
                     ansTV.setText(String.valueOf(user.getQAnsTot()));
@@ -164,15 +193,19 @@ public class ProfileActivity extends AppActivity {
 
     public void update(View view) {
         user.setName(name.getText().toString());
-        ResourceHandler.getInstance().setUser(user, (usr, flags) -> {
-            switch (flags) {
-                case UPDATED:
-                    Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
-                    break;
-                case FAILED:
-                    Toast.makeText(this, "User update failed", Toast.LENGTH_LONG).show();
-                    break;
-            }
-        });
+        try {
+            UserHandler.getInstance().setUser(user, (usr, flags) -> {
+                switch (flags) {
+                    case UPDATED:
+                        Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILED:
+                        Toast.makeText(this, "User update failed", Toast.LENGTH_LONG).show();
+                        break;
+                }
+            });
+        } catch (IllegalStateException e) {
+            Log.e(TAG, e.getMessage());
+        }
     }
 }

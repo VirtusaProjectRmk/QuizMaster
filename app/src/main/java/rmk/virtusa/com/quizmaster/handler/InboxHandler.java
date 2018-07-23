@@ -42,7 +42,7 @@ public class InboxHandler {
     }
 
     public void getInboxes(OnUpdateInboxListener onUpdateInbox) {
-        ResourceHandler.getInstance().getUser((user, flag) -> {
+        UserHandler.getInstance().getUser((user, flag) -> {
             if (user.getInboxes() == null) {
                 onUpdateInbox.onUpdateInbox(null, EMPTY);
             } else {
@@ -75,8 +75,12 @@ public class InboxHandler {
             inboxCollectionRef.document(inboxId)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
-                        Inbox inbox = documentSnapshot.toObject(Inbox.class);
-                        onUpdateInbox.onUpdateInbox(inbox, UPDATED);
+                        if (documentSnapshot.exists()) {
+                            Inbox inbox = documentSnapshot.toObject(Inbox.class);
+                            onUpdateInbox.onUpdateInbox(inbox, UPDATED);
+                        } else {
+                            onUpdateInbox.onUpdateInbox(null, FAILED);
+                        }
                     })
                     .addOnFailureListener(e -> {
                         onUpdateInbox.onUpdateInbox(null, FAILED);
@@ -117,10 +121,10 @@ public class InboxHandler {
                 List<String> inboxes = new ArrayList<>();
                 DocumentReference dRef = inboxCollectionRef.document();
                 inboxes.add(dRef.getId());
-                ResourceHandler.getInstance().getUser((user, flag) -> {
+                UserHandler.getInstance().getUser((user, flag) -> {
                     if (flag == FAILED) return;
                     user.setInboxes(inboxes);
-                    ResourceHandler.getInstance().setUser(user, (usr, fl) -> {
+                    UserHandler.getInstance().setUser(user, (usr, fl) -> {
                         if (fl == FAILED) return;
                         onUpdateInbox.onUpdateInbox(inbox, UPDATED);
                     });

@@ -20,13 +20,6 @@
             android:layout_height="wrap_content"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageView
-                android:scaleType="centerCrop"
-                android:src="@drawable/overlay_black"
-                android:id="@+id/profileOverlayIV"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -41,13 +34,12 @@
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profileImage"
-                    app:civ_border_width="2dp"
-                    app:civ_border_color="@android:color/darker_gray"
                     android:layout_width="@dimen/image_medium"
                     android:layout_height="@dimen/image_medium"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/default_user" />
-
+                    android:layout_gravity="center"
+                    android:src="@drawable/default_user"
+                    app:civ_border_color="@android:color/darker_gray"
+                    app:civ_border_width="2dp" />
 
                 <EditText
                     android:id="@+id/name"
@@ -61,7 +53,6 @@
                     android:textColor="@android:color/white"
                     android:textColorHint="#acacac" />
 
-
                 <TextView
                     android:id="@+id/useremail"
                     style="@style/Base.TextAppearance.AppCompat.Body2"
@@ -72,7 +63,6 @@
                     android:paddingBottom="@dimen/activity_horizontal_margin"
                     android:textAlignment="center"
                     android:textColor="@android:color/white" />
-
             </LinearLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
@@ -90,29 +80,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <include layout="@layout/profile_header"/>
+
+            <include layout="@layout/profile_header" />
 
             <android.support.v7.widget.CardView
-                app:cardBackgroundColor="@color/colorHardRed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
                 android:elevation="@dimen/cardview_default_elevation"
+                app:cardBackgroundColor="@color/colorHardRed"
                 app:cardCornerRadius="8dp">
+
                 <LinearLayout
-                    android:padding="@dimen/activity_horizontal_margin"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:padding="@dimen/activity_horizontal_margin">
+
                     <TextView
-                        android:text="Branch"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:text="Branch" />
+
                     <TextView
                         android:id="@+id/profileBranch"
-                        android:layout_marginLeft="@dimen/activity_horizontal_margin"
                         style="@style/Base.TextAppearance.AppCompat.Title"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_horizontal_margin" />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
         </LinearLayout>
@@ -121,13 +115,13 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
-        android:tint="@color/colorPrimary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:onClick="update"
         android:src="@drawable/tick_icon"
+        android:tint="@color/colorPrimary"
         android:translationZ="13dp" />
 
 

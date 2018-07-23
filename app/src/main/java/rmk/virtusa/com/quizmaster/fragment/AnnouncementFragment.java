@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -20,11 +19,12 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.AnnouncementAdapter;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.AnnouncementHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,7 +82,7 @@ public class AnnouncementFragment extends Fragment {
         announcementRecyclerView.setAdapter(adapter);
         announcementRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 
-        ResourceHandler.getInstance().getAnnouncements((announcement, flag) -> {
+        AnnouncementHandler.getInstance().getAnnouncements((announcement, flag) -> {
             switch (flag) {
                 case UPDATED:
                     announcements.add(announcement);

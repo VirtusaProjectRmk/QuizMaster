@@ -13,19 +13,17 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.AnnouncementHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class AnnounceFragment extends DialogFragment {
     @BindView(R.id.announceTitle)
@@ -41,6 +39,13 @@ public class AnnounceFragment extends DialogFragment {
     CheckBox announceAnonymousPostCheckBox;
 
     public AnnounceFragment() {
+    }
+
+    public static AnnounceFragment newInstance() {
+        Bundle args = new Bundle();
+        AnnounceFragment fragment = new AnnounceFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
@@ -63,7 +68,7 @@ public class AnnounceFragment extends DialogFragment {
 
             Announcement announcement = new Announcement(FirebaseAuth.getInstance().getUid(), announceAnonymousPostCheckBox.isChecked(), announceTitle.getText().toString(), annnounceMessage.getText().toString(), null, new Date(), expiry);
 
-            ResourceHandler.getInstance().addAnnouncement(announcement, (ann, flag) -> {
+            AnnouncementHandler.getInstance().addAnnouncement(announcement, (ann, flag) -> {
                 switch (flag) {
                     case UPDATED:
                         //TODO change from toast to "Updating UI in dialog"
@@ -78,13 +83,6 @@ public class AnnounceFragment extends DialogFragment {
             });
         });
         return rootView;
-    }
-
-    public static AnnounceFragment newInstance() {
-        Bundle args = new Bundle();
-        AnnounceFragment fragment = new AnnounceFragment();
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override

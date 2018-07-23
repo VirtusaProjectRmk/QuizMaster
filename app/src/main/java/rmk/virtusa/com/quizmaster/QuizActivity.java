@@ -1,11 +1,9 @@
 package rmk.virtusa.com.quizmaster;
 
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -17,7 +15,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,11 +23,11 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class QuizActivity extends AppActivity {
 
@@ -79,7 +76,7 @@ public class QuizActivity extends AppActivity {
                 /*
                  * Fetch user information first before entering into quiz
                  */
-                ResourceHandler.getInstance().getUser((user, flags) -> {
+                UserHandler.getInstance().getUser((user, flags) -> {
                     switch (flags) {
                         case UPDATED:
                             QuizActivity.this.user = user;
@@ -272,7 +269,7 @@ public class QuizActivity extends AppActivity {
         user.setQAnsTot(c);
         //TODO add multiplier for points
         user.setPointsTot(c);
-        ResourceHandler.getInstance().setUser(user, (user, flags) -> {
+        UserHandler.getInstance().setUser(user, (user, flags) -> {
             switch (flags) {
                 case FAILED:
                     //TODO use dismissable dialog than Toast

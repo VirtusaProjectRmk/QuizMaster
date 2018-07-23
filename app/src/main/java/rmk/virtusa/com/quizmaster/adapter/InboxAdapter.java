@@ -41,7 +41,15 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
         Inbox inbox = inboxes.get(position);
         holder.inboxName.setText(inbox.getName());
         holder.inboxStatus.setText(inbox.getStatus());
-        Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);
+
+
+        if (inbox.getInboxImage() == null) {
+            Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);
+        } else {
+            Glide.with(context)
+                    .load(inbox.getInboxImage().isEmpty() ? R.drawable.default_user : inbox.getInboxImage())
+                    .into(holder.inboxImageView);
+        }
         holder.itemView.setOnClickListener(view -> {
             Intent intent = new Intent(context, ChatActivity.class);
             //FIXME Update code to select any chatroom

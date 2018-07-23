@@ -21,7 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.ChatViewFactory;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
 
@@ -29,6 +29,12 @@ import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+
+
+    public static final int CHAT_MEDIA_AUDIO = 0;
+    public static final int CHAT_MEDIA_PHOTO = 1;
+    public static final int CHAT_MEDIA_VIDEO = 2;
+    public static final int CHAT_MEDIA_DATE = 3;
 
     private DateFormat dateFormat;
     private Context context;
@@ -53,25 +59,59 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
-        //FIXME cache members list
-        ResourceHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    holder.chatHeaderTextView.setText(user.getName());
-                    break;
-                case FAILED:
-                    Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
-                    break;
+        if (holder.chatContentContainer.getChildCount() == 0) {
+            holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
+
+            //FIXME cache members list
+            UserHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
+                switch (flag) {
+                    case UPDATED:
+                        holder.chatHeaderTextView.setText(user.getName());
+                        break;
+                    case FAILED:
+                        Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
+                        break;
+                }
+            });
+            holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
+
+            if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                TypedValue typedValue = new TypedValue();
+                if (context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true)) {
+                    holder.itemView.setBackgroundColor(typedValue.data);
+                }
             }
-        });
-        holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
-        holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
-        if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
-            TypedValue typedValue = new TypedValue();
-            if (context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true)) {
-                holder.itemView.setBackgroundColor(typedValue.data);
-            }
+            holder.itemView.setOnClickListener(view -> {
+                //TODO implement for all types of chat
+                if (chat.getIsMedia()) {
+                    switch (chat.getMediaType()) {
+                        case CHAT_MEDIA_AUDIO:
+                            Toast.makeText(context, "Play audio", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CHAT_MEDIA_PHOTO:
+                            Toast.makeText(context, "View photo", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CHAT_MEDIA_VIDEO:
+                            Toast.makeText(context, "View photo", Toast.LENGTH_SHORT).show();
+                            break;
+                        case CHAT_MEDIA_DATE:
+                            Toast.makeText(context, "Add to calendar", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            //TODO handle for corrupt messages
+                            break;
+                    }
+                } else {
+                    //no-op
+                }
+            });
         }
+
+        //TODO implement for chat options: forward, delete and reply
+        holder.itemView.setOnLongClickListener(view -> {
+            Toast.makeText(context, "Long clicked", Toast.LENGTH_SHORT).show();
+            return true;
+        });
     }
 
     @Override

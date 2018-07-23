@@ -33,7 +33,7 @@ import butterknife.OnClick;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
 import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
 public class MainActivity extends AppActivity
@@ -106,7 +106,7 @@ public class MainActivity extends AppActivity
 
 
         usersListAdapter = new UsersListAdapter(this, users);
-        ResourceHandler.getInstance().getUsers(((user, flags) -> {
+        UserHandler.getInstance().getUsers(((user, flags) -> {
             if (user.getFirebaseUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
                 return;
             users.add(user);
@@ -187,7 +187,6 @@ public class MainActivity extends AppActivity
             MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_profile) {
             Intent myIntent = new Intent(this, ProfileActivity.class);
-            myIntent.putExtra(getString(R.string.extra_profile_editable), true);
             myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
             MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_settings) {

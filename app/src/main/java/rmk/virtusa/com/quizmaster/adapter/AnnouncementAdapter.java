@@ -25,10 +25,10 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
     private static final String TAG = "AnnouncementAdapter";
@@ -50,7 +50,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
     @Override
     public void onBindViewHolder(@NonNull AnnouncementViewHolder holder, int position) {
         Announcement announcement = announcements.get(position);
-        ResourceHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
+        UserHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
             switch (flag) {
                 case UPDATED:
                     if (user.getDisplayImage() == null) {
@@ -66,7 +66,6 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
                         } else {
                             Intent intent = new Intent(context, ProfileActivity.class);
                             intent.putExtra(context.getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
-                            intent.putExtra(context.getString(R.string.extra_profile_editable), false);
                             context.startActivity(intent);
                         }
                     }));

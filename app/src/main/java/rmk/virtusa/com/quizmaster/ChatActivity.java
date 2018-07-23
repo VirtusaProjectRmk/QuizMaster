@@ -1,5 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +28,7 @@ import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
@@ -76,6 +77,8 @@ public class ChatActivity extends AppActivity {
         switch (item.getItemId()) {
             case R.id.chatVideoCallBtn:
                 //TODO implement video call
+                Intent intent = new Intent(this, CallActivity.class);
+                startActivity(intent);
                 Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
                 return true;
             case android.R.id.home:
@@ -114,7 +117,7 @@ public class ChatActivity extends AppActivity {
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ResourceHandler.getInstance().getUser((user, flag) -> {
+        UserHandler.getInstance().getUser((user, flag) -> {
             Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
         });
 
@@ -140,7 +143,8 @@ public class ChatActivity extends AppActivity {
                     chatRecyclerView.setAdapter(chatAdapter);
                     break;
                 case FAILED:
-                    break;
+                    finish();
+                    return;
             }
         });
 

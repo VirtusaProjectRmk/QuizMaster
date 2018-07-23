@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:clickable="true"
@@ -15,9 +14,7 @@
         android:layout_width="@dimen/image_small"
         android:layout_height="@dimen/image_small"
         android:elevation="@dimen/cardview_default_elevation"
-        android:src="@drawable/default_user"
-        app:civ_border_color="@color/colorAccent"
-        app:civ_border_width="2dp" />
+        android:src="@drawable/default_user" />
 
     <TextView
         android:id="@+id/usersListName"

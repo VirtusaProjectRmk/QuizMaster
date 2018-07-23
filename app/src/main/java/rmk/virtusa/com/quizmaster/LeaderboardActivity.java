@@ -1,6 +1,5 @@
 package rmk.virtusa.com.quizmaster;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -14,11 +13,11 @@ import java.util.Comparator;
 import java.util.List;
 
 import rmk.virtusa.com.quizmaster.adapter.UserListAdapter;
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class LeaderboardActivity extends AppActivity {
 
@@ -60,7 +59,7 @@ public class LeaderboardActivity extends AppActivity {
 
         });
 
-        ResourceHandler.getInstance().getUsers((user, flag) -> {
+        UserHandler.getInstance().getUsers((user, flag) -> {
             switch (flag) {
                 case UPDATED:
                     ulist.add(user);

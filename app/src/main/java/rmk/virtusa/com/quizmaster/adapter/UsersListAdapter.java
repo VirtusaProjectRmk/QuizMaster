@@ -17,7 +17,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
-import rmk.virtusa.com.quizmaster.ChatActivity;
+import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.model.User;
 
@@ -41,8 +41,8 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
     public void onBindViewHolder(@NonNull UsersListViewHolder holder, int position) {
         User user = users.get(position);
         holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(context, ChatActivity.class);
-            intent.putExtra(context.getString(R.string.extra_chat_userId), user.getFirebaseUid());
+            Intent intent = new Intent(context, ProfileActivity.class);
+            intent.putExtra(context.getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
             context.startActivity(intent);
         });
         holder.usersListName.setText(user.getName());

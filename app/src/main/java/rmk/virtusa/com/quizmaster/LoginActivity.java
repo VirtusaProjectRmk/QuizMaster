@@ -3,14 +3,10 @@ package rmk.virtusa.com.quizmaster;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -18,23 +14,15 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.jackandphantom.blurimage.BlurImage;
 
-import rmk.virtusa.com.quizmaster.handler.ResourceHandler;
-import rmk.virtusa.com.quizmaster.model.User;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.ResourceHandler.UPDATED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class LoginActivity extends AppActivity {
 
@@ -56,7 +44,7 @@ public class LoginActivity extends AppActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            //ResourceHandler.getInstance().updateUserFromAuth();
+            //UserHandler.getInstance().updateUserFromAuth();
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
 
@@ -111,7 +99,7 @@ public class LoginActivity extends AppActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    ResourceHandler.getInstance().updateUserFromAuth(auth.getUid(), (user, flag) -> {
+                                    UserHandler.getInstance().updateUserFromAuth(auth.getUid(), (user, flag) -> {
                                         switch (flag) {
                                             case UPDATED:
                                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

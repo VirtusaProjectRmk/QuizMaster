@@ -17,35 +17,30 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.User;
 
 /*
- * ResourceHandler does the following tasks asynchronously for updating the
+ * UserHandler does the following tasks asynchronously for updating the
  * cache of information to be updated as possible,
  * Updates the users cache every 45secs or when getUsers() is called explicitly
  *
  */
-public class ResourceHandler {
+public class UserHandler {
 
     public static final int UPDATED = 0;
     public static final int FAILED = 1;
-    public static final int OVERTIME = 2;
 
-    private static final String TAG = "ResourceHandler";
-    private static final ResourceHandler ourInstance = new ResourceHandler();
+    private static final String TAG = "UserHandler";
+    private static final UserHandler ourInstance = new UserHandler();
     /*
      * Cached users list for leaderboard purposes
      */
-    List<User> users = new ArrayList<>();
-    List<Announcement> announcements = new ArrayList<>();
     private CollectionReference userCollectionRef = null;
-    private CollectionReference announcementCollectionRef = null;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
 
-    private ResourceHandler() {
+    private UserHandler() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -54,17 +49,14 @@ public class ResourceHandler {
                 .build();
         db.setFirestoreSettings(settings);
 
-
         userCollectionRef = db.collection("users");
-        announcementCollectionRef = db.collection("announcements");
 
         getUser(auth.getCurrentUser().getUid(), (user, flag) -> {
-            ResourceHandler.this.user = user;
+            UserHandler.this.user = user;
         });
-
     }
 
-    public static ResourceHandler getInstance() {
+    public static UserHandler getInstance() {
         return ourInstance;
     }
 
@@ -231,44 +223,8 @@ public class ResourceHandler {
                 .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(user, FAILED));
     }
 
-    public void addAnnouncement(Announcement announcement, OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
-        announcementCollectionRef.document()
-                .set(announcement, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> {
-                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, UPDATED);
-                })
-                .addOnFailureListener(e -> {
-                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, FAILED);
-                });
-    }
-
-    /*
-     * Listener is called for every announcemet
-     */
-    public void getAnnouncements(OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
-        //FIXME only retreive elements if they are before expiry date
-        announcementCollectionRef
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Announcement> announcements = queryDocumentSnapshots.toObjects(Announcement.class);
-                    for (Announcement announcement : announcements) {
-                        onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, UPDATED);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    onAnnouncementUpdateListener.onAnnouncementUpdate(null, FAILED);
-                });
-        /*
-        announcementRef
-                .whereLessThan("expiryDate");
-        */
-    }
-
     public interface OnUpdateUserListener {
         public void onUserUpdate(User user, int flags);
     }
 
-    public interface OnAnnouncementUpdateListener {
-        public void onAnnouncementUpdate(Announcement announcement, int flags);
-    }
 }
