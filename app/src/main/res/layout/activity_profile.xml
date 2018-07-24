@@ -63,6 +63,17 @@
                     android:paddingBottom="@dimen/activity_horizontal_margin"
                     android:textAlignment="center"
                     android:textColor="@android:color/white" />
+
+                <Button
+                    android:backgroundTint="@color/colorAccent"
+                    android:id="@+id/profileMessageBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                    android:drawableStart="@drawable/message_icon"
+                    android:drawablePadding="8dp"
+                    android:text="@string/profile_action_message" />
             </LinearLayout>
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>

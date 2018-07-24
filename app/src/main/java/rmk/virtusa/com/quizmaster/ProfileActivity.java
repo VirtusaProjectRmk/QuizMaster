@@ -10,15 +10,16 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -59,52 +60,60 @@ public class ProfileActivity extends AppActivity {
     TextView profileBranch;
     @BindView(R.id.profileAppBarLayout)
     AppBarLayout profileAppBarLayout;
-
+    @BindView(R.id.profileMessageBtn)
+    Button profileMessageBtn;
     private ArrayList<String> stats = new ArrayList<>();
     private User user = null;
     private Boolean isEditable = false;
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (user == null) {
+            Toast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (requestCode == PICK_IMAGE && resultCode == AppCompatActivity.RESULT_OK) {
             if (data == null) {
                 //Display an error
+                Toast.makeText(this, "Image not picked", Toast.LENGTH_SHORT).show();
                 return;
             }
             try {
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                if (inputStream == null) {
+                    Toast.makeText(this, "Cannot read the provided image", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (user == null) return;
 
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "File not found" + e.getMessage());
+                //TODO move FirebaseStorage code to UserHandler
+                FirebaseStorage.getInstance().getReference("images/").child(user.getFirebaseUid()).putStream(inputStream)
+                        .addOnSuccessListener(taskSnapshot -> taskSnapshot.getStorage().getDownloadUrl()
+                                .addOnSuccessListener(uri -> {
+                                    user.setDisplayImage(uri.toString());
+                                    UserHandler.getInstance().setUser(user, (user, flag) -> {
+                                        switch (flag) {
+                                            case UPDATED:
+                                                Glide.with(ProfileActivity.this).load(uri.toString()).into(profileImage);
+                                                Toast.makeText(ProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case FAILED:
+                                                Toast.makeText(ProfileActivity.this, "Cannot update profile photo", Toast.LENGTH_SHORT).show();
+                                                break;
+                                        }
+                                    });
+                                }));
+            } catch (FileNotFoundException fnfe) {
+                Log.e(TAG, fnfe.getMessage());
             }
-            //Now you can do whatever you want with your inpustream, save it as file, upload to a server, decode a bitmap...
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!isEditable) {
-            getMenuInflater().inflate(R.menu.activity_profile_menu, menu);
-            return true;
-        }
-        return false;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                super.onBackPressed();
-                return true;
-            case R.id.profileMessageBtn:
-                if (user == null) {
-                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
-                    return false;
-                }
-                Intent intent = new Intent(this, ChatActivity.class);
-                //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
-                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -155,8 +164,10 @@ public class ProfileActivity extends AppActivity {
         });
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
+        useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
         name.setEnabled(isEditable);
         profileImage.setEnabled(isEditable);
+        profileMessageBtn.setVisibility(isEditable ? View.GONE : View.VISIBLE);
 
         setSupportActionBar(profileToolbar);
         getSupportActionBar().setTitle("");
@@ -187,11 +198,25 @@ public class ProfileActivity extends AppActivity {
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             });
+        } else {
+            profileMessageBtn.setOnClickListener(view -> {
+                if (user == null) {
+                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(this, ChatActivity.class);
+                //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
+                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
+            });
         }
     }
 
 
     public void update(View view) {
+        if (user == null) {
+            Toast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
+            return;
+        }
         user.setName(name.getText().toString());
         try {
             UserHandler.getInstance().setUser(user, (usr, flags) -> {
