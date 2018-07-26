@@ -34,13 +34,14 @@ import rmk.virtusa.com.quizmaster.model.User;
             TextView empid = (TextView) listViewItem.findViewById(R.id.empid);
             TextView name = (TextView) listViewItem.findViewById(R.id.name);
             TextView branch = (TextView) listViewItem.findViewById(R.id.branch);
-            TextView score = (TextView) listViewItem.findViewById(R.id.score);
+            //TextView score = (TextView) listViewItem.findViewById(R.id.score);
 
             User users = ulist.get(position);
+
             empid.setText(users.getId());
             name.setText(users.getName());
             branch.setText(users.getBranch());
-            score.setText(String.valueOf(users.getPointsTot()));
+            //score.setText(String.valueOf(users.getPointsTot()));
 
             return  listViewItem;
         }

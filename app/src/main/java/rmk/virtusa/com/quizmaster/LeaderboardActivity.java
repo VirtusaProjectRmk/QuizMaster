@@ -42,7 +42,7 @@ public class LeaderboardActivity extends AppActivity {
             public void onClick(View view) {
                 String stext = editText.getText().toString().toUpperCase();
                 adapter.getFilter().filter(stext);
-                //listviewusers.setAdapter(adapter);
+                listviewusers.setAdapter(adapter);
             }
         });
     }
