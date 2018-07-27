@@ -45,7 +45,6 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         this.context = context;
         this.chats = chats;
         this.inbox = inbox;
-
         dateFormat = SimpleDateFormat.getTimeInstance();
     }
 

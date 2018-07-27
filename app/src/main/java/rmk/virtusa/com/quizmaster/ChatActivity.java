@@ -61,7 +61,8 @@ public class ChatActivity extends AppActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.chatToolbarInboxContainer:
-                Toast.makeText(this, "Show indepth view of current inbox", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(this, InboxInfoActivity.class);
+                startActivity(intent);
                 break;
         }
     }
@@ -77,9 +78,9 @@ public class ChatActivity extends AppActivity {
         switch (item.getItemId()) {
             case R.id.chatVideoCallBtn:
                 //TODO implement video call
-                Intent intent = new Intent(this, CallActivity.class);
-                startActivity(intent);
                 Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
+                //Intent intent = new Intent(this, CallActivity.class);
+                //startActivity(intent);
                 return true;
             case android.R.id.home:
                 super.onBackPressed();
@@ -96,7 +97,7 @@ public class ChatActivity extends AppActivity {
         try {
             inboxId = getIntent().getExtras().getString(getString(R.string.extra_chat_inboxId));
         } catch (NullPointerException npe) {
-            Log.e(TAG, "Intent extra inboxId not foud");
+            Log.e(TAG, "Intent extra inboxId not found");
         }
 
         if (inboxId == null) {
@@ -143,6 +144,7 @@ public class ChatActivity extends AppActivity {
                     chatRecyclerView.setAdapter(chatAdapter);
                     break;
                 case FAILED:
+                    Toast.makeText(this, "Cannot find the specified inbox", Toast.LENGTH_LONG).show();
                     finish();
                     return;
             }
