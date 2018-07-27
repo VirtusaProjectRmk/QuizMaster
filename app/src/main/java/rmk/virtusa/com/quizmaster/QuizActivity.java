@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -31,21 +30,40 @@ import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class QuizActivity extends AppActivity {
 
-    private TextView mQuestion, quesNum, timer;
     public Firebase mQuestionRef, mChoice1Ref, mChoice2Ref, mChoice3Ref, mChoice4Ref, mAnswerRef;
     public Button nextButton;
     public RadioButton mRadio1, mRadio2, mRadio3, mRadio4;
     public RadioGroup rg;
     public String mAnswer;
-    public int questionCounter = 1;
+    public int questionCounter = 0;
     public int score = 0;
     public Integer mQuestionNumber[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    ArrayList<Integer> list;
     public long timeLeftInMillis = 1200000;
     public Boolean isClicked = false;
+    ArrayList<Integer> list;
     int c = 0;
-
     User user = null;
+    CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            String timeToShow = String.format(Locale.getDefault(), "%02d:%02d", (int) (timeLeftInMillis / 1000) / 60, (int) (timeLeftInMillis / 1000) % 60);
+            timer.setText(timeToShow);
+            if (timeLeftInMillis < 10000) {
+                timer.setTextColor(Color.RED);
+            }
+            timeLeftInMillis = millisUntilFinished;
+        }
+
+        @Override
+        public void onFinish() {
+            checkAnswer();
+            Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
+            intent.putExtra("score", score);
+            intent.putExtra("type", FinishActivity.TIME_UP);
+            startActivity(intent);
+        }
+    }.start();
+    private TextView mQuestion, quesNum, timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,33 +87,75 @@ public class QuizActivity extends AppActivity {
         nextButton = findViewById(R.id.next);
 
 
+        //get the question first
+        updateQuestion();
 
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                 * Fetch user information first before entering into quiz
-                 */
-                UserHandler.getInstance().getUser((user, flags) -> {
+
+        /*
+         * Fetch user information first before entering into quiz
+         */
+        UserHandler.getInstance().getUser((user, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    QuizActivity.this.user = user;
+                    break;
+                case FAILED:
+                    //TODO Show dismissible dialog than Toast
+                    Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
+            }
+        });
+
+
+        nextButton.setOnClickListener(v -> {
+            //if user is being fetched, don't submit yet
+            if (user == null) {
+                Toast.makeText(this, "Please wait while we load", Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (rg.getCheckedRadioButtonId() == -1) {
+                Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (questionCounter <= 11) {
+                if (checkAnswer()) {
+                    score++;
+
+                    user.setQAnsTot(score);
+                    //TODO add multiplier for points
+                    user.setPointsTot(score);
+                }
+
+                //finally update the question
+                if (questionCounter == 10) {
+                    nextButton.setText("Submit");
+                } else if (questionCounter == 11) {
+                    isClicked = true; //FIXME ?why?
+                    //checkAnswer();
+                    Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
+                    intent.putExtra("score", score);
+                    intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
+                    startActivity(intent);
+                    finish();
+                }
+
+                questionCounter++;
+                c++;
+
+                user.setAAttTot(questionCounter);
+
+                UserHandler.getInstance().setUser(user, (user, flags) -> {
                     switch (flags) {
-                        case UPDATED:
-                            QuizActivity.this.user = user;
-                            updateQuestion();
-                            if (questionCounter <= 12) {
-                                if (rg.getCheckedRadioButtonId() == -1) {
-                                    Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    checkAnswer();
-                                }
-                            }
-                            break;
                         case FAILED:
-                            //TODO Show dismissable dialog than Toast
-                            Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
+                            //TODO use dismissible dialog than Toast
+                            Toast.makeText(QuizActivity.this, "Quiz submit failed, please try again later", Toast.LENGTH_LONG).show();
                             finish();
-                            break;
                     }
                 });
+                if (questionCounter < 12)
+                    updateQuestion();
             }
         });
     }
@@ -116,27 +176,6 @@ public class QuizActivity extends AppActivity {
             super.onUserLeaveHint();
         }
     }
-
-    CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
-        @Override
-        public void onTick(long millisUntilFinished) {
-            String timeToShow = String.format(Locale.getDefault(), "%02d:%02d", (int) (timeLeftInMillis / 1000) / 60, (int) (timeLeftInMillis / 1000) % 60);
-            timer.setText(timeToShow);
-            if (timeLeftInMillis < 10000) {
-                timer.setTextColor(Color.RED);
-            }
-            timeLeftInMillis = millisUntilFinished;
-        }
-
-        @Override
-        public void onFinish() {
-            checkAnswer();
-            Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-            intent.putExtra("score", score);
-            intent.putExtra("type", FinishActivity.TIME_UP);
-            startActivity(intent);
-        }
-    }.start();
 
     public void updateQuestion() {
 
@@ -243,41 +282,9 @@ public class QuizActivity extends AppActivity {
 
             }
         });
-        if (questionCounter == 12) {
-            String ans = "Submit";
-            nextButton.setText(ans);
-            nextButton.setOnClickListener(v -> {
-                isClicked = true;
-                if (rg.getCheckedRadioButtonId() == -1) {
-                    Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                } else {
-                    checkAnswer();
-                    Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-                    intent.putExtra("score", score);
-                    intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
-                    startActivity(intent);
-                }
-            });
-        }
 
-        String ans = "Question: " + questionCounter + "/" + 12;
+        String ans = "Question: " + (questionCounter + 1) + "/" + 12;
         quesNum.setText(ans);
-        questionCounter++;
-        c++;
-
-        user.setAAttTot(questionCounter);
-        user.setQAnsTot(c);
-        //TODO add multiplier for points
-        user.setPointsTot(c);
-        UserHandler.getInstance().setUser(user, (user, flags) -> {
-            switch (flags) {
-                case FAILED:
-                    //TODO use dismissable dialog than Toast
-                    Toast.makeText(QuizActivity.this, "Quiz submit failed, please try again later", Toast.LENGTH_LONG).show();
-                    finish();
-            }
-        });
-
     }
 
     @Override
@@ -288,16 +295,12 @@ public class QuizActivity extends AppActivity {
         }
     }
 
-    public void checkAnswer() {
-
+    public boolean checkAnswer() {
         int selected = rg.getCheckedRadioButtonId();
+        if (selected == -1) {
+            return false;
+        }
         RadioButton rbSelected = findViewById(selected);
-        if (rbSelected.getText().equals(mAnswer)) {
-            score++;
-        }
-        if (questionCounter <= 12) {
-            updateQuestion();
-        }
-
+        return rbSelected.getText().equals(mAnswer);
     }
 }
