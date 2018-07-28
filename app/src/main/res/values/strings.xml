@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">Quiz Master</string>
+    <string name="app_name">Quiz Master Mk V</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>`
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
@@ -68,5 +68,7 @@
     <string name="settings_theme_toggle">Dark Theme</string>
 
     <string name="chat_action_video_call">Video Call</string>
+    <string name="donwload_icon">⇩</string>
+    <string name="logout">Logout</string>
 
 </resources>

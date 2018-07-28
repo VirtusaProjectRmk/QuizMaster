@@ -3,7 +3,9 @@ package rmk.virtusa.com.quizmaster.adapter;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
+import android.support.annotation.DimenRes;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -143,7 +145,6 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
             String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
             ;
             holder.attachmentName.setText(fileName);
-            Glide.with(context).load(R.drawable.unknown_file_download).into(holder.attachmentImage);
         }
 
         @Override
@@ -153,8 +154,6 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
 
         public class AttachmentViewHolder extends RecyclerView.ViewHolder {
 
-            @BindView(R.id.attachmentImage)
-            ImageView attachmentImage;
             @BindView(R.id.attachmentName)
             TextView attachmentName;
 

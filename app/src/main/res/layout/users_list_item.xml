@@ -13,7 +13,6 @@
         android:id="@+id/usersListImageView"
         android:layout_width="@dimen/image_small"
         android:layout_height="@dimen/image_small"
-        android:elevation="@dimen/cardview_default_elevation"
         android:src="@drawable/default_user" />
 
     <TextView

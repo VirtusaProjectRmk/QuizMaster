@@ -4,64 +4,39 @@ package rmk.virtusa.com.quizmaster.model;
 import java.util.List;
 
 public class User {
-
-
     private String id;
-
     private String firebaseUid;
-
     private String name;
-
-    private String branch;
-
-    private int qAnsTot;
-
-    private int aAttTot;
-
-    private int pointsTot;
-
+    private String summary;
     private String displayImage;
-
+    private int points;
+    private String branch;
+    private Gender gender;
     private List<String> inboxes;
+    //quiz
+    //request
 
     public User() {
-
     }
 
-    public User(int aAttTot, int qAnsTot, int pointsTot, String id, String firebaseUid, String name, String displayImage, String branch, List<String> inboxes) {
-        this.qAnsTot = qAnsTot;
-        this.aAttTot = aAttTot;
-        this.id = id;
+    public User(String firebaseUid, String id, String name, int points, String displayImage, String summary, Gender gender, String branch, List<String> inboxes) {
         this.firebaseUid = firebaseUid;
-        this.pointsTot = pointsTot;
+        this.id = id;
         this.name = name;
+        this.points = points;
         this.displayImage = displayImage;
+        this.summary = summary;
+        this.gender = gender;
         this.branch = branch;
         this.inboxes = inboxes;
     }
 
-    public String getDisplayImage() {
-        return displayImage;
+    public List<String> getInboxes() {
+        return inboxes;
     }
 
-    public void setDisplayImage(String displayImage) {
-        this.displayImage = displayImage;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public void setInboxes(List<String> inboxes) {
+        this.inboxes = inboxes;
     }
 
     public String getId() {
@@ -80,40 +55,52 @@ public class User {
         this.firebaseUid = firebaseUid;
     }
 
-    public int getQAnsTot() {
-        return this.qAnsTot;
+    public String getName() {
+        return this.name;
     }
 
-
-    public void setQAnsTot(Integer qAnsTot) {
-        this.qAnsTot = qAnsTot;
+    public void setName(String name) {
+        this.name = name;
     }
 
-
-    public int getAAttTot() {
-        return this.aAttTot;
+    public String getSummary() {
+        return this.summary;
     }
 
-
-    public void setAAttTot(Integer aAttTot) {
-        this.aAttTot = aAttTot;
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
-
-    public int getPointsTot() {
-        return this.pointsTot;
+    public String getDisplayImage() {
+        return this.displayImage;
     }
 
-
-    public void setPointsTot(Integer pointsTot) {
-        this.pointsTot = pointsTot;
+    public void setDisplayImage(String displayImage) {
+        this.displayImage = displayImage;
     }
 
-    public List<String> getInboxes() {
-        return inboxes;
+    public int getPoints() {
+        return this.points;
     }
 
-    public void setInboxes(List<String> inboxes) {
-        this.inboxes = inboxes;
+    public void setPoints(Integer points) {
+        this.points = points;
     }
+
+    public String getBranch() {
+        return this.branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+    }
+
+    public Gender getGender() {
+        return this.gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
 }

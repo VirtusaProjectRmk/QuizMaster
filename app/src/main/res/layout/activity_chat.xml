@@ -14,7 +14,7 @@
 
         <LinearLayout
             android:id="@+id/chatToolbarInboxContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
@@ -44,5 +44,6 @@
         android:layout_weight="1"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <include layout="@layout/chat_send_bar" />
+    <include
+        layout="@layout/chat_send_bar" />
 </LinearLayout>

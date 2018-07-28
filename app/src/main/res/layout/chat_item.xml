@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:background="@color/cardview_dark_background"
+    android:background="?chatMeBackground"
     android:clickable="true"
     android:focusable="true"
     android:gravity="fill_horizontal"

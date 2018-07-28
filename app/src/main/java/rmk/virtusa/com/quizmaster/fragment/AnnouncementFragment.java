@@ -17,10 +17,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import rmk.virtusa.com.quizmaster.ItemOffsetDecoration;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.AnnouncementAdapter;
 import rmk.virtusa.com.quizmaster.handler.AnnouncementHandler;
-import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
@@ -81,6 +81,8 @@ public class AnnouncementFragment extends Fragment {
         AnnouncementAdapter adapter = new AnnouncementAdapter(getContext(), announcements);
         announcementRecyclerView.setAdapter(adapter);
         announcementRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
+        ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getContext(), R.dimen.announcement_item_margin);
+        announcementRecyclerView.addItemDecoration(itemOffsetDecoration);
 
         AnnouncementHandler.getInstance().getAnnouncements((announcement, flag) -> {
             switch (flag) {

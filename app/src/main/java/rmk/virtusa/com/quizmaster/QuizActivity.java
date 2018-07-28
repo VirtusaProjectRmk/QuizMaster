@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
@@ -40,6 +42,7 @@ public class QuizActivity extends AppActivity {
     public Integer mQuestionNumber[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     public long timeLeftInMillis = 1200000;
     public Boolean isClicked = false;
+    QuizMetadata quizMetadata = new QuizMetadata(0, 0, 0, new Date());
     ArrayList<Integer> list;
     int c = 0;
     User user = null;
@@ -57,10 +60,7 @@ public class QuizActivity extends AppActivity {
         @Override
         public void onFinish() {
             checkAnswer();
-            Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-            intent.putExtra("score", score);
-            intent.putExtra("type", FinishActivity.TIME_UP);
-            startActivity(intent);
+            navigateOut(FinishActivity.TIME_UP);
         }
     }.start();
     private TextView mQuestion, quesNum, timer;
@@ -123,9 +123,9 @@ public class QuizActivity extends AppActivity {
                 if (checkAnswer()) {
                     score++;
 
-                    user.setQAnsTot(score);
+                    quizMetadata.setAnsweredCorrectly(score);
                     //TODO add multiplier for points
-                    user.setPointsTot(score);
+                    user.setPoints(score);
                 }
 
                 //finally update the question
@@ -134,17 +134,14 @@ public class QuizActivity extends AppActivity {
                 } else if (questionCounter == 11) {
                     isClicked = true; //FIXME ?why?
                     //checkAnswer();
-                    Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-                    intent.putExtra("score", score);
-                    intent.putExtra("type", FinishActivity.QUIZ_COMPLETED);
-                    startActivity(intent);
+                    navigateOut(FinishActivity.QUIZ_COMPLETED);
                     finish();
                 }
 
                 questionCounter++;
                 c++;
 
-                user.setAAttTot(questionCounter);
+                quizMetadata.setAttended(questionCounter);
 
                 UserHandler.getInstance().setUser(user, (user, flags) -> {
                     switch (flags) {
@@ -160,19 +157,21 @@ public class QuizActivity extends AppActivity {
         });
     }
 
-    public void onBackPressed() {
+    void navigateOut(int flag) {
         Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
         intent.putExtra("score", score);
-        intent.putExtra("type", FinishActivity.BACK_PRESSED);
+        intent.putExtra("type", flag);
         startActivity(intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        navigateOut(FinishActivity.BACK_PRESSED);
     }
 
     protected void onUserLeaveHint() {
         if (!isClicked) {
-            Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
-            intent.putExtra("score", score);
-            intent.putExtra("type", FinishActivity.BACK_PRESSED);
-            startActivity(intent);
+            navigateOut(FinishActivity.BACK_PRESSED);
             super.onUserLeaveHint();
         }
     }

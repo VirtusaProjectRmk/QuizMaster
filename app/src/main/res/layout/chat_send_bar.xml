@@ -1,41 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="@dimen/cardview_default_elevation">
+    android:background="?colorPrimary"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="8dp">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/chatProfileImageView"
+        android:layout_width="@dimen/image_tiny"
+        android:layout_height="@dimen/image_tiny"
+        android:src="@drawable/default_user" />
+
+    <EditText
+        android:id="@+id/chatMessageEditText"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:cursorVisible="false"
+        android:fadingEdge="horizontal"
+        android:fadingEdgeLength="@dimen/fading_edge_length"
+        android:hint="Say something..." />
+
+    <ImageView
+        android:id="@+id/chatSendButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/ic_menu_send"
+        android:tint="?textColorAlertDialogListItem" />
+</LinearLayout>
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/chatProfileImageView"
-            android:layout_width="@dimen/image_tiny"
-            android:layout_height="@dimen/image_tiny"
-            android:src="@drawable/default_user" />
-
-        <EditText
-            android:id="@+id/chatMessageEditText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:cursorVisible="false"
-            android:fadingEdge="horizontal"
-            android:fadingEdgeLength="@dimen/fading_edge_length"
-            android:hint="Say something..." />
-
-        <ImageView
-            android:id="@+id/chatSendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/ic_menu_send" />
-    </LinearLayout>
-</android.support.v7.widget.CardView>

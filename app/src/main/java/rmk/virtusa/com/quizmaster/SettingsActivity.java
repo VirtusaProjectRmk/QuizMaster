@@ -1,17 +1,29 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class SettingsActivity extends AppActivity {
 
     @BindView(R.id.settingsThemeSwitch)
     Switch settingsThemeSwitch;
+
+    @OnClick({R.id.settingsLogoutBtn})
+    public void onClick(View v) {
+        FirebaseAuth.getInstance().signOut();
+        finish();
+        startActivity(new Intent(this, LoginActivity.class));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

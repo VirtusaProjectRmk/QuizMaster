@@ -15,6 +15,7 @@ import rmk.virtusa.com.quizmaster.model.Chat;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static rmk.virtusa.com.quizmaster.adapter.ChatAdapter.CHAT_MEDIA_AUDIO;
 import static rmk.virtusa.com.quizmaster.adapter.ChatAdapter.CHAT_MEDIA_DATE;
+import static rmk.virtusa.com.quizmaster.adapter.ChatAdapter.CHAT_MEDIA_FILE;
 import static rmk.virtusa.com.quizmaster.adapter.ChatAdapter.CHAT_MEDIA_PHOTO;
 import static rmk.virtusa.com.quizmaster.adapter.ChatAdapter.CHAT_MEDIA_VIDEO;
 
@@ -45,6 +46,9 @@ public class ChatViewFactory {
                     break;
                 case CHAT_MEDIA_DATE:
                     view = LayoutInflater.from(context).inflate(R.layout.chat_type_date, root, false);
+                    break;
+                case CHAT_MEDIA_FILE:
+                    view = LayoutInflater.from(context).inflate(R.layout.chat_type_file, root, false);
                     break;
                 default:
                     //TODO handle corrupted chats

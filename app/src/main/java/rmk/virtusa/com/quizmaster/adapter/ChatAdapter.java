@@ -34,7 +34,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public static final int CHAT_MEDIA_AUDIO = 0;
     public static final int CHAT_MEDIA_PHOTO = 1;
     public static final int CHAT_MEDIA_VIDEO = 2;
-    public static final int CHAT_MEDIA_DATE = 3;
+    public static final int CHAT_MEDIA_FILE = 3;
+    public static final int CHAT_MEDIA_DATE = 4;
 
     private DateFormat dateFormat;
     private Context context;
@@ -61,25 +62,28 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         if (holder.chatContentContainer.getChildCount() == 0) {
             holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
 
-            //FIXME cache members list
-            UserHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
-                switch (flag) {
-                    case UPDATED:
-                        holder.chatHeaderTextView.setText(user.getName());
-                        break;
-                    case FAILED:
-                        Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
-                        break;
-                }
-            });
-            holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
+            if (chat.getSenderUid().equals(UserHandler.getInstance().getUserUid())) {
+            } else {
+                //FIXME cache members list
+                UserHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
+                    switch (flag) {
+                        case UPDATED:
+                            holder.chatHeaderTextView.setText(user.getName());
+                            break;
+                        case FAILED:
+                            Toast.makeText(context, "Failed to get members", Toast.LENGTH_LONG).show();
+                            break;
+                    }
+                });
 
-            if (chat.getSenderUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                 TypedValue typedValue = new TypedValue();
-                if (context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true)) {
+                if (context.getTheme().resolveAttribute(R.attr.chatOthersBackground, typedValue, true)) {
                     holder.itemView.setBackgroundColor(typedValue.data);
                 }
             }
+
+            holder.chatSentTimeTextView.setText(dateFormat.format(chat.getSentTime()));
+
             holder.itemView.setOnClickListener(view -> {
                 //TODO implement for all types of chat
                 if (chat.getIsMedia()) {

@@ -5,8 +5,8 @@
     <color name="colorPrimaryDark">#141414</color>
     <color name="colorAccent">#2CF6B3</color>
 
-    <color name="colorLightPrimary">#fff</color>
-    <color name="colorLightPrimaryDark">#ced6e0</color>
+    <color name="colorLightPrimary">#cacaca</color>
+    <color name="colorLightPrimaryDark">#e3e3e3</color>
     <color name="colorLightAccent">#2ecc71</color>
 
     <color name="colorHardRed">#d63031</color>

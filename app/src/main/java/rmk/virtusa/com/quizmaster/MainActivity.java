@@ -192,14 +192,6 @@ public class MainActivity extends AppActivity
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_logout) {
-            FirebaseAuth.getInstance().signOut();
-            finish();
-            startActivity(new Intent(this, LoginActivity.class));
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);

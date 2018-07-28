@@ -54,9 +54,8 @@ public class LeaderboardActivity extends AppActivity {
         Collections.sort(ulist, new Comparator<User>() {
             @Override
             public int compare(User u1, User u2) {
-                return Integer.valueOf((int) u2.getPointsTot()).compareTo((int) u1.getPointsTot());
+                return Integer.compare(u2.getPoints(), u1.getPoints());
             }
-
         });
 
         UserHandler.getInstance().getUsers((user, flag) -> {

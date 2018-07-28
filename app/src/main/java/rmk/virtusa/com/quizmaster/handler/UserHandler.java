@@ -14,9 +14,11 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import rmk.virtusa.com.quizmaster.model.Detail;
+import rmk.virtusa.com.quizmaster.model.Gender;
+import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
 /*
@@ -36,9 +38,22 @@ public class UserHandler {
      * Cached users list for leaderboard purposes
      */
     private CollectionReference userCollectionRef = null;
+    private CollectionReference userContactCollectionRef = null;
+    private CollectionReference userDetailCollectionRef = null;
+    private CollectionReference userQuizCollectionRef = null;
+    private CollectionReference userInboxCollection = null;
+
+    /*
+    private detailManager;
+    private contactManager;
+    private requestManager;
+    */
+
+
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
+    private String userUid = "";
 
     private UserHandler() {
         db = FirebaseFirestore.getInstance();
@@ -50,10 +65,18 @@ public class UserHandler {
         db.setFirestoreSettings(settings);
 
         userCollectionRef = db.collection("users");
-
-        getUser(auth.getCurrentUser().getUid(), (user, flag) -> {
+        if (auth.getCurrentUser() == null) {
+            Log.e(TAG, "Fatal error");
+            return;
+        }
+        userUid = auth.getCurrentUser().getUid();
+        getUser(userUid, (user, flag) -> {
             UserHandler.this.user = user;
         });
+    }
+
+    public String getUserUid() {
+        return userUid;
     }
 
     public static UserHandler getInstance() {
@@ -86,7 +109,7 @@ public class UserHandler {
         StorageReference imagesRef = storageRef.child("images/");
         //add
         /*
-        imagesRef.child(getUser().getFirebaseUid())
+        imagesRef.child(getUser().getUserUid())
                 .putFile(null)
                 .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -101,7 +124,7 @@ public class UserHandler {
                     }
                 });
         */
-        return new String();
+        return "";
     }
 
     public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
@@ -113,7 +136,7 @@ public class UserHandler {
                         User user = documentSnapshot.toObject(User.class);
                         onUpdateUserListener.onUserUpdate(user, UPDATED);
                     } else {
-                        User user = new User(0, 0, 0, "", firebaseUid, "", "", "", new ArrayList<>());
+                        User user = new User(firebaseUid, "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
                         userCollectionRef.document(firebaseUid)
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
@@ -131,7 +154,7 @@ public class UserHandler {
     }
 
     /*
-     * Gets the user based on the specified firebaseUid
+     * Gets the user based on the specified userUid
      */
     public void getUser(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
         if (firebaseUid.isEmpty()) {
@@ -157,6 +180,11 @@ public class UserHandler {
         }
     }
 
+    public void updateUserWithQuiz(QuizMetadata quizMetadata) {
+        userCollectionRef.document(userUid).collection("quiz")
+                .add(quizMetadata);
+    }
+
     /*
      * Gets the user registered in firebase auth
      */
@@ -169,7 +197,7 @@ public class UserHandler {
                         onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
                     } else {
                         //if user object does'nt exist, create one
-                        User user = new User(0, 0, 0, "", auth.getCurrentUser().getUid(), auth.getCurrentUser().getDisplayName(), "", "", new ArrayList<>());
+                        User user = new User(auth.getCurrentUser().getUid(), "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
                         userCollectionRef.document(auth.getCurrentUser().getUid())
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
@@ -221,6 +249,10 @@ public class UserHandler {
                 .set(user, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> onUpdateUserListener.onUserUpdate(user, UPDATED))
                 .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(user, FAILED));
+    }
+
+    void addDetail(Detail detail, InboxHandler.OnUpdateInboxListener onUpdateInboxListener) {
+        //onUpdateInboxListener.onUpdateInbox(detail, UPDATED);
     }
 
     public interface OnUpdateUserListener {

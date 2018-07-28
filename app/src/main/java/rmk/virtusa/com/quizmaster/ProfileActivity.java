@@ -38,12 +38,9 @@ public class ProfileActivity extends AppActivity {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
-    @BindView(R.id.attTV)
-    TextView attTV;
-    @BindView(R.id.poiTV)
-    TextView poiTV;
-    @BindView(R.id.ansTV)
-    TextView ansTV;
+
+    @BindView(R.id.profilePoints)
+    TextView profilePoints;
     @BindView(R.id.fab)
     FloatingActionButton fab;
     @BindView(R.id.profileToolbar)
@@ -150,9 +147,8 @@ public class ProfileActivity extends AppActivity {
                     this.user = user;
                     name.setText(user.getName());
                     useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-                    ansTV.setText(String.valueOf(user.getQAnsTot()));
-                    attTV.setText(String.valueOf(user.getAAttTot()));
-                    poiTV.setText(String.valueOf(user.getPointsTot()));
+
+                    profilePoints.setText(String.valueOf(user.getPoints()));
                     profileBranch.setText(String.valueOf(user.getBranch()));
                     Glide.with(this).load(user.getDisplayImage()).into(profileImage);
                     break;
