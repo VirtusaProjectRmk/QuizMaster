@@ -139,7 +139,7 @@ public class ProfileActivity extends AppActivity {
             return;
         }
 
-        isEditable = (firebaseUid.equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+        isEditable = (firebaseUid.equals(UserHandler.getInstance().getUserUid()));
 
         UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
             switch (flags) {

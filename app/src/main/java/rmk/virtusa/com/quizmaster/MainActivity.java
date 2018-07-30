@@ -36,6 +36,9 @@ import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
+import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
+
 public class MainActivity extends AppActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -58,8 +61,12 @@ public class MainActivity extends AppActivity
     RecyclerView usersListRecyclerView;
 
     UsersListAdapter usersListAdapter;
+    FirebaseAuth auth;
     private List<User> users = new ArrayList<>();
 
+    MainActivity() {
+        auth = FirebaseAuth.getInstance();
+    }
 
     @OnClick({R.id.fabAdd})
     public void fabAddClick(View view) {
@@ -104,13 +111,21 @@ public class MainActivity extends AppActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-
         usersListAdapter = new UsersListAdapter(this, users);
-        UserHandler.getInstance().getUsers(((user, flags) -> {
-            if (user.getFirebaseUid().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                return;
-            users.add(user);
-            usersListAdapter.notifyDataSetChanged();
+        UserHandler.getInstance().getUsers(((user, flag) -> {
+            switch (flag) {
+                case UPDATED:
+                    if (auth.getCurrentUser() == null)
+                        return;
+                    if (user.getFirebaseUid() == null) return;
+                    if (user.getFirebaseUid().equals(auth.getCurrentUser().getUid()))
+                        return;
+                    users.add(user);
+                    usersListAdapter.notifyDataSetChanged();
+                    break;
+                case FAILED:
+                    break;
+            }
         }));
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

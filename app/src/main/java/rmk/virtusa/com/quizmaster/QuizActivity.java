@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -27,10 +28,13 @@ import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
+import static rmk.virtusa.com.quizmaster.FinishActivity.NETWORK_DOWN;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class QuizActivity extends AppActivity {
+
+    private static String TAG = "QuizActivity";
 
     public Firebase mQuestionRef, mChoice1Ref, mChoice2Ref, mChoice3Ref, mChoice4Ref, mAnswerRef;
     public Button nextButton;
@@ -114,6 +118,7 @@ public class QuizActivity extends AppActivity {
                 Toast.makeText(this, "Please wait while we load", Toast.LENGTH_LONG).show();
                 return;
             }
+
             if (rg.getCheckedRadioButtonId() == -1) {
                 Toast.makeText(QuizActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
                 return;
@@ -126,6 +131,16 @@ public class QuizActivity extends AppActivity {
                     quizMetadata.setAnsweredCorrectly(score);
                     //TODO add multiplier for points
                     user.setPoints(score);
+                    UserHandler.getInstance().getQuizUpdater()
+                            .set(quizMetadata)
+                            .update((quizMetadata, didUpdate) -> {
+                                if (didUpdate) {
+                                    Log.i(TAG, "Score updated");
+                                } else {
+                                    Toast.makeText(this, "Score update failed, you have been disconnected. Please try again later", Toast.LENGTH_LONG).show();
+                                    navigateOut(NETWORK_DOWN);
+                                }
+                            });
                 }
 
                 //finally update the question

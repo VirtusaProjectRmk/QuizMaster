@@ -71,4 +71,6 @@
     <string name="donwload_icon">⇩</string>
     <string name="logout">Logout</string>
 
+    <string name="finishNetworkDown">An error has occurred, please try again later</string>
+
 </resources>

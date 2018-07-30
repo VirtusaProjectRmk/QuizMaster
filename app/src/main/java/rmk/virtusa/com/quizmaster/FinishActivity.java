@@ -1,9 +1,7 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -12,6 +10,7 @@ public class FinishActivity extends AppActivity {
     final static int QUIZ_COMPLETED = 1;
     final static int BACK_PRESSED = 2;
     final static int TIME_UP = 3;
+    final static int NETWORK_DOWN = 4;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +28,7 @@ public class FinishActivity extends AppActivity {
         try {
             score = getIntent().getExtras().getInt("score");
             type = getIntent().getExtras().getInt("type");
-        } catch (NullPointerException npe){
+        } catch (NullPointerException npe) {
             //TODO report error
         }
         switch (type) {
@@ -41,6 +40,9 @@ public class FinishActivity extends AppActivity {
                 break;
             case TIME_UP:
                 finishDesTextView.setText(getString(R.string.timeup));
+                break;
+            case NETWORK_DOWN:
+                finishDesTextView.setText(getString(R.string.finishNetworkDown));
                 break;
             default:
                 finishDesTextView.setText(getString(R.string.quiz_submit_error));

@@ -8,6 +8,7 @@ import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.SetOptions;
@@ -38,18 +39,13 @@ public class UserHandler {
      * Cached users list for leaderboard purposes
      */
     private CollectionReference userCollectionRef = null;
-    private CollectionReference userContactCollectionRef = null;
-    private CollectionReference userDetailCollectionRef = null;
+    private DocumentReference userRef = null;
+    //private CollectionReference userContactCollectionRef = null;
+    //private CollectionReference userDetailCollectionRef = null;
     private CollectionReference userQuizCollectionRef = null;
-    private CollectionReference userInboxCollection = null;
+    //private CollectionReference userInboxCollection = null;
 
-    /*
-    private detailManager;
-    private contactManager;
-    private requestManager;
-    */
-
-
+    private UserUpdater<QuizMetadata> quizUpdater;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
@@ -64,23 +60,37 @@ public class UserHandler {
                 .build();
         db.setFirestoreSettings(settings);
 
-        userCollectionRef = db.collection("users");
+
         if (auth.getCurrentUser() == null) {
             Log.e(TAG, "Fatal error");
             return;
         }
         userUid = auth.getCurrentUser().getUid();
+
+        userCollectionRef = db.collection("users");
+        userRef = userCollectionRef.document(userUid);
+
+        quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
+
+        //userContactCollectionRef = userRef.collection("contacts");
+        //userDetailCollectionRef = userRef.collection("details");
+        //userInboxCollection = userRef.collection("inboxes");
+
         getUser(userUid, (user, flag) -> {
             UserHandler.this.user = user;
         });
     }
 
-    public String getUserUid() {
-        return userUid;
-    }
-
     public static UserHandler getInstance() {
         return ourInstance;
+    }
+
+    public UserUpdater<QuizMetadata> getQuizUpdater() {
+        return quizUpdater;
+    }
+
+    public String getUserUid() {
+        return userUid;
     }
 
     public void getUsers(OnUpdateUserListener onUpdateUserListener) {
@@ -90,6 +100,9 @@ public class UserHandler {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<User> users = queryDocumentSnapshots.toObjects(User.class);
                     for (User user : users) {
+                        if (user == null) {
+                            onUpdateUserListener.onUserUpdate(null, FAILED);
+                        }
                         onUpdateUserListener.onUserUpdate(user, UPDATED);
                     }
                 })
@@ -174,15 +187,17 @@ public class UserHandler {
     /*
      * Queries databases for a list of users and returns them through callback
      */
-    public void getUsers(List<String> userIds, OnUpdateUserListener onUpdateUser) {
-        for (String userId : userIds) {
-            getUser(userId, onUpdateUser);
-        }
-    }
+
 
     public void updateUserWithQuiz(QuizMetadata quizMetadata) {
         userCollectionRef.document(userUid).collection("quiz")
                 .add(quizMetadata);
+        getUser((user, flag) -> {
+            setUser(user, (usr, flg) -> {
+                int points = quizMetadata.getAnsweredCorrectly() * quizMetadata.getMultiplier();
+                usr.setPoints(user.getPoints() + points);
+            });
+        });
     }
 
     /*
