@@ -48,6 +48,8 @@ public class QuizActivity extends AppActivity {
     public Boolean isClicked = false;
     QuizMetadata quizMetadata = new QuizMetadata(0, 0, 0, new Date());
     ArrayList<Integer> list;
+    ArrayList<String> question = new ArrayList<>();
+
     int c = 0;
     User user = null;
     CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
@@ -145,7 +147,8 @@ public class QuizActivity extends AppActivity {
 
                 //finally update the question
                 if (questionCounter == 10) {
-                    nextButton.setText("Submit");
+                    String ans = "Submit";
+                    nextButton.setText(ans);
                 } else if (questionCounter == 11) {
                     isClicked = true; //FIXME ?why?
                     //checkAnswer();
@@ -200,19 +203,19 @@ public class QuizActivity extends AppActivity {
         String url = "url";
         switch (day) {
             case Calendar.MONDAY:
-                url = "https://quizmaster-89038.firebaseio.com/0/questions1/";
+                url = "https://quizmaster-89038.firebaseio.com/0/iot/";
                 break;
             case Calendar.TUESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/1/questions2/";
+                url = "https://quizmaster-89038.firebaseio.com/1/mobility/";
                 break;
             case Calendar.WEDNESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/2/questions3/";
+                url = "https://quizmaster-89038.firebaseio.com/2/cloud/";
                 break;
             case Calendar.THURSDAY:
-                url = "https://quizmaster-89038.firebaseio.com/3/questions4/";
+                url = "https://quizmaster-89038.firebaseio.com/3/bigdata/";
                 break;
             case Calendar.FRIDAY:
-                url = "https://quizmaster-89038.firebaseio.com/4/questions5/";
+                url = "https://quizmaster-89038.firebaseio.com/4/frontend/";
                 break;
         }
         Firebase.setAndroidContext(this);
@@ -228,6 +231,10 @@ public class QuizActivity extends AppActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String questions = dataSnapshot.getValue(String.class);
                 mQuestion.setText(questions);
+                for(DataSnapshot snapShot : dataSnapshot.getChildren()) {
+                    String s = snapShot.getValue(String.class);
+                    question.add(s);
+                }
             }
 
             @Override
