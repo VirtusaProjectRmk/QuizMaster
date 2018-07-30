@@ -1,6 +1,7 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,6 +27,7 @@ public class LeaderboardActivity extends AppActivity {
     EditText editText;
     ImageButton imageButton;
     UserListAdapter adapter;
+    SwipeRefreshLayout mySwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,7 @@ public class LeaderboardActivity extends AppActivity {
         editText = (EditText) findViewById(R.id.editText);
         imageButton = (ImageButton) findViewById(R.id.imageButton);
         listviewusers = (ListView) findViewById(R.id.listviewusers);
+        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
 
         ulist = new ArrayList<>();
 
@@ -70,8 +73,30 @@ public class LeaderboardActivity extends AppActivity {
             }
         });
 
+        mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mySwipeRefreshLayout.setRefreshing(true);
+                doUpdate();
+            }
+        });
+
         adapter = new UserListAdapter(LeaderboardActivity.this, ulist);
         listviewusers.setAdapter(adapter);
     }
+
+    private void doUpdate() {
+        Collections.sort(ulist, new Comparator<User>() {
+            @Override
+            public int compare(User u1, User u2) {
+                return Integer.compare(u2.getPoints(), u1.getPoints());
+            }
+        });
+
+        adapter.notifyDataSetChanged();
+        mySwipeRefreshLayout.setRefreshing(false);
+
+    }
+
 
 }
