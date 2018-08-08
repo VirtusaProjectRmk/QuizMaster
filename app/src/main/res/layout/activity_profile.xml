@@ -60,7 +60,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginTop="8dp"
                         android:src="@drawable/default_user"
-                        app:civ_border_color="@android:color/darker_gray"
+                        app:civ_border_color="?colorPrimaryDark"
                         app:civ_border_width="2dp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -87,7 +87,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@android:color/transparent"
-                            android:cursorVisible="false" />
+                            android:cursorVisible="false"
+                            android:enabled="false" />
 
                         <TextView
                             android:id="@+id/useremail"
@@ -100,15 +101,15 @@
                 </android.support.constraint.ConstraintLayout>
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:id="@+id/view2"
-                    android:layout_width="1dp"
+                    android:layout_width="2dp"
                     android:layout_height="0dp"
                     android:layout_marginBottom="8dp"
                     android:layout_marginEnd="@dimen/activity_horizontal_margin"
                     android:layout_marginStart="@dimen/attachment_card_radius"
                     android:layout_marginTop="8dp"
                     android:background="?attr/colorPrimaryDark"
+                    android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/linearLayout2"
                     app:layout_constraintTop_toBottomOf="@+id/profileToolbar" />
@@ -188,6 +189,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
+
+            <com.jjoe64.graphview.GraphView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 
