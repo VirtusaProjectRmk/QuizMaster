@@ -64,7 +64,8 @@ public class MainActivity extends AppActivity
     FirebaseAuth auth;
     private List<User> users = new ArrayList<>();
 
-    MainActivity() {
+    public MainActivity() {
+        super();
         auth = FirebaseAuth.getInstance();
     }
 
