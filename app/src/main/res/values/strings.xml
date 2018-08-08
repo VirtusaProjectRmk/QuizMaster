@@ -42,6 +42,7 @@
     <string name="statistics">Statistics</string>
     <string name="profile_add_summary">+ Add user summary</string>
     <string name="profile_action_message">Message</string>
+    <string name="profile_add_link_title">Link</string>
 
     <!--intent extras-->
     <string name="extra_profile_firebase_uid">extraProfileFirebaseUid</string>
@@ -72,5 +73,8 @@
     <string name="logout">Logout</string>
 
     <string name="finishNetworkDown">An error has occurred, please try again later</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

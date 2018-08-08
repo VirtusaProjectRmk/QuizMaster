@@ -18,15 +18,14 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.ChatAdapter;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.InboxHandler;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
@@ -54,7 +53,7 @@ public class ChatActivity extends AppActivity {
     TextView chatToolbarTitle;
     @BindView(R.id.chatToolbarInboxContainer)
     LinearLayout chatToolbarInboxContainer;
-    private List<Chat> chats = new ArrayList<>();
+    private FirestoreList<Chat> chats;
     private ChatAdapter chatAdapter;
 
     @OnClick({R.id.chatToolbarInboxContainer})
@@ -84,6 +83,9 @@ public class ChatActivity extends AppActivity {
                 return true;
             case android.R.id.home:
                 super.onBackPressed();
+                return true;
+            case R.id.chatAddBtn:
+                Toast.makeText(this, "Feature not implemented: Creates a group with the selected user", Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -118,6 +120,7 @@ public class ChatActivity extends AppActivity {
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         UserHandler.getInstance().getUser((user, flag) -> {
             Glide.with(this).load(user.getDisplayImage()).into(chatProfileImageView);
         });
@@ -130,16 +133,12 @@ public class ChatActivity extends AppActivity {
                     Glide.with(this).load(inbox.getInboxImage()).into(chatToolbarInboxImage);
                     chatAdapter = new ChatAdapter(this, chats, inbox);
                     //Get chats with the given inboxId
-                    InboxHandler.getInstance().getChats(inboxId, (chat, flg) -> {
-                        switch (flg) {
-                            case UPDATED:
-                                chats.add(chat);
-                                chatAdapter.notifyDataSetChanged();
-                                break;
-                            case FAILED:
-                                break;
+                    chats = InboxHandler.getInstance().getChats(inboxId, (chat, fg) -> {
+                        if (fg == UPDATED) {
+                            chatAdapter.notifyDataSetChanged();
                         }
                     });
+                    chatAdapter = new ChatAdapter(ChatActivity.this, chats, inbox);
                     chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
                     chatRecyclerView.setAdapter(chatAdapter);
                     break;
@@ -155,8 +154,10 @@ public class ChatActivity extends AppActivity {
             InboxHandler.getInstance().addChat(inboxId, chat, (cht, flg) -> {
                 switch (flg) {
                     case UPDATED:
-                        chats.add(cht);
-                        chatAdapter.notifyDataSetChanged();
+                        chats.add(cht, (ct, didUpdate) -> {
+                            chatAdapter.notifyDataSetChanged();
+                            chatMessageEditText.setText("");
+                        });
                         //TODO UI indicating success probably single tick
                         break;
                     case FAILED:

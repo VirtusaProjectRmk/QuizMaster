@@ -41,6 +41,15 @@ public class InboxHandler {
         return ourInstance;
     }
 
+    public FirestoreList<Chat> getChats(String inboxId, OnUpdateChatListener onUpdateChatListener) {
+        final FirestoreList<Chat> firestoreList = new FirestoreList<>(Chat.class
+                , inboxCollectionRef.document(inboxId).collection("chats")
+                , (chat, didUpdate) -> {
+            onUpdateChatListener.onUpdateChat(chat, UPDATED);
+        });
+        return firestoreList;
+    }
+
     public void getInboxes(OnUpdateInboxListener onUpdateInbox) {
         UserHandler.getInstance().getUser((user, flag) -> {
             if (user.getInboxes() == null) {
@@ -87,7 +96,6 @@ public class InboxHandler {
                     });
         }
     }
-
 
     public void checkForInboxRedundancy(String userId1, OnUpdateInboxListener onUpdateInboxListener) {
         //TODO check if current user exist in userId2 inbox or vice-versa
@@ -140,7 +148,6 @@ public class InboxHandler {
         });
     }
 
-
     public void addChat(String inboxId, Chat chat, OnUpdateChatListener onUpdateChat) {
         CollectionReference chatCollectionRef = inboxCollectionRef.document(inboxId).collection("chats");
         chatCollectionRef
@@ -151,21 +158,6 @@ public class InboxHandler {
                 })
                 .addOnFailureListener(e -> {
                     onUpdateChat.onUpdateChat(null, FAILED);
-                });
-    }
-
-    public void getChats(String inboxId, OnUpdateChatListener onUpdateChatListener) {
-        CollectionReference chatCollectionRef = inboxCollectionRef.document(inboxId).collection("chats");
-        chatCollectionRef
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Chat> chats = queryDocumentSnapshots.toObjects(Chat.class);
-                    for (Chat chat : chats) {
-                        onUpdateChatListener.onUpdateChat(chat, UPDATED);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    onUpdateChatListener.onUpdateChat(null, FAILED);
                 });
     }
 

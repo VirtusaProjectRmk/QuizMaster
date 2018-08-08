@@ -2,76 +2,88 @@ package rmk.virtusa.com.quizmaster.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
-import rmk.virtusa.com.quizmaster.ChatActivity;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.model.Inbox;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
+import rmk.virtusa.com.quizmaster.model.Link;
 
-public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHolder> {
-    Context context;
-    List<Inbox> inboxes;
+public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> {
+    private static final String TAG = "LinkAdapter";
+    private Context context;
+    private FirestoreList<Link> linkList;
 
-    public InboxAdapter(Context context, List<Inbox> inboxes) {
+    public LinkAdapter(Context context, FirestoreList<Link> linkList) {
         this.context = context;
-        this.inboxes = inboxes;
+        this.linkList = linkList;
     }
 
     @NonNull
     @Override
-    public InboxViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.inbox_item, parent, false);
-        return new InboxViewHolder(view);
+    public LinkViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_link, parent, false);
+        return new LinkViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull InboxViewHolder holder, int position) {
-        Inbox inbox = inboxes.get(position);
-        holder.inboxName.setText(inbox.getName());
-        holder.inboxStatus.setText(inbox.getStatus());
-
-
-        if (inbox.getInboxImage() == null) {
-            Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);
-        } else {
-            Glide.with(context)
-                    .load(inbox.getInboxImage().isEmpty() ? R.drawable.default_user : inbox.getInboxImage())
-                    .into(holder.inboxImageView);
-        }
+    public void onBindViewHolder(@NonNull LinkViewHolder holder, int position) {
+        Link link = linkList.get(position);
+        holder.linkUrl.setText(link.getUrl());
+        holder.linkWebsite.setText(LinkFactory.getWebsite(link.getUrl()));
+        holder.linkImageView.setImageResource(LinkFactory.getIcon(link.getUrl()));
         holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(context, ChatActivity.class);
-            //FIXME Update code to select any chatroom
-            intent.putExtra(context.getString(R.string.extra_chat_inboxId), "j0bKHLN1x43ag7dFw9ki");
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link.getUrl()));
             context.startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return inboxes.size();
+        return linkList.size();
     }
 
-    public class InboxViewHolder extends RecyclerView.ViewHolder {
-        @BindView(R.id.inboxName)
-        TextView inboxName;
-        @BindView(R.id.inboxStatus)
-        TextView inboxStatus;
-        @BindView(R.id.inboxImageView)
-        CircleImageView inboxImageView;
+    private static class LinkFactory {
 
-        public InboxViewHolder(View itemView) {
+        @NonNull
+        static String getWebsite(String url) {
+            String s = "";
+            try {
+                s = url.split("www.")[1].split(".com")[0];
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
+            }
+            return s;
+        }
+
+        static int getIcon(String url) {
+            if (url.contains("git")) {
+                return R.drawable.github_icon;
+            } else if (url.contains("linkedin")) {
+                return R.drawable.linkedin_icon;
+            } else return R.drawable.web_icon;
+        }
+
+    }
+
+    public class LinkViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.linkImageView)
+        ImageView linkImageView;
+        @BindView(R.id.linkWebsite)
+        TextView linkWebsite;
+        @BindView(R.id.linkUrl)
+        TextView linkUrl;
+
+        public LinkViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 

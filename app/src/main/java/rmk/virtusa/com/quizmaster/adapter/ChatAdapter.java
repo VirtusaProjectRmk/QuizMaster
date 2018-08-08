@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.firebase.client.Firebase;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -21,6 +21,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.ChatViewFactory;
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
@@ -39,10 +40,10 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     private DateFormat dateFormat;
     private Context context;
-    private List<Chat> chats;
+    private FirestoreList<Chat> chats;
     private Inbox inbox;
 
-    public ChatAdapter(Context context, List<Chat> chats, Inbox inbox) {
+    public ChatAdapter(Context context, FirestoreList<Chat> chats, Inbox inbox) {
         this.context = context;
         this.chats = chats;
         this.inbox = inbox;
@@ -63,6 +64,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
 
             if (chat.getSenderUid().equals(UserHandler.getInstance().getUserUid())) {
+                holder.itemView.setBackgroundResource(R.drawable.chat_me_background);
+                holder.chatHeaderTextView.setVisibility(View.GONE);
             } else {
                 //FIXME cache members list
                 UserHandler.getInstance().getUser(chat.getSenderUid(), (user, flag) -> {
@@ -78,7 +81,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
                 TypedValue typedValue = new TypedValue();
                 if (context.getTheme().resolveAttribute(R.attr.chatOthersBackground, typedValue, true)) {
-                    holder.itemView.setBackgroundColor(typedValue.data);
+                    holder.itemView.setBackgroundResource(R.drawable.announcement_bg);//typedValue.data);
                 }
             }
 

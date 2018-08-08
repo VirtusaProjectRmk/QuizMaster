@@ -71,7 +71,7 @@ public class MainActivity extends AppActivity
 
     @OnClick({R.id.fabAdd})
     public void fabAddClick(View view) {
-        AnnounceFragment fragment = new AnnounceFragment();
+        AnnounceFragment fragment = AnnounceFragment.newInstance();
         fragment.show(getFragmentManager(), "Showned");
 
     }

@@ -8,12 +8,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
-//FIXME possible code smell
-public class FirebaseQueue<T> extends HashMap<T, String> {
+//FIXME Class is a possible code smell
+public class FirestoreList<T> extends HashMap<T, String> {
     private CollectionReference collectionReference;
     private Class<T> classType;
 
-    public FirebaseQueue(Class<T> classType, CollectionReference collectionReference, OnChangeListener<T> onChangeListener) {
+    public FirestoreList(Class<T> classType, CollectionReference collectionReference, OnChangeListener<T> onChangeListener) {
         this.collectionReference = collectionReference;
         this.classType = classType;
         collectionReference.get()

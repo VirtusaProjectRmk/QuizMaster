@@ -19,6 +19,7 @@ import java.util.List;
 
 import rmk.virtusa.com.quizmaster.model.Detail;
 import rmk.virtusa.com.quizmaster.model.Gender;
+import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
@@ -46,6 +47,7 @@ public class UserHandler {
     //private CollectionReference userInboxCollection = null;
 
     private UserUpdater<QuizMetadata> quizUpdater;
+    private FirestoreList<Link> linkList;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
@@ -72,6 +74,10 @@ public class UserHandler {
 
         quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
 
+        linkList = new FirestoreList<>(Link.class, userRef.collection("links"), (link, didUpdate) -> {
+            //TODO indicate UserHandler that list has loaded
+        });
+
         //userContactCollectionRef = userRef.collection("contacts");
         //userDetailCollectionRef = userRef.collection("details");
         //userInboxCollection = userRef.collection("inboxes");
@@ -79,6 +85,10 @@ public class UserHandler {
         getUser(userUid, (user, flag) -> {
             UserHandler.this.user = user;
         });
+    }
+
+    public FirestoreList<Link> getLinkList() {
+        return linkList;
     }
 
     public static UserHandler getInstance() {

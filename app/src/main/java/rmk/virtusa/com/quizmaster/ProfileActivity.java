@@ -1,11 +1,14 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -28,17 +31,21 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
+import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
+import rmk.virtusa.com.quizmaster.fragment.ProfileAddFragment;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class ProfileActivity extends AppActivity {
+public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
-
+    private final FirestoreList<Link> links = UserHandler.getInstance().getLinkList();
     @BindView(R.id.profilePoints)
     TextView profilePoints;
     @BindView(R.id.fab)
@@ -59,9 +66,11 @@ public class ProfileActivity extends AppActivity {
     AppBarLayout profileAppBarLayout;
     @BindView(R.id.profileMessageBtn)
     Button profileMessageBtn;
+    @BindView(R.id.profileLinkRecyclerView)
+    RecyclerView profileLinkRecyclerView;
     private ArrayList<String> stats = new ArrayList<>();
     private User user = null;
-    private Boolean isEditable = false;
+    private LinkAdapter linkAdapter;
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -117,6 +126,64 @@ public class ProfileActivity extends AppActivity {
         }
     }
 
+    public void changeButtonState(boolean isSave) {
+        fab.setImageResource(isSave ? R.drawable.tick_icon : R.drawable.ic_add);
+        fab.setOnClickListener(isSave ? this::update : this::add);
+    }
+
+
+    private void initializeUI(boolean isEditable) {
+        fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
+
+        changeButtonState(false);
+        useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
+        name.setEnabled(isEditable);
+        profileImage.setEnabled(isEditable);
+
+        profileMessageBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
+
+        setSupportActionBar(profileToolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (isEditable) {
+            name.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!editable.toString().equals(user.getName())) {
+                        changeButtonState(true);
+                    }
+                }
+            });
+            profileImage.setOnClickListener(view -> {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+            });
+        } else {
+            profileMessageBtn.setOnClickListener(view -> {
+                if (user == null) {
+                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(this, ChatActivity.class);
+                //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
+                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,7 +206,12 @@ public class ProfileActivity extends AppActivity {
             return;
         }
 
-        isEditable = (firebaseUid.equals(UserHandler.getInstance().getUserUid()));
+        boolean isEditable = (firebaseUid.equals(UserHandler.getInstance().getUserUid()));
+
+        //FIXME add editable for links
+        profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        linkAdapter = new LinkAdapter(this, links);
+        profileLinkRecyclerView.setAdapter(linkAdapter);
 
         UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
             switch (flags) {
@@ -158,53 +230,13 @@ public class ProfileActivity extends AppActivity {
                     break;
             }
         });
+        initializeUI(isEditable);
+    }
 
-        fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
-        useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
-        name.setEnabled(isEditable);
-        profileImage.setEnabled(isEditable);
-        profileMessageBtn.setVisibility(isEditable ? View.GONE : View.VISIBLE);
-
-        setSupportActionBar(profileToolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        if (isEditable) {
-            name.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    if (!charSequence.equals(user.getName())) {
-                        fab.setVisibility(View.VISIBLE);
-                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-
-                }
-            });
-            profileImage.setOnClickListener(view -> {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
-            });
-        } else {
-            profileMessageBtn.setOnClickListener(view -> {
-                if (user == null) {
-                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Intent intent = new Intent(this, ChatActivity.class);
-                //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
-                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
-            });
-        }
+    public void add(View view) {
+        //TODO delegate operations to a fragment
+        ProfileAddFragment profileAddFragment = ProfileAddFragment.newInstance();
+        profileAddFragment.show(getSupportFragmentManager(), "ProfileFragmentAdd");
     }
 
 
@@ -218,6 +250,7 @@ public class ProfileActivity extends AppActivity {
             UserHandler.getInstance().setUser(user, (usr, flags) -> {
                 switch (flags) {
                     case UPDATED:
+                        changeButtonState(false);
                         Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
                         break;
                     case FAILED:
@@ -228,5 +261,10 @@ public class ProfileActivity extends AppActivity {
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        linkAdapter.notifyDataSetChanged();
     }
 }

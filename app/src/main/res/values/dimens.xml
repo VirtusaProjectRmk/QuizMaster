@@ -16,4 +16,6 @@
 
     <dimen name="fading_edge_length">4dp</dimen>
     <dimen name="announcement_item_margin">16dp</dimen>
+
+    <dimen name="view_padding_small">8dp</dimen>
 </resources>
