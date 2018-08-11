@@ -17,7 +17,6 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -36,21 +35,16 @@ public class QuizActivity extends AppActivity {
 
     private static String TAG = "QuizActivity";
 
-    public Firebase mQuestionRef, mChoice1Ref, mChoice2Ref, mChoice3Ref, mChoice4Ref, mAnswerRef;
+    public Firebase mQuestionRef;
     public Button nextButton;
     public RadioButton mRadio1, mRadio2, mRadio3, mRadio4;
     public RadioGroup rg;
-    public String mAnswer;
     public int questionCounter = 0;
     public int score = 0;
-    public Integer mQuestionNumber[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
     public long timeLeftInMillis = 1200000;
     public Boolean isClicked = false;
     QuizMetadata quizMetadata = new QuizMetadata(0, 0, 0, new Date());
-    ArrayList<Integer> list;
-    ArrayList<String> question = new ArrayList<>();
-
-    int c = 0;
+    public ArrayList<Question> questions = new ArrayList<>();
     User user = null;
     CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
         @Override
@@ -77,10 +71,6 @@ public class QuizActivity extends AppActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
-        list = new ArrayList<>(Arrays.asList(mQuestionNumber));
-        Collections.shuffle(list);
-        list.toArray(mQuestionNumber);
-
         mRadio1 = findViewById(R.id.choice1);
         mRadio2 = findViewById(R.id.choice2);
         mRadio3 = findViewById(R.id.choice3);
@@ -91,11 +81,6 @@ public class QuizActivity extends AppActivity {
         quesNum = findViewById(R.id.question_num);
         mQuestion = findViewById(R.id.question);
         nextButton = findViewById(R.id.next);
-
-
-        //get the question first
-        updateQuestion();
-
 
         /*
          * Fetch user information first before entering into quiz
@@ -126,7 +111,7 @@ public class QuizActivity extends AppActivity {
                 return;
             }
 
-            if (questionCounter <= 11) {
+            if (questionCounter <= questions.size()-1) {
                 if (checkAnswer()) {
                     score++;
 
@@ -146,18 +131,15 @@ public class QuizActivity extends AppActivity {
                 }
 
                 //finally update the question
-                if (questionCounter == 10) {
+                if (questionCounter == questions.size()-2) {
                     String ans = "Submit";
                     nextButton.setText(ans);
-                } else if (questionCounter == 11) {
+                } else if (questionCounter == questions.size()-1) {
                     isClicked = true; //FIXME ?why?
                     //checkAnswer();
                     navigateOut(FinishActivity.QUIZ_COMPLETED);
                     finish();
                 }
-
-                questionCounter++;
-                c++;
 
                 quizMetadata.setAttended(questionCounter);
 
@@ -169,11 +151,54 @@ public class QuizActivity extends AppActivity {
                             finish();
                     }
                 });
-                if (questionCounter < 12)
-                    updateQuestion();
+                if (questionCounter < questions.size())
+                    advance();
             }
         });
-    }
+
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
+            int day = calendar.get(Calendar.DAY_OF_WEEK);
+            Firebase.setAndroidContext(this);
+
+            switch (day) {
+                case Calendar.MONDAY:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/iot");
+                    break;
+                case Calendar.TUESDAY:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/1/mobility");
+                    break;
+                case Calendar.WEDNESDAY:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/2/cloud");
+                    break;
+                case Calendar.THURSDAY:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/3/bigdata");
+                    break;
+                case Calendar.FRIDAY:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/4/frontend");
+                    break;
+            }
+
+            mQuestionRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                        Question question = child.getValue(Question.class);
+                        questions.add(question);
+                    }
+
+                    Collections.shuffle(questions);
+                    questionCounter = 0;
+                    displayQuestion(questionCounter);
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+                    Toast.makeText(QuizActivity.this, "Failed Loading Questions", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
 
     void navigateOut(int flag) {
         Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
@@ -194,120 +219,6 @@ public class QuizActivity extends AppActivity {
         }
     }
 
-    public void updateQuestion() {
-
-        rg.clearCheck();
-
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
-        int day = calendar.get(Calendar.DAY_OF_WEEK);
-        String url = "url";
-        switch (day) {
-            case Calendar.MONDAY:
-                url = "https://quizmaster-89038.firebaseio.com/0/iot/";
-                break;
-            case Calendar.TUESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/1/mobility/";
-                break;
-            case Calendar.WEDNESDAY:
-                url = "https://quizmaster-89038.firebaseio.com/2/cloud/";
-                break;
-            case Calendar.THURSDAY:
-                url = "https://quizmaster-89038.firebaseio.com/3/bigdata/";
-                break;
-            case Calendar.FRIDAY:
-                url = "https://quizmaster-89038.firebaseio.com/4/frontend/";
-                break;
-        }
-        Firebase.setAndroidContext(this);
-        mQuestionRef = new Firebase(url + mQuestionNumber[c] + "/question");
-        mChoice1Ref = new Firebase(url + mQuestionNumber[c] + "/choice1");
-        mChoice2Ref = new Firebase(url + mQuestionNumber[c] + "/choice2");
-        mChoice3Ref = new Firebase(url + mQuestionNumber[c] + "/choice3");
-        mChoice4Ref = new Firebase(url + mQuestionNumber[c] + "/choice4");
-        mAnswerRef = new Firebase(url + mQuestionNumber[c] + "/answer");
-
-        mQuestionRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String questions = dataSnapshot.getValue(String.class);
-                mQuestion.setText(questions);
-                for(DataSnapshot snapShot : dataSnapshot.getChildren()) {
-                    String s = snapShot.getValue(String.class);
-                    question.add(s);
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
-
-        mChoice1Ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String choice = dataSnapshot.getValue(String.class);
-                mRadio1.setText(choice);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
-
-        mChoice2Ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String choice = dataSnapshot.getValue(String.class);
-                mRadio2.setText(choice);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        mChoice3Ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String choice = dataSnapshot.getValue(String.class);
-                mRadio3.setText(choice);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        mChoice4Ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String choice = dataSnapshot.getValue(String.class);
-                mRadio4.setText(choice);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-            }
-        });
-
-        mAnswerRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mAnswer = dataSnapshot.getValue(String.class);
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        String ans = "Question: " + (questionCounter + 1) + "/" + 12;
-        quesNum.setText(ans);
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -316,12 +227,28 @@ public class QuizActivity extends AppActivity {
         }
     }
 
+    public void displayQuestion(int index) {
+        String ans = "Question: " + (index + 1) + "/" + (questions.size());
+        quesNum.setText(ans);
+        rg.clearCheck();
+        mQuestion.setText(questions.get(index).getQuestion());
+        mRadio1.setText(questions.get(index).getChoice1());
+        mRadio2.setText(questions.get(index).getChoice2());
+        mRadio3.setText(questions.get(index).getChoice3());
+        mRadio4.setText(questions.get(index).getChoice4());
+    }
+
+    public void advance() {
+        questionCounter = (questionCounter + 1) % questions.size();
+        displayQuestion(questionCounter);
+    }
+
     public boolean checkAnswer() {
         int selected = rg.getCheckedRadioButtonId();
         if (selected == -1) {
             return false;
         }
         RadioButton rbSelected = findViewById(selected);
-        return rbSelected.getText().equals(mAnswer);
+        return rbSelected.getText().equals(questions.get(questionCounter).getAnswer());
     }
 }
