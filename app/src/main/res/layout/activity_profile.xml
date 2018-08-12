@@ -20,6 +20,12 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <include layout="@layout/profile_header" />
+
+            <ProgressBar
+                android:id="@+id/profileProgressBar"
+                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </android.support.design.widget.CollapsingToolbarLayout>
     </android.support.design.widget.AppBarLayout>
 
@@ -74,9 +80,9 @@
                 android:nestedScrollingEnabled="false" />
 
             <com.jjoe64.graphview.GraphView
-                android:layout_marginTop="@dimen/view_padding_small"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/view_padding_small" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

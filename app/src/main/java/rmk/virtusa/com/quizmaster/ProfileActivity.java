@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +70,8 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     RecyclerView profileLinkRecyclerView;
     @BindView(R.id.userSummaryEditText)
     EditText userSummaryEditText;
+    @BindView(R.id.profileProgressBar)
+    ProgressBar profileProgressBar;
     private ArrayList<QuizMetadata> quizMetadataList = new ArrayList<>();
     private User user = null;
     private LinkAdapter linkAdapter;
@@ -132,41 +135,29 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         fab.setOnClickListener(isSave ? this::update : this::add);
     }
 
+    private void showLoading(boolean isLoading) {
+        profileProgressBar.setIndeterminate(isLoading);
+        profileProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    }
 
-    private void initializeUI(String firebaseUid, boolean isEditable) {
+
+    private void initializeUI(User user, String firebaseUid, boolean isEditable) {
+        showLoading(false);
+        this.user = user;
+        name.setText(user.getName() == null || user.getName().isEmpty() ? "No name" : user.getName());
+        name.setCompoundDrawablesWithIntrinsicBounds(0, 0, isEditable ? android.R.drawable.ic_menu_edit : 0, 0);
+        profilePoints.setText(String.valueOf(user.getPoints()));
+        profileBranch.setText(user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch());
+        Glide.with(this).load(user.getDisplayImage() == null || user.getDisplayImage().isEmpty() ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
+
+        userSummaryEditText.setVisibility((user.getSummary() == null || user.getSummary().isEmpty())
+                && isEditable ? View.VISIBLE : View.GONE);
+        userSummaryEditText.setText(user.getSummary() == null || user.getSummary().isEmpty() ? "" : user.getSummary());
+        userSummaryEditText.setEnabled(isEditable);
+
         profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink() : UserHandler.getInstance().getUserLink(firebaseUid));
         profileLinkRecyclerView.setAdapter(linkAdapter);
-        if (isEditable) {
-            name.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_menu_edit, 0);
-        }
-
-        UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
-            switch (flags) {
-                case UPDATED:
-                    this.user = user;
-                    name.setText(user.getName());
-                    profilePoints.setText(String.valueOf(user.getPoints()));
-                    profileBranch.setText(String.valueOf(user.getBranch()));
-                    Glide.with(this).load(user.getDisplayImage() == null ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
-                    if (user.getSummary() == null) {
-                        if (isEditable) {
-                            userSummaryEditText.setVisibility(View.VISIBLE);
-                        }
-                    } else {
-                        userSummaryEditText.setText(user.getSummary());
-                        userSummaryEditText.setVisibility(View.VISIBLE);
-                        if (!isEditable) {
-                            userSummaryEditText.setEnabled(false);
-                        }
-                    }
-                    break;
-                case FAILED:
-                    Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
-                    finish();
-                    break;
-            }
-        });
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
@@ -254,7 +245,21 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         boolean isEditable = (firebaseUid.equals(UserHandler.getInstance().getUserUid()));
-        initializeUI(firebaseUid, isEditable);
+
+        showLoading(true);
+
+        String finalFirebaseUid = firebaseUid;
+        UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
+            switch (flags) {
+                case UPDATED:
+                    initializeUI(user, finalFirebaseUid, isEditable);
+                    break;
+                case FAILED:
+                    Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
+            }
+        });
     }
 
     public void add(View view) {
@@ -269,6 +274,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
             Toast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
             return;
         }
+        showLoading(true);
         user.setName(name.getText().toString());
         if (userSummaryEditText.getText() != null) {
             user.setSummary(userSummaryEditText.getText().toString());
@@ -278,6 +284,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                 switch (flags) {
                     case UPDATED:
                         changeButtonState(false);
+                        showLoading(false);
                         Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
                         break;
                     case FAILED:
