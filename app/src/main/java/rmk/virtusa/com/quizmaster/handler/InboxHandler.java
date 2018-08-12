@@ -41,12 +41,8 @@ public class InboxHandler {
         return ourInstance;
     }
 
-    public FirestoreList<Chat> getChats(String inboxId, OnUpdateChatListener onUpdateChatListener) {
-        final FirestoreList<Chat> firestoreList = new FirestoreList<>(Chat.class
-                , inboxCollectionRef.document(inboxId).collection("chats")
-                , (chat, didUpdate) -> {
-            onUpdateChatListener.onUpdateChat(chat, UPDATED);
-        });
+    public FirestoreList<Chat> getChats(String inboxId, FirestoreList.OnLoadListener<Chat> onLoadListener) {
+        final FirestoreList<Chat> firestoreList = new FirestoreList<>(Chat.class, inboxCollectionRef.document(inboxId).collection("chats"), onLoadListener);
         return firestoreList;
     }
 

@@ -33,7 +33,7 @@ import rmk.virtusa.com.quizmaster.model.Chat;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
-public class ChatActivity extends AppActivity {
+public class ChatActivity extends AppActivity implements FirestoreList.OnLoadListener<Chat> {
 
     private static final String TAG = "ChatActivity";
     @BindView(R.id.chatProfileImageView)
@@ -131,14 +131,9 @@ public class ChatActivity extends AppActivity {
                 case UPDATED:
                     chatToolbarTitle.setText(inbox.getName());
                     Glide.with(this).load(inbox.getInboxImage()).into(chatToolbarInboxImage);
-                    chatAdapter = new ChatAdapter(this, chats, inbox);
                     //Get chats with the given inboxId
-                    chats = InboxHandler.getInstance().getChats(inboxId, (chat, fg) -> {
-                        if (fg == UPDATED) {
-                            chatAdapter.notifyDataSetChanged();
-                        }
-                    });
-                    chatAdapter = new ChatAdapter(ChatActivity.this, chats, inbox);
+                    chats = InboxHandler.getInstance().getChats(inboxId, this);
+                    chatAdapter = new ChatAdapter(this, chats, inbox);
                     chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
                     chatRecyclerView.setAdapter(chatAdapter);
                     break;
@@ -168,5 +163,12 @@ public class ChatActivity extends AppActivity {
         });
 
 
+    }
+
+    @Override
+    public void onLoad(boolean didLoad) {
+        if (chatAdapter != null) {
+            chatAdapter.notifyDataSetChanged();
+        }
     }
 }

@@ -71,7 +71,7 @@ public class ProfileAddFragment extends DialogFragment {
         detailAddButton.setOnClickListener(view1 -> {
             switch (profileAddTabLayout.getSelectedTabPosition()) {
                 case 0:
-                    UserHandler.getInstance().getUserLink().
+                    UserHandler.getInstance().getUserLink(null).
                             add((new Link(null, "https://www.github.com/someone")), (link, didUpdate) -> {
                             });
                     break;

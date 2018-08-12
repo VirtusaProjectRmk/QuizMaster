@@ -57,14 +57,10 @@ public class UserHandler {
     private Context context;
     private boolean isAdmin = false;
 
-    public boolean getIsAdmin() {
-        return isAdmin;
-    }
-
     private UserHandler(Context context) {
         this.context = context;
 
-        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
+        final SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
         isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
 
         db = FirebaseFirestore.getInstance();
@@ -85,6 +81,20 @@ public class UserHandler {
         userCollectionRef = db.collection("users");
         userRef = userCollectionRef.document(userUid);
 
+        CollectionReference adminCollection = db.collection("admins");
+        if (!isAdmin) {
+            adminCollection.document(userUid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            isAdmin = true;
+                            SharedPreferences.Editor editor = preferences.edit();
+                            editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
+                            editor.apply();
+                        }
+                    });
+        }
+
         quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
 
         //userContactCollectionRef = userRef.collection("contacts");
@@ -100,21 +110,25 @@ public class UserHandler {
         return instance;
     }
 
-    public static UserHandler getInstance(Context context){
-        if(instance == null){
+    public static UserHandler getInstance(Context context) {
+        if (instance == null) {
             instance = new UserHandler(context);
         }
         return instance;
     }
 
-    public FirestoreList<Link> getUserLink() {
-        FirestoreList<Link> linkList = new FirestoreList<>(Link.class, userRef.collection("links"));
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public FirestoreList<Link> getUserLink(FirestoreList.OnLoadListener<Link> onLoadListener) {
+        FirestoreList<Link> linkList = new FirestoreList<>(Link.class, userRef.collection("links"), onLoadListener);
         return linkList;
     }
 
 
-    public FirestoreList<Link> getUserLink(@NonNull String firebaseUid) {
-        FirestoreList<Link> links = new FirestoreList<>(Link.class, userCollectionRef.document(firebaseUid).collection("links"));
+    public FirestoreList<Link> getUserLink(@NonNull String firebaseUid, FirestoreList.OnLoadListener<Link> onLoadListener) {
+        FirestoreList<Link> links = new FirestoreList<>(Link.class, userCollectionRef.document(firebaseUid).collection("links"), onLoadListener);
         return links;
     }
 

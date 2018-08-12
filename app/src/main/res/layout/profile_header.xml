@@ -24,9 +24,9 @@
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/view_padding_small"
-        android:layout_marginEnd="@dimen/view_padding_small"
         android:layout_marginBottom="@dimen/view_padding_small"
+        android:layout_marginEnd="@dimen/view_padding_small"
+        android:layout_marginStart="@dimen/view_padding_small"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -85,7 +85,10 @@
                     style="@style/Base.TextAppearance.AppCompat.Body2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin" />
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:fadingEdge="horizontal"
+                    android:fadingEdgeLength="@dimen/fading_edge_length"
+                    android:lines="1" />
             </LinearLayout>
         </LinearLayout>
 
@@ -97,7 +100,8 @@
             android:layout_marginEnd="@dimen/activity_horizontal_margin"
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:contentDescription="@string/chat_action_video_call"
-            android:src="@drawable/video_call" />
+            android:src="@drawable/video_call"
+            android:visibility="gone" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/profileMessageBtn"
@@ -105,7 +109,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/view_padding_small"
             android:contentDescription="@string/profile_action_message"
-            android:src="@drawable/message_icon" />
+            android:src="@drawable/message_icon"
+            android:visibility="gone" />
     </LinearLayout>
 
 

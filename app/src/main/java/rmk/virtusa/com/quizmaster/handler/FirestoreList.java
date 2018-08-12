@@ -10,43 +10,38 @@ import java.util.Map;
 
 //FIXME Class is a possible code smell
 public class FirestoreList<T> extends HashMap<T, String> {
+    boolean isLoaded = false;
     private CollectionReference collectionReference;
     private Class<T> classType;
-    private OnChangeListener<T> onChangeListener;
+    private OnLoadListener<T> onLoadListener;
 
-    public FirestoreList(Class<T> classType, CollectionReference collectionReference) {
+    public FirestoreList(Class<T> classType, CollectionReference collectionReference, OnLoadListener<T> onLoadListener) {
         this.classType = classType;
         this.collectionReference = collectionReference;
-        execute(null);
+        this.onLoadListener = onLoadListener;
+        execute(onLoadListener);
     }
 
-    public FirestoreList(Class<T> classType, CollectionReference collectionReference, OnChangeListener<T> onChangeListener) {
-        this.classType = classType;
-        this.collectionReference = collectionReference;
-        this.onChangeListener = onChangeListener;
-        execute(onChangeListener);
-    }
-
-    void execute(OnChangeListener onChangeListener) {
+    void execute(OnLoadListener<T> onLoadListener) {
         collectionReference.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (onChangeListener != null) {
-                        //Denotes initialization of FirestoreList
-                        onChangeListener.onChange(null, true);
-                    }
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
                         put(documentSnapshot.toObject(this.classType), documentSnapshot.getId());
                     }
+                    //Denotes initialization of FirestoreList
+                    if (onLoadListener != null) {
+                        onLoadListener.onLoad(true);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    if (onChangeListener != null) {
-                        onChangeListener.onChange(null, false);
+                    if (onLoadListener != null) {
+                        onLoadListener.onLoad(false);
                     }
                 });
     }
 
-    public void setOnChangeListener(OnChangeListener<T> onChangeListener) {
-        this.onChangeListener = onChangeListener;
+    public void setOnLoadListener(OnLoadListener<T> onLoadListener) {
+        this.onLoadListener = onLoadListener;
     }
 
     public void add(T t, OnChangeListener<T> onChangeListener) {
@@ -90,5 +85,9 @@ public class FirestoreList<T> extends HashMap<T, String> {
 
     public interface OnChangeListener<T> {
         public void onChange(T t, boolean didUpdate);
+    }
+
+    public interface OnLoadListener<T> {
+        public void onLoad(boolean didLoad);
     }
 }

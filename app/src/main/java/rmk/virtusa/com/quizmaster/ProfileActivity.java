@@ -33,14 +33,16 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
 import rmk.virtusa.com.quizmaster.fragment.ProfileAddFragment;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener {
+public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener, FirestoreList.OnLoadListener<Link> {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
@@ -156,7 +158,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         userSummaryEditText.setEnabled(isEditable);
 
         profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink() : UserHandler.getInstance().getUserLink(firebaseUid));
+        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink(this) : UserHandler.getInstance().getUserLink(firebaseUid, this));
         profileLinkRecyclerView.setAdapter(linkAdapter);
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
@@ -302,5 +304,12 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     @Override
     public void onFragmentInteraction(Uri uri) {
         linkAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onLoad(boolean didLoad) {
+        if (linkAdapter != null) {
+            linkAdapter.notifyDataSetChanged();
+        }
     }
 }
