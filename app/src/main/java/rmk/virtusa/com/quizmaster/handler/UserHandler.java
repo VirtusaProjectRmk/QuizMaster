@@ -158,6 +158,16 @@ public class UserHandler {
                 });
     }
 
+    public FirestoreList<QuizMetadata> getUserQuizData(@NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
+        FirestoreList<QuizMetadata> quizMetadataFirestoreList = new FirestoreList<>(QuizMetadata.class, userRef.collection("quizzes"), onLoadListener);
+        return quizMetadataFirestoreList;
+    }
+
+    public FirestoreList<QuizMetadata> getUserQuizData(@NonNull String userUid, @NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
+        FirestoreList<QuizMetadata> quizMetadataFirestoreList = new FirestoreList<>(QuizMetadata.class, userCollectionRef.document(userUid).collection("quizzes"), onLoadListener);
+        return quizMetadataFirestoreList;
+    }
+
     /*
      * TODO save to device then upload to FirebaseStorage
      * Upload image with current firebase Uid

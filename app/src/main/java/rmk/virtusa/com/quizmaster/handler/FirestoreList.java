@@ -40,10 +40,6 @@ public class FirestoreList<T> extends HashMap<T, String> {
                 });
     }
 
-    public void setOnLoadListener(OnLoadListener<T> onLoadListener) {
-        this.onLoadListener = onLoadListener;
-    }
-
     public void add(T t, OnChangeListener<T> onChangeListener) {
         collectionReference.add(t)
                 .addOnSuccessListener(documentReference -> {
@@ -67,7 +63,8 @@ public class FirestoreList<T> extends HashMap<T, String> {
     }
 
     public T get(int i) {
-        Map.Entry<T, String> entry = (Map.Entry<T, String>) entrySet().toArray()[i];
+        Map.Entry<T, String> entry;
+        entry = (Entry<T, String>) entrySet().toArray()[i];
         return entry.getKey();
     }
 
@@ -84,10 +81,22 @@ public class FirestoreList<T> extends HashMap<T, String> {
     }
 
     public interface OnChangeListener<T> {
-        public void onChange(T t, boolean didUpdate);
+        void onChange(T t, boolean didUpdate);
+    }
+
+    public interface onUpdate<T> {
+        void onUpdate(T t, boolean didUpdate);
+    }
+
+    public interface OnAddListener<T> {
+        void onAdd(T t, boolean didUpdate);
+    }
+
+    public interface OnRemoveListener<T> {
+        void onRemove(boolean didUpdate);
     }
 
     public interface OnLoadListener<T> {
-        public void onLoad(boolean didLoad);
+        void onLoad(boolean didLoad);
     }
 }

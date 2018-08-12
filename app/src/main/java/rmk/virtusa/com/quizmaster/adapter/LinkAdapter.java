@@ -26,11 +26,6 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
     public LinkAdapter(Context context, FirestoreList<Link> linkList) {
         this.context = context;
         this.linkList = linkList;
-        linkList.setOnLoadListener((didUpdate) -> {
-            if (didUpdate) {
-                notifyDataSetChanged();
-            }
-        });
     }
 
     @NonNull

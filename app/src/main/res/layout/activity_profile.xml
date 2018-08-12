@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:focusableInTouchMode="true"
+    android:orientation="vertical"
     tools:context=".ProfileActivity">
 
     <android.support.design.widget.AppBarLayout
@@ -72,6 +72,12 @@
                 android:padding="@dimen/attachment_card_radius"
                 android:visibility="gone" />
 
+            <com.jjoe64.graphview.GraphView
+                android:id="@+id/quizProgressGraphView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="@dimen/view_padding_small" />
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/profileLinkRecyclerView"
                 android:layout_width="match_parent"
@@ -80,10 +86,6 @@
                 android:background="@drawable/attachment_bg"
                 android:nestedScrollingEnabled="false" />
 
-            <com.jjoe64.graphview.GraphView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/view_padding_small" />
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 

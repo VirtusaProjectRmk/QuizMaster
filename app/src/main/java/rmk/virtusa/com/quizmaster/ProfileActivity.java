@@ -23,10 +23,17 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,6 +41,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
 import rmk.virtusa.com.quizmaster.fragment.ProfileAddFragment;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList.OnLoadListener;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
@@ -42,7 +50,7 @@ import rmk.virtusa.com.quizmaster.model.User;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener, FirestoreList.OnLoadListener<Link> {
+public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
@@ -74,7 +82,9 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     EditText userSummaryEditText;
     @BindView(R.id.profileProgressBar)
     ProgressBar profileProgressBar;
-    private ArrayList<QuizMetadata> quizMetadataList = new ArrayList<>();
+    @BindView(R.id.quizProgressGraphView)
+    GraphView quizProgressGraphView;
+    FirestoreList<QuizMetadata> quizMetadataFirestoreList;
     private User user = null;
     private LinkAdapter linkAdapter;
 
@@ -145,6 +155,17 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
     private void initializeUI(User user, String firebaseUid, boolean isEditable) {
         showLoading(false);
+        quizMetadataFirestoreList = UserHandler.getInstance().getUserQuizData(didLoad -> {
+            quizProgressGraphView.setTitle("Quiz Stats");
+            LineGraphSeries<DataPoint> dataPointLineGraphSeries = new LineGraphSeries<>(toDataPoint(quizMetadataFirestoreList));
+            quizProgressGraphView.addSeries(dataPointLineGraphSeries);
+            quizProgressGraphView.getViewport().setYAxisBoundsManual(true);
+            quizProgressGraphView.getViewport().setMinY(0);
+            quizProgressGraphView.getViewport().setMaxY(12);
+            quizProgressGraphView.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(this));
+            quizProgressGraphView.getGridLabelRenderer().setNumHorizontalLabels(3);
+            quizProgressGraphView.getViewport().setScrollable(true);
+        });
         this.user = user;
         name.setText(user.getName() == null || user.getName().isEmpty() ? "No name" : user.getName());
         name.setCompoundDrawablesWithIntrinsicBounds(0, 0, isEditable ? android.R.drawable.ic_menu_edit : 0, 0);
@@ -158,7 +179,12 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         userSummaryEditText.setEnabled(isEditable);
 
         profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink(this) : UserHandler.getInstance().getUserLink(firebaseUid, this));
+        OnLoadListener<Link> onLoadListener = didLoad -> {
+            if (linkAdapter != null) {
+                linkAdapter.notifyDataSetChanged();
+            }
+        };
+        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink(onLoadListener) : UserHandler.getInstance().getUserLink(firebaseUid, onLoadListener));
         profileLinkRecyclerView.setAdapter(linkAdapter);
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
@@ -170,7 +196,6 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
         profileMessageBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
         profileVideoBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
-
 
         if (isEditable) {
             TextWatcher textWatcher = new TextWatcher() {
@@ -306,10 +331,25 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         linkAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onLoad(boolean didLoad) {
-        if (linkAdapter != null) {
-            linkAdapter.notifyDataSetChanged();
+    private DataPoint[] toDataPoint(FirestoreList<QuizMetadata> quizMetadataFirestoreList) {
+        //x - date
+        //y - questions_answered/questions_attended
+        QuizMetadata[] quizMetadatas = new QuizMetadata[quizMetadataFirestoreList.size()];
+        quizMetadataFirestoreList.keySet().toArray(quizMetadatas);
+        List<DataPoint> dataPointList = new ArrayList<>();
+        Arrays.sort(quizMetadatas, (t, t1) -> t.getDateTaken().compareTo(t1.getDateTaken()));
+
+        if(quizMetadatas.length == 0){
+            return new DataPoint[]{new DataPoint(0, 0)};
         }
+        quizProgressGraphView.getViewport().setMinX(quizMetadatas[0].getDateTaken().getTime());
+        quizProgressGraphView.getViewport().setMaxX(quizMetadatas[quizMetadatas.length - 1].getDateTaken().getTime());
+        quizProgressGraphView.getViewport().setXAxisBoundsManual(true);
+
+        for (QuizMetadata quizMetadata : quizMetadatas) {
+            dataPointList.add(new DataPoint(quizMetadata.getDateTaken(), quizMetadata.getAnsweredCorrectly()));
+        }
+        DataPoint[] dataPoints = new DataPoint[quizMetadatas.length];
+        return dataPointList.toArray(dataPoints);
     }
 }
