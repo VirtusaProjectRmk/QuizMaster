@@ -148,7 +148,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                     name.setText(user.getName());
                     profilePoints.setText(String.valueOf(user.getPoints()));
                     profileBranch.setText(String.valueOf(user.getBranch()));
-                    Glide.with(this).load(user.getDisplayImage()).into(profileImage);
+                    Glide.with(this).load(user.getDisplayImage() == null ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
                     if (user.getSummary() == null) {
                         if (isEditable) {
                             userSummaryEditText.setVisibility(View.VISIBLE);
@@ -156,7 +156,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                     } else {
                         userSummaryEditText.setText(user.getSummary());
                         userSummaryEditText.setVisibility(View.VISIBLE);
-                        if(!isEditable){
+                        if (!isEditable) {
                             userSummaryEditText.setEnabled(false);
                         }
                     }
