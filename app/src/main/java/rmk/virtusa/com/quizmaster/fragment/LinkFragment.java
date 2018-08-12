@@ -13,13 +13,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.model.Link;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link LinkFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LinkFragment extends Fragment {
+public class LinkFragment extends Fragment implements ProfileAddFragment.GetData<Link>{
 
     @BindView(R.id.profileAddCaption)
     TextView profileAddCaption;
@@ -46,6 +47,7 @@ public class LinkFragment extends Fragment {
         }
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,5 +61,10 @@ public class LinkFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public Link getData() {
+        return new Link(null, profileAddEditText.getText().toString());
     }
 }

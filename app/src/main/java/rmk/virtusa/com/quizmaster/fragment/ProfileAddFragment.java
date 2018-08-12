@@ -17,6 +17,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.ProfileAddFragmentAdapter;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Link;
 
@@ -64,13 +65,18 @@ public class ProfileAddFragment extends DialogFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile_add, container, false);
         unbinder = ButterKnife.bind(this, view);
-        profileAddViewPager.setAdapter(new ProfileAddFragmentAdapter(getContext(), getChildFragmentManager()));
+        ProfileAddFragmentAdapter profileAddFragmentAdapter = (new ProfileAddFragmentAdapter(getContext(), getChildFragmentManager()));
+        profileAddViewPager.setAdapter(profileAddFragmentAdapter);
         profileAddTabLayout.setupWithViewPager(profileAddViewPager);
         detailAddButton.setOnClickListener(view1 -> {
-            UserHandler.getInstance().getLinkList().
-                    add(new Link("", "https://www.github.com/someone/"), (link, didUpdate) -> {
-                        mListener.onFragmentInteraction(null);
-                    });
+            switch (profileAddTabLayout.getSelectedTabPosition()) {
+                case 0:
+                    UserHandler.getInstance().getUserLink().
+                            add((new Link(null, "https://www.github.com/someone")), (link, didUpdate) -> {
+                            });
+                    break;
+            }
+            mListener.onFragmentInteraction(null);
         });
         return view;
     }
@@ -118,5 +124,9 @@ public class ProfileAddFragment extends DialogFragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public interface GetData<T> {
+        T getData();
     }
 }

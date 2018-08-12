@@ -7,4 +7,30 @@
         <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:buttonStyle">@style/AppTheme.Button</item>
+        <item name="android:buttonTint">?attr/colorPrimary</item>
+        <!--chat-->
+        <item name="chatMeBackground">@color/colorPrimaryDark</item>
+        <item name="chatOthersBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorLightPrimary</item>
+        <item name="colorPrimaryDark">@color/colorLightPrimaryDark</item>
+        <item name="colorAccent">@color/colorLightAccent</item>
+        <item name="android:windowBackground">@color/colorLightPrimaryDark</item>
+        <item name="android:buttonStyle">@style/AppTheme.Button</item>
+        <item name="android:buttonTint">?attr/colorPrimary</item>
+
+        <!--chat-->
+        <item name="chatMeBackground">@color/colorHardGrey</item>
+        <item name="chatOthersBackground">@color/colorSoftGrey</item>
+    </style>
+
 </resources>

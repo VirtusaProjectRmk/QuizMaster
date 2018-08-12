@@ -1,9 +1,10 @@
 package rmk.virtusa.com.quizmaster.handler;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -17,11 +18,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
-import rmk.virtusa.com.quizmaster.model.Detail;
+import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.model.Gender;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /*
  * UserHandler does the following tasks asynchronously for updating the
@@ -35,7 +38,7 @@ public class UserHandler {
     public static final int FAILED = 1;
 
     private static final String TAG = "UserHandler";
-    private static final UserHandler ourInstance = new UserHandler();
+    private static UserHandler instance;
     /*
      * Cached users list for leaderboard purposes
      */
@@ -47,13 +50,23 @@ public class UserHandler {
     //private CollectionReference userInboxCollection = null;
 
     private UserUpdater<QuizMetadata> quizUpdater;
-    private FirestoreList<Link> linkList;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
     private User user = null;
     private String userUid = "";
+    private Context context;
+    private boolean isAdmin = false;
 
-    private UserHandler() {
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    private UserHandler(Context context) {
+        this.context = context;
+
+        SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
+        isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
+
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -74,10 +87,6 @@ public class UserHandler {
 
         quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
 
-        linkList = new FirestoreList<>(Link.class, userRef.collection("links"), (link, didUpdate) -> {
-            //TODO indicate UserHandler that list has loaded
-        });
-
         //userContactCollectionRef = userRef.collection("contacts");
         //userDetailCollectionRef = userRef.collection("details");
         //userInboxCollection = userRef.collection("inboxes");
@@ -87,12 +96,26 @@ public class UserHandler {
         });
     }
 
-    public FirestoreList<Link> getLinkList() {
+    public static UserHandler getInstance() {
+        return instance;
+    }
+
+    public static UserHandler getInstance(Context context){
+        if(instance == null){
+            instance = new UserHandler(context);
+        }
+        return instance;
+    }
+
+    public FirestoreList<Link> getUserLink() {
+        FirestoreList<Link> linkList = new FirestoreList<>(Link.class, userRef.collection("links"));
         return linkList;
     }
 
-    public static UserHandler getInstance() {
-        return ourInstance;
+
+    public FirestoreList<Link> getUserLink(@NonNull String firebaseUid) {
+        FirestoreList<Link> links = new FirestoreList<>(Link.class, userCollectionRef.document(firebaseUid).collection("links"));
+        return links;
     }
 
     public UserUpdater<QuizMetadata> getQuizUpdater() {
@@ -235,12 +258,7 @@ public class UserHandler {
                                 });
                     }
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        onUpdateUserListener.onUserUpdate(user, FAILED);
-                    }
-                });
+                .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(null, FAILED));
     }
 
     /*
@@ -276,12 +294,9 @@ public class UserHandler {
                 .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(user, FAILED));
     }
 
-    void addDetail(Detail detail, InboxHandler.OnUpdateInboxListener onUpdateInboxListener) {
-        //onUpdateInboxListener.onUpdateInbox(detail, UPDATED);
-    }
-
     public interface OnUpdateUserListener {
         public void onUserUpdate(User user, int flags);
     }
+
 
 }

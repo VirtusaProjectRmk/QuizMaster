@@ -15,7 +15,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,9 +32,8 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
 import rmk.virtusa.com.quizmaster.fragment.ProfileAddFragment;
-import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
-import rmk.virtusa.com.quizmaster.model.Link;
+import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
@@ -45,7 +43,6 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
-    private final FirestoreList<Link> links = UserHandler.getInstance().getLinkList();
     @BindView(R.id.profilePoints)
     TextView profilePoints;
     @BindView(R.id.fab)
@@ -65,10 +62,14 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     @BindView(R.id.profileAppBarLayout)
     AppBarLayout profileAppBarLayout;
     @BindView(R.id.profileMessageBtn)
-    Button profileMessageBtn;
+    FloatingActionButton profileMessageBtn;
+    @BindView(R.id.profileVideoBtn)
+    FloatingActionButton profileVideoBtn;
     @BindView(R.id.profileLinkRecyclerView)
     RecyclerView profileLinkRecyclerView;
-    private ArrayList<String> stats = new ArrayList<>();
+    @BindView(R.id.userSummaryEditText)
+    EditText userSummaryEditText;
+    private ArrayList<QuizMetadata> quizMetadataList = new ArrayList<>();
     private User user = null;
     private LinkAdapter linkAdapter;
 
@@ -132,7 +133,41 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     }
 
 
-    private void initializeUI(boolean isEditable) {
+    private void initializeUI(String firebaseUid, boolean isEditable) {
+        profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink() : UserHandler.getInstance().getUserLink(firebaseUid));
+        profileLinkRecyclerView.setAdapter(linkAdapter);
+        if (isEditable) {
+            name.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_menu_edit, 0);
+        }
+
+        UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
+            switch (flags) {
+                case UPDATED:
+                    this.user = user;
+                    name.setText(user.getName());
+                    profilePoints.setText(String.valueOf(user.getPoints()));
+                    profileBranch.setText(String.valueOf(user.getBranch()));
+                    Glide.with(this).load(user.getDisplayImage()).into(profileImage);
+                    if (user.getSummary() == null) {
+                        if (isEditable) {
+                            userSummaryEditText.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        userSummaryEditText.setText(user.getSummary());
+                        userSummaryEditText.setVisibility(View.VISIBLE);
+                        if(!isEditable){
+                            userSummaryEditText.setEnabled(false);
+                        }
+                    }
+                    break;
+                case FAILED:
+                    Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
+            }
+        });
+
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
         changeButtonState(false);
@@ -141,47 +176,55 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         profileImage.setEnabled(isEditable);
 
         profileMessageBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
+        profileVideoBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
 
-        setSupportActionBar(profileToolbar);
-        getSupportActionBar().setTitle("");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         if (isEditable) {
-            name.addTextChangedListener(new TextWatcher() {
+            TextWatcher textWatcher = new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
                 }
 
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
                 }
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    if (!editable.toString().equals(user.getName())) {
-                        changeButtonState(true);
-                    }
+                    changeButtonState(true);
                 }
-            });
+            };
+            name.addTextChangedListener(textWatcher);
+            userSummaryEditText.addTextChangedListener(textWatcher);
+
             profileImage.setOnClickListener(view -> {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             });
+            useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         } else {
+            profileVideoBtn.setOnClickListener(view -> {
+                if (!userCheck()) return;
+                Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
+            });
             profileMessageBtn.setOnClickListener(view -> {
-                if (user == null) {
-                    Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                if (!userCheck()) return;
                 Intent intent = new Intent(this, ChatActivity.class);
                 //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
                 Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
             });
         }
+    }
+
+
+    private boolean userCheck() {
+        if (user == null) {
+            Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -206,31 +249,12 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
             return;
         }
 
+        setSupportActionBar(profileToolbar);
+        getSupportActionBar().setTitle("");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         boolean isEditable = (firebaseUid.equals(UserHandler.getInstance().getUserUid()));
-
-        //FIXME add editable for links
-        profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        linkAdapter = new LinkAdapter(this, links);
-        profileLinkRecyclerView.setAdapter(linkAdapter);
-
-        UserHandler.getInstance().getUser(firebaseUid, (user, flags) -> {
-            switch (flags) {
-                case UPDATED:
-                    this.user = user;
-                    name.setText(user.getName());
-                    useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
-                    profilePoints.setText(String.valueOf(user.getPoints()));
-                    profileBranch.setText(String.valueOf(user.getBranch()));
-                    Glide.with(this).load(user.getDisplayImage()).into(profileImage);
-                    break;
-                case FAILED:
-                    Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
-                    finish();
-                    break;
-            }
-        });
-        initializeUI(isEditable);
+        initializeUI(firebaseUid, isEditable);
     }
 
     public void add(View view) {
@@ -246,6 +270,9 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
             return;
         }
         user.setName(name.getText().toString());
+        if (userSummaryEditText.getText() != null) {
+            user.setSummary(userSummaryEditText.getText().toString());
+        }
         try {
             UserHandler.getInstance().setUser(user, (usr, flags) -> {
                 switch (flags) {
@@ -258,6 +285,8 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                         break;
                 }
             });
+
+
         } catch (IllegalStateException e) {
             Log.e(TAG, e.getMessage());
         }

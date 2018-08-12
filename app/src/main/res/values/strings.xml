@@ -67,6 +67,8 @@
     <string name="settings_pref_file">setting_pref_file</string>
     <string name="settings_isDark">settingsIsDark</string>
     <string name="settings_theme_toggle">Dark Theme</string>
+    <string name="settings_isAdmin">settingsIsAdmin</string>
+
 
     <string name="chat_action_video_call">Video Call</string>
     <string name="donwload_icon">⇩</string>
@@ -76,5 +78,4 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
 </resources>

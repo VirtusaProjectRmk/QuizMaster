@@ -44,7 +44,7 @@ public class LoginActivity extends AppActivity {
         auth = FirebaseAuth.getInstance();
 
         if (auth.getCurrentUser() != null) {
-            //UserHandler.getInstance().updateUserFromAuth();
+            UserHandler.getInstance(this.getApplicationContext());
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
         }
 
@@ -99,7 +99,7 @@ public class LoginActivity extends AppActivity {
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
-                                    UserHandler.getInstance().updateUserFromAuth(auth.getUid(), (user, flag) -> {
+                                    UserHandler.getInstance(LoginActivity.this.getApplicationContext()).updateUserFromAuth(auth.getUid(), (user, flag) -> {
                                         switch (flag) {
                                             case UPDATED:
                                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

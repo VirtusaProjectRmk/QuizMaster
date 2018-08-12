@@ -97,8 +97,11 @@ public class MainActivity extends AppActivity
     @Override
     protected void onStart() {
         super.onStart();
-        usersListRecyclerView.setAdapter(usersListAdapter);
-        usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        if (UserHandler.getInstance().getIsAdmin()) {
+            usersListRecyclerView.setAdapter(usersListAdapter);
+            usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        } else {
+        }
     }
 
     @Override

@@ -12,20 +12,41 @@ import java.util.Map;
 public class FirestoreList<T> extends HashMap<T, String> {
     private CollectionReference collectionReference;
     private Class<T> classType;
+    private OnChangeListener<T> onChangeListener;
+
+    public FirestoreList(Class<T> classType, CollectionReference collectionReference) {
+        this.classType = classType;
+        this.collectionReference = collectionReference;
+        execute(null);
+    }
 
     public FirestoreList(Class<T> classType, CollectionReference collectionReference, OnChangeListener<T> onChangeListener) {
-        this.collectionReference = collectionReference;
         this.classType = classType;
+        this.collectionReference = collectionReference;
+        this.onChangeListener = onChangeListener;
+        execute(onChangeListener);
+    }
+
+    void execute(OnChangeListener onChangeListener) {
         collectionReference.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    onChangeListener.onChange(null, true);
+                    if (onChangeListener != null) {
+                        //Denotes initialization of FirestoreList
+                        onChangeListener.onChange(null, true);
+                    }
                     for (DocumentSnapshot documentSnapshot : queryDocumentSnapshots.getDocuments()) {
                         put(documentSnapshot.toObject(this.classType), documentSnapshot.getId());
                     }
                 })
                 .addOnFailureListener(e -> {
-                    onChangeListener.onChange(null, false);
+                    if (onChangeListener != null) {
+                        onChangeListener.onChange(null, false);
+                    }
                 });
+    }
+
+    public void setOnChangeListener(OnChangeListener<T> onChangeListener) {
+        this.onChangeListener = onChangeListener;
     }
 
     public void add(T t, OnChangeListener<T> onChangeListener) {
