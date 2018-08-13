@@ -14,7 +14,6 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
         <item name="android:buttonStyle">@style/AppTheme.Button</item>
-        <item name="android:buttonTint">?attr/colorPrimary</item>
         <!--chat-->
         <item name="chatMeBackground">@color/colorPrimaryDark</item>
         <item name="chatOthersBackground">@color/colorPrimary</item>
@@ -26,8 +25,6 @@
         <item name="colorAccent">@color/colorLightAccent</item>
         <item name="android:windowBackground">@color/colorLightPrimaryDark</item>
         <item name="android:buttonStyle">@style/AppTheme.Button</item>
-        <item name="android:buttonTint">?attr/colorPrimary</item>
-
         <!--chat-->
         <item name="chatMeBackground">@color/colorHardGrey</item>
         <item name="chatOthersBackground">@color/colorSoftGrey</item>

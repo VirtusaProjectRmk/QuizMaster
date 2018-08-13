@@ -72,7 +72,7 @@ public class MainActivity extends AppActivity
     @OnClick({R.id.fabAdd})
     public void fabAddClick(View view) {
         AnnounceFragment fragment = AnnounceFragment.newInstance();
-        fragment.show(getFragmentManager(), "Showned");
+        fragment.show(getSupportFragmentManager(), "announce_modal_dialog");
 
     }
 
