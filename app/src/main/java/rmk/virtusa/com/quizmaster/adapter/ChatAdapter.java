@@ -11,11 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firebase.client.Firebase;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,7 +56,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-        Chat chat = chats.get(position);
+        Chat chat = chats.get(position).getKey();
         if (holder.chatContentContainer.getChildCount() == 0) {
             holder.chatContentContainer.addView(ChatViewFactory.getChatView(holder.chatContentContainer, chat));
 

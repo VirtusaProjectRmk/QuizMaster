@@ -1,7 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -32,14 +31,12 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
-import rmk.virtusa.com.quizmaster.fragment.ProfileAddFragment;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList.OnLoadListener;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
@@ -50,7 +47,7 @@ import rmk.virtusa.com.quizmaster.model.User;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class ProfileActivity extends AppActivity implements ProfileAddFragment.OnFragmentInteractionListener {
+public class ProfileActivity extends AppActivity {
 
     public static final int PICK_IMAGE = 1;
     private static String TAG = "ProfileActivity";
@@ -85,7 +82,10 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
     @BindView(R.id.quizProgressGraphView)
     GraphView quizProgressGraphView;
     FirestoreList<QuizMetadata> quizMetadataFirestoreList;
+    @BindView(R.id.profileLinkAddTextView)
+    TextView profileLinkAddTextView;
     private User user = null;
+    private FirestoreList<Link> links;
     private LinkAdapter linkAdapter;
 
     @Override
@@ -142,11 +142,6 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         }
     }
 
-    public void changeButtonState(boolean isSave) {
-        fab.setImageResource(isSave ? R.drawable.tick_icon : R.drawable.ic_add);
-        fab.setOnClickListener(isSave ? this::update : this::add);
-    }
-
     private void showLoading(boolean isLoading) {
         profileProgressBar.setIndeterminate(isLoading);
         profileProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
@@ -175,6 +170,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
         userSummaryEditText.setVisibility((user.getSummary() == null || user.getSummary().isEmpty())
                 && isEditable ? View.VISIBLE : View.GONE);
+        profileLinkAddTextView.setVisibility(isEditable ? View.VISIBLE : View.GONE);
         userSummaryEditText.setText(user.getSummary() == null || user.getSummary().isEmpty() ? "" : user.getSummary());
         userSummaryEditText.setEnabled(isEditable);
 
@@ -184,12 +180,12 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                 linkAdapter.notifyDataSetChanged();
             }
         };
-        linkAdapter = new LinkAdapter(this, isEditable ? UserHandler.getInstance().getUserLink(onLoadListener) : UserHandler.getInstance().getUserLink(firebaseUid, onLoadListener));
+        links = isEditable ? UserHandler.getInstance().getUserLink(onLoadListener) : UserHandler.getInstance().getUserLink(firebaseUid, onLoadListener);
+        linkAdapter = new LinkAdapter(this, links, isEditable);
         profileLinkRecyclerView.setAdapter(linkAdapter);
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
-        changeButtonState(false);
         useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
         name.setEnabled(isEditable);
         profileImage.setEnabled(isEditable);
@@ -209,11 +205,13 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
                 @Override
                 public void afterTextChanged(Editable editable) {
-                    changeButtonState(true);
+                    fab.setVisibility(View.VISIBLE);
+
                 }
             };
             name.addTextChangedListener(textWatcher);
             userSummaryEditText.addTextChangedListener(textWatcher);
+            profileLinkAddTextView.setOnClickListener(this::add);
 
             profileImage.setOnClickListener(view -> {
                 Intent intent = new Intent();
@@ -221,6 +219,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             });
+            fab.setOnClickListener(this::update);
             useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         } else {
             profileVideoBtn.setOnClickListener(view -> {
@@ -291,8 +290,8 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
 
     public void add(View view) {
         //TODO delegate operations to a fragment
-        ProfileAddFragment profileAddFragment = ProfileAddFragment.newInstance();
-        profileAddFragment.show(getSupportFragmentManager(), "ProfileFragmentAdd");
+        links.add(new Link("", "https://www.github.com/someone"));
+        linkAdapter.notifyDataSetChanged();
     }
 
 
@@ -310,7 +309,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
             UserHandler.getInstance().setUser(user, (usr, flags) -> {
                 switch (flags) {
                     case UPDATED:
-                        changeButtonState(false);
+                        fab.setVisibility(View.GONE);
                         showLoading(false);
                         Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
                         break;
@@ -326,11 +325,6 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         }
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-        linkAdapter.notifyDataSetChanged();
-    }
-
     private DataPoint[] toDataPoint(FirestoreList<QuizMetadata> quizMetadataFirestoreList) {
         //x - date
         //y - questions_answered/questions_attended
@@ -339,7 +333,7 @@ public class ProfileActivity extends AppActivity implements ProfileAddFragment.O
         List<DataPoint> dataPointList = new ArrayList<>();
         Arrays.sort(quizMetadatas, (t, t1) -> t.getDateTaken().compareTo(t1.getDateTaken()));
 
-        if(quizMetadatas.length == 0){
+        if (quizMetadatas.length == 0) {
             return new DataPoint[]{new DataPoint(0, 0)};
         }
         quizProgressGraphView.getViewport().setMinX(quizMetadatas[0].getDateTaken().getTime());

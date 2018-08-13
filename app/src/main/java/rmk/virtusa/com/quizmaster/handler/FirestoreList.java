@@ -1,8 +1,7 @@
 package rmk.virtusa.com.quizmaster.handler;
 
-import android.util.Log;
-
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.HashMap;
@@ -49,12 +48,18 @@ public class FirestoreList<T> extends HashMap<T, String> {
                 .addOnFailureListener(e -> onChangeListener.onChange(null, false));
     }
 
+    /*
+     * Adds to the list locally
+     */
+    public void add(T t) {
+        put(t, "");
+    }
+
     public void set(T t, OnChangeListener<T> onChangeListener) {
         String id = get(t);
-        collectionReference.document(id)
-                .set(t)
+        DocumentReference documentReference = id.isEmpty() ? collectionReference.document() : collectionReference.document(id);
+        documentReference.set(t)
                 .addOnSuccessListener(aVoid -> {
-                    put(t, id);
                     onChangeListener.onChange(t, true);
                 })
                 .addOnFailureListener(e -> {
@@ -62,15 +67,17 @@ public class FirestoreList<T> extends HashMap<T, String> {
                 });
     }
 
-    public T get(int i) {
-        Map.Entry<T, String> entry;
-        entry = (Entry<T, String>) entrySet().toArray()[i];
-        return entry.getKey();
+    public Map.Entry<T, String> get(int i) {
+        return (Entry<T, String>) entrySet().toArray()[i];
     }
 
     public void remove(T t, OnChangeListener<T> onChangeListener) {
         String id = get(t);
-        Log.i("", id);
+        if (id.isEmpty()) {
+            remove(t);
+            onChangeListener.onChange(null, false);
+            return;
+        }
         collectionReference.document(id)
                 .delete()
                 .addOnSuccessListener(aVoid -> {

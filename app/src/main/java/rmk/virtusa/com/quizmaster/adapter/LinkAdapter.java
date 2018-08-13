@@ -1,16 +1,22 @@
 package rmk.virtusa.com.quizmaster.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,10 +28,12 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
     private static final String TAG = "LinkAdapter";
     private Context context;
     private FirestoreList<Link> linkList;
+    private boolean isEditable;
 
-    public LinkAdapter(Context context, FirestoreList<Link> linkList) {
+    public LinkAdapter(Context context, FirestoreList<Link> linkList, boolean isEditable) {
         this.context = context;
         this.linkList = linkList;
+        this.isEditable = isEditable;
     }
 
     @NonNull
@@ -35,9 +43,40 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         return new LinkViewHolder(view);
     }
 
+    public void showAlertDialog(LinkViewHolder holder, Link link) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Edit Url");
+
+        final EditText input = new EditText(context);
+        input.setText(link.getUrl());
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String in = input.getText().toString();
+            if (in.isEmpty()) {
+                Toast.makeText(context, "Empty", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            link.setUrl(in);
+            linkList.set(link, (link1, didUpdate) -> {
+                holder.linkUrl.setText(in);
+            });
+        });
+        builder.setNegativeButton("Remove", (dialog, which) -> {
+            linkList.remove(link, (link12, didUpdate) -> {
+                Toast.makeText(context, "Item removed", Toast.LENGTH_LONG).show();
+                notifyDataSetChanged();
+            });
+        });
+        builder.show();
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull LinkViewHolder holder, int position) {
-        Link link = linkList.get(position);
+        Map.Entry<Link, String> linkPair = linkList.get(position);
+        Link link = linkPair.getKey();
         holder.linkUrl.setText(link.getUrl());
         holder.linkWebsite.setText(LinkFactory.getWebsite(link.getUrl()));
         holder.linkImageView.setImageResource(LinkFactory.getIcon(link.getUrl()));
@@ -45,6 +84,16 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(link.getUrl()));
             context.startActivity(intent);
         });
+        if (isEditable) {
+            holder.itemView.setOnLongClickListener(view -> {
+                showAlertDialog(holder, link);
+                return true;
+            });
+            if (linkPair.getValue().isEmpty()) {
+                showAlertDialog(holder, link);
+                holder.itemView.performLongClick();
+            }
+        }
     }
 
     @Override
