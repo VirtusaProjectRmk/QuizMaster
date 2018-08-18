@@ -84,27 +84,9 @@ JSONArray jsonArray = new JSONArray();
         spinner.setOnItemSelectedListener(this);
 
 
-        next = findViewById(R.id.next);
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AdminActivity.this,Schedule.class);
-                AdminActivity.this.startActivity(intent);
-                Log.d(TAG, "onClick: button clicked");
-            }
-        });
+        
 
-        delete= findViewById(R.id.anext);
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(AdminActivity.this,AdminDelete.class);
-                AdminActivity.this.startActivity(intent);
-            }
-        });
-
-
-
+       
         submit = (Button)findViewById(R.id.button);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
