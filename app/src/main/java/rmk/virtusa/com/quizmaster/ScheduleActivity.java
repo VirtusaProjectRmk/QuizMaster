@@ -15,22 +15,15 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import android.util.Log;
 
+public class ScheduleActivity extends AppCompatActivity{
 
 
-import java.util.ArrayList;
-import java.util.Map;
-
-public class Schedule extends AppCompatActivity{
-
-
-    private static final String TAG =Schedule.class.getSimpleName(); ;
+    private static final String TAG =ScheduleActivity.class.getSimpleName(); ;
     Firebase ref1,ref2;
     String egs,fgs;
    Button mButton;
@@ -42,7 +35,7 @@ public class Schedule extends AppCompatActivity{
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.schedule);
+        setContentView(R.layout.activity_schedule);
 
         Firebase.setAndroidContext(this);
         ref1= new Firebase("https://adminnapp.firebaseio.com/");
@@ -149,8 +142,8 @@ public class Schedule extends AppCompatActivity{
                    b.setText("Take Test");
                      b.setVisibility(View.GONE);
 
-                            Intent intent = new Intent(Schedule.this,Schedule.class);
-                            Schedule.this.startActivity(intent);
+                            Intent intent = new Intent(ScheduleActivity.this,ScheduleActivity.class);
+                            ScheduleActivity.this.startActivity(intent);
                         }
                     });
                     //  sample.setText("enabled");

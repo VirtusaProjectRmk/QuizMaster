@@ -1,4 +1,4 @@
-package com.example.thanu.adminnapp;
+package rmk.virtusa.com.quizmaster;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

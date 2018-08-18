@@ -1,4 +1,4 @@
-package com.example.thanu.adminnapp;
+package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
 import android.nfc.Tag;
@@ -38,6 +38,8 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import rmk.virtusa.com.quizmaster.model.TestDetails;
 
 
 public class AdminActivity extends AppCompatActivity implements OnItemSelectedListener {

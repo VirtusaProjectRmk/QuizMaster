@@ -1,4 +1,4 @@
-package com.example.thanu.adminnapp;
+package rmk.virtusa.com.quizmaster.model;
 
 public class TestDetails {
 

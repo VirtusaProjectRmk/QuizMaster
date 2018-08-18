@@ -197,7 +197,7 @@ public class MainActivity extends AppActivity
                 Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
                 MainActivity.this.startActivity(myIntent);
             } else {
-                Intent myIntent = new Intent(MainActivity.this, DashActivity.class);
+                Intent myIntent = new Intent(MainActivity.this, ScheduleActivity.class);
                 MainActivity.this.startActivity(myIntent);
             }
         } else if (id == R.id.nav_leaderboard) {
