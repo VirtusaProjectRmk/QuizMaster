@@ -81,4 +81,6 @@
     <string name="announce_expiry_date">Post with expiry date</string>
     <string name="announce_add_file_hint">Add files with url</string>
     <string name="profile_add_link">Tap to add link</string>
+    <string name="no_test">Test will be scheduled only from Monday to Friday</string>
+    <string name="no_test_header">No test</string>
 </resources>

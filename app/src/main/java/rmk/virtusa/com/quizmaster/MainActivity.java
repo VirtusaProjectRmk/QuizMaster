@@ -10,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -59,6 +60,9 @@ public class MainActivity extends AppActivity
     FloatingActionButton fabSearch;
     @BindView(R.id.usersListRecyclerView)
     RecyclerView usersListRecyclerView;
+
+    AlertDialog alertDialog;
+
 
     UsersListAdapter usersListAdapter;
     FirebaseAuth auth;
@@ -110,7 +114,12 @@ public class MainActivity extends AppActivity
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //TODO check from intent to see if we are in admin mode
+        alertDialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.no_test_header))
+                .setMessage(getString(R.string.no_test))
+                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                    dialog.dismiss();
+                }).create();
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
@@ -194,8 +203,7 @@ public class MainActivity extends AppActivity
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
             int day = calendar.get(Calendar.DAY_OF_WEEK);
             if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
-                Intent myIntent = new Intent(MainActivity.this, NoTestActivity.class);
-                MainActivity.this.startActivity(myIntent);
+                alertDialog.show();
             } else {
                 Intent myIntent = new Intent(MainActivity.this, ScheduleActivity.class);
                 MainActivity.this.startActivity(myIntent);

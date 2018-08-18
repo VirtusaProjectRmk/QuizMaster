@@ -30,7 +30,6 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".ScheduleActivity" />
         <activity android:name=".MainActivity1" />
-        <activity android:name=".NoTestActivity" />
         <activity android:name=".QuizActivity" />
         <activity android:name=".FinishActivity" />
         <activity android:name=".LeaderboardActivity" />
