@@ -142,7 +142,7 @@ public class ScheduleActivity extends AppCompatActivity{
                    b.setText("Take Test");
                      b.setVisibility(View.GONE);
 
-                            Intent intent = new Intent(ScheduleActivity.this,ScheduleActivity.class);
+                            Intent intent = new Intent(ScheduleActivity.this,QuizActivity.class);
                             ScheduleActivity.this.startActivity(intent);
                         }
                     });
