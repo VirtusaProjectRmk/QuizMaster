@@ -44,6 +44,7 @@ public class QuizActivity extends AppActivity {
     QuizMetadata quizMetadata = new QuizMetadata(0, 0, 0, new Date());
     public ArrayList<Question> questions = new ArrayList<>();
     User user = null;
+    public String branch = new String();
     CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
@@ -87,6 +88,7 @@ public class QuizActivity extends AppActivity {
             switch (flag) {
                 case UPDATED:
                     QuizActivity.this.user = user;
+                    branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
                     break;
                 case FAILED:
                     //TODO Show dismissible dialog than Toast
@@ -95,18 +97,6 @@ public class QuizActivity extends AppActivity {
                     break;
             }
         });
-
-        /*UserHandler.getInstance().getUser((user, flag)-> {
-            switch (flag) {
-                case UPDATED:
-                    user.getBranch();
-                    break;
-                case FAILED:
-                    Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
-                    finish();
-                    break;
-            }
-        });*/
 
         nextButton.setOnClickListener(v -> {
             //if user is being fetched, don't submit yet
@@ -165,14 +155,11 @@ public class QuizActivity extends AppActivity {
             }
         });
 
-            String branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
+            //branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
 
             Firebase.setAndroidContext(this);
 
             switch (branch) {
-                case "Other":
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/other");
-                    break;
                 case "Mobility":
                     mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/1/mobility");
                     break;
