@@ -119,6 +119,23 @@ public class MainActivity extends AppActivity
         if (UserHandler.getInstance().getIsAdmin()) {
             usersListRecyclerView.setVisibility(View.VISIBLE);
             usersListAdapter = new UsersListAdapter(this, users);
+
+            UserHandler.getInstance().getUsers(((user, flag) -> {
+                switch (flag) {
+                    case UPDATED:
+                        if (auth.getCurrentUser() == null)
+                            return;
+                        if (user.getFirebaseUid() == null) return;
+                        if (user.getFirebaseUid().equals(auth.getCurrentUser().getUid()))
+                            return;
+                        users.add(user);
+                        usersListAdapter.notifyDataSetChanged();
+                        break;
+                    case FAILED:
+                        break;
+                }
+            }));
+
             usersListRecyclerView.setAdapter(usersListAdapter);
             usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         }
@@ -126,21 +143,6 @@ public class MainActivity extends AppActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        UserHandler.getInstance().getUsers(((user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    if (auth.getCurrentUser() == null)
-                        return;
-                    if (user.getFirebaseUid() == null) return;
-                    if (user.getFirebaseUid().equals(auth.getCurrentUser().getUid()))
-                        return;
-                    users.add(user);
-                    usersListAdapter.notifyDataSetChanged();
-                    break;
-                case FAILED:
-                    break;
-            }
-        }));
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
