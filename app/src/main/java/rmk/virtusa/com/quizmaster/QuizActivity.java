@@ -17,11 +17,9 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
@@ -98,6 +96,17 @@ public class QuizActivity extends AppActivity {
             }
         });
 
+        /*UserHandler.getInstance().getUser((user, flag)-> {
+            switch (flag) {
+                case UPDATED:
+                    user.getBranch();
+                    break;
+                case FAILED:
+                    Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
+                    finish();
+                    break;
+            }
+        });*/
 
         nextButton.setOnClickListener(v -> {
             //if user is being fetched, don't submit yet
@@ -156,26 +165,28 @@ public class QuizActivity extends AppActivity {
             }
         });
 
-            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
-            int day = calendar.get(Calendar.DAY_OF_WEEK);
+            String branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
+
             Firebase.setAndroidContext(this);
 
-            switch (day) {
-                case Calendar.MONDAY:
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/iot");
+            switch (branch) {
+                case "Other":
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/other");
                     break;
-                case Calendar.TUESDAY:
+                case "Mobility":
                     mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/1/mobility");
                     break;
-                case Calendar.WEDNESDAY:
+                case "Cloud":
                     mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/2/cloud");
                     break;
-                case Calendar.THURSDAY:
+                case "Big Data":
                     mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/3/bigdata");
                     break;
-                case Calendar.FRIDAY:
+                case "Front End":
                     mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/4/frontend");
                     break;
+                default:
+                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/other");
             }
 
             mQuestionRef.addValueEventListener(new ValueEventListener() {
