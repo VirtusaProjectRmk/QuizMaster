@@ -84,11 +84,12 @@ public class QuizActivity extends AppActivity {
         /*
          * Fetch user information first before entering into quiz
          */
+        Firebase.setAndroidContext(this);
         UserHandler.getInstance().getUser((user, flag) -> {
             switch (flag) {
                 case UPDATED:
+                    updateQuestion(user);
                     QuizActivity.this.user = user;
-                    branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
                     break;
                 case FAILED:
                     //TODO Show dismissible dialog than Toast
@@ -110,7 +111,7 @@ public class QuizActivity extends AppActivity {
                 return;
             }
 
-            if (questionCounter <= questions.size()-1) {
+            if (questionCounter <= questions.size() - 1) {
                 if (checkAnswer()) {
                     score++;
 
@@ -130,10 +131,10 @@ public class QuizActivity extends AppActivity {
                 }
 
                 //finally update the question
-                if (questionCounter == questions.size()-2) {
+                if (questionCounter == questions.size() - 2) {
                     String ans = "Submit";
                     nextButton.setText(ans);
-                } else if (questionCounter == questions.size()-1) {
+                } else if (questionCounter == questions.size() - 1) {
                     isClicked = true; //FIXME ?why?
                     //checkAnswer();
                     navigateOut(FinishActivity.QUIZ_COMPLETED);
@@ -155,48 +156,48 @@ public class QuizActivity extends AppActivity {
             }
         });
 
-            //branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
+    }
 
-            Firebase.setAndroidContext(this);
+    private void updateQuestion (User user) {
 
-            switch (branch) {
-                case "Mobility":
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/1/mobility");
-                    break;
-                case "Cloud":
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/2/cloud");
-                    break;
-                case "Big Data":
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/3/bigdata");
-                    break;
-                case "Front End":
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/4/frontend");
-                    break;
-                default:
-                    mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/other");
-            }
+        branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
 
-            mQuestionRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for(DataSnapshot child : dataSnapshot.getChildren()) {
-                        Question question = child.getValue(Question.class);
-                        questions.add(question);
-                    }
-
-                    Collections.shuffle(questions);
-                    questionCounter = 0;
-                    displayQuestion(questionCounter);
-                }
-
-                @Override
-                public void onCancelled(FirebaseError firebaseError) {
-                    Toast.makeText(QuizActivity.this, "Failed Loading Questions", Toast.LENGTH_SHORT).show();
-                }
-            });
-
+        switch (branch) {
+            case "Mobility":
+                mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/1/mobility");
+                break;
+            case "Cloud":
+                mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/2/cloud");
+                break;
+            case "Big Data":
+                mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/3/bigdata");
+                break;
+            case "Front End":
+                mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/4/frontend");
+                break;
+            default:
+                mQuestionRef = new Firebase("https://quizmaster-89038.firebaseio.com/0/other");
         }
 
+        mQuestionRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot child : dataSnapshot.getChildren()) {
+                    Question question = child.getValue(Question.class);
+                    questions.add(question);
+                }
+
+                Collections.shuffle(questions);
+                questionCounter = 0;
+                displayQuestion(questionCounter);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                Toast.makeText(QuizActivity.this, "Failed Loading Questions", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     void navigateOut(int flag) {
         Intent intent = new Intent(QuizActivity.this, FinishActivity.class);
