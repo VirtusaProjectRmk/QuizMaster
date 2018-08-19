@@ -1,11 +1,9 @@
 package rmk.virtusa.com.quizmaster.handler;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,25 +40,23 @@ public class UserHandler {
 
     private static final String TAG = "UserHandler";
     private static UserHandler instance;
+    private static Context context;
     /*
      * Cached users list for leaderboard purposes
      */
     private CollectionReference userCollectionRef = null;
     private DocumentReference userRef = null;
+    //private CollectionReference userInboxCollection = null;
     //private CollectionReference userContactCollectionRef = null;
     //private CollectionReference userDetailCollectionRef = null;
     private CollectionReference userQuizCollectionRef = null;
-    //private CollectionReference userInboxCollection = null;
-
     private UserUpdater<QuizMetadata> quizUpdater;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
-    private Context context;
     private boolean isAdmin = false;
     private SharedPreferences preferences;
 
-    private UserHandler(Context context) {
-        this.context = context;
+    private UserHandler() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -69,12 +65,10 @@ public class UserHandler {
                 .build();
         db.setFirestoreSettings(settings);
 
-
         if (auth.getCurrentUser() == null) {
             Log.e(TAG, "Fatal error");
             return;
         }
-
 
         preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
         isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
@@ -89,13 +83,14 @@ public class UserHandler {
         //userInboxCollection = userRef.collection("inboxes");
     }
 
-    public static UserHandler getInstance() {
-        return instance;
+    public static UserHandler getInstance(Context context) {
+        UserHandler.context = context;
+        return getInstance();
     }
 
-    public static UserHandler getInstance(Context context) {
+    public static UserHandler getInstance() {
         if (instance == null) {
-            instance = new UserHandler(context);
+            instance = new UserHandler();
         }
         return instance;
     }
@@ -193,12 +188,10 @@ public class UserHandler {
                     adminCollection.document(FirebaseAuth.getInstance().getUid())
                             .get()
                             .addOnSuccessListener(docSnap -> {
-                                if (docSnap.exists()) {
-                                    isAdmin = true;
-                                    SharedPreferences.Editor editor = preferences.edit();
-                                    editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
-                                    editor.apply();
-                                }
+                                isAdmin = docSnap.exists();
+                                SharedPreferences.Editor editor = preferences.edit();
+                                editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
+                                editor.commit();
                                 if (documentSnapshot.exists()) {
                                     Log.e(TAG, "User already exist");
                                     User user = documentSnapshot.toObject(User.class);
@@ -318,8 +311,6 @@ public class UserHandler {
     }
 
     public interface OnUpdateUserListener {
-        public void onUserUpdate(User user, int flags);
+        void onUserUpdate(User user, int flags);
     }
-
-
 }
