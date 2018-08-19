@@ -1,10 +1,14 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,11 +22,21 @@ public class SettingsActivity extends AppActivity {
     @BindView(R.id.settingsThemeSwitch)
     Switch settingsThemeSwitch;
 
+    SharedPreferences preferences;
+    SharedPreferences.Editor preferencesEditor;
+    @BindView(R.id.settingsAboutText)
+    TextView settingsAboutText;
+
     @OnClick({R.id.settingsLogoutBtn})
     public void onClick(View v) {
-        FirebaseAuth.getInstance().signOut();
-        finish();
-        startActivity(new Intent(this, LoginActivity.class));
+        switch (v.getId()) {
+            case R.id.settingsLogoutBtn:
+                FirebaseAuth.getInstance().signOut();
+                preferencesEditor.remove(getString(R.string.settings_isAdmin)).commit();
+                finish();
+                startActivity(new Intent(this, LoginActivity.class));
+                break;
+        }
     }
 
     @Override
@@ -31,8 +45,16 @@ public class SettingsActivity extends AppActivity {
         setContentView(R.layout.activity_settings);
         ButterKnife.bind(this);
 
-        SharedPreferences preferences = getSharedPreferences(getString(R.string.settings_pref_file), MODE_PRIVATE);
-        SharedPreferences.Editor preferencesEditor = preferences.edit();
+        try {
+            PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            settingsAboutText.setText("Quiz Master v" + version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        preferences = getSharedPreferences(getString(R.string.settings_pref_file), MODE_PRIVATE);
+        preferencesEditor = preferences.edit();
 
         settingsThemeSwitch.setChecked(preferences.getBoolean(getString(R.string.settings_isDark), true));
         settingsThemeSwitch.setOnCheckedChangeListener((compoundButton, b) -> {

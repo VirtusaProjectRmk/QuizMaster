@@ -20,6 +20,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -54,10 +56,8 @@ public class MainActivity extends AppActivity
     NavigationView navView;
     @BindView(R.id.drawer_layout)
     DrawerLayout drawerLayout;
-    @BindView(R.id.fabAdd)
-    FloatingActionButton fabAdd;
-    @BindView(R.id.fabSearch)
-    FloatingActionButton fabSearch;
+    @BindView(R.id.mainFabBtn)
+    FloatingActionButton mainFabBtn;
     @BindView(R.id.usersListRecyclerView)
     RecyclerView usersListRecyclerView;
 
@@ -73,38 +73,31 @@ public class MainActivity extends AppActivity
         auth = FirebaseAuth.getInstance();
     }
 
-    @OnClick({R.id.fabAdd})
-    public void fabAddClick(View view) {
+    private void onAddClick(View view) {
         AnnounceFragment fragment = AnnounceFragment.newInstance();
         fragment.show(getSupportFragmentManager(), "announce_modal_dialog");
+    }
 
+    private void onSearchClick(View view) {
+        Toast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
     }
 
     private void animateFab(int position) {
         switch (position) {
             case 0:
-                fabAdd.show();
-                fabSearch.hide();
+                if (UserHandler.getInstance().getIsAdmin()) {
+                    mainFabBtn.setImageResource(R.drawable.ic_add);
+                    mainFabBtn.show();
+                    mainFabBtn.setOnClickListener(this::onAddClick);
+                } else {
+                    mainFabBtn.hide();
+                }
                 break;
             case 1:
-                fabSearch.show();
-                fabAdd.hide();
+                mainFabBtn.setImageResource(android.R.drawable.ic_menu_search);
+                mainFabBtn.show();
+                mainFabBtn.setOnClickListener(this::onSearchClick);
                 break;
-
-            default:
-                fabAdd.show();
-                fabSearch.hide();
-                break;
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (UserHandler.getInstance().getIsAdmin()) {
-            usersListRecyclerView.setAdapter(usersListAdapter);
-            usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        } else {
         }
     }
 
@@ -121,10 +114,18 @@ public class MainActivity extends AppActivity
                     dialog.dismiss();
                 }).create();
 
+        animateFab(0);
+
+        if (UserHandler.getInstance().getIsAdmin()) {
+            usersListRecyclerView.setVisibility(View.VISIBLE);
+            usersListAdapter = new UsersListAdapter(this, users);
+            usersListRecyclerView.setAdapter(usersListAdapter);
+            usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        }
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
 
-        usersListAdapter = new UsersListAdapter(this, users);
         UserHandler.getInstance().getUsers(((user, flag) -> {
             switch (flag) {
                 case UPDATED:

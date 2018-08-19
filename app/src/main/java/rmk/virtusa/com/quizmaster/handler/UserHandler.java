@@ -1,9 +1,11 @@
 package rmk.virtusa.com.quizmaster.handler;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +24,7 @@ import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.model.Gender;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
+import rmk.virtusa.com.quizmaster.model.Report;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -52,17 +55,12 @@ public class UserHandler {
     private UserUpdater<QuizMetadata> quizUpdater;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
-    private User user = null;
-    private String userUid = "";
     private Context context;
     private boolean isAdmin = false;
+    private SharedPreferences preferences;
 
     private UserHandler(Context context) {
         this.context = context;
-
-        final SharedPreferences preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
-        isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
-
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
@@ -76,34 +74,19 @@ public class UserHandler {
             Log.e(TAG, "Fatal error");
             return;
         }
-        userUid = auth.getCurrentUser().getUid();
+
+
+        preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
+        isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
 
         userCollectionRef = db.collection("users");
-        userRef = userCollectionRef.document(userUid);
-
-        CollectionReference adminCollection = db.collection("admins");
-        if (!isAdmin) {
-            adminCollection.document(userUid)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            isAdmin = true;
-                            SharedPreferences.Editor editor = preferences.edit();
-                            editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
-                            editor.apply();
-                        }
-                    });
-        }
+        userRef = userCollectionRef.document(FirebaseAuth.getInstance().getUid());
 
         quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
 
         //userContactCollectionRef = userRef.collection("contacts");
         //userDetailCollectionRef = userRef.collection("details");
         //userInboxCollection = userRef.collection("inboxes");
-
-        getUser(userUid, (user, flag) -> {
-            UserHandler.this.user = user;
-        });
     }
 
     public static UserHandler getInstance() {
@@ -132,12 +115,17 @@ public class UserHandler {
         return links;
     }
 
+    public void reportToxic(Report report, OnUpdateUserListener onUpdateUserListener) {
+        CollectionReference reportsRef = db.collection("reports");
+        reportsRef.add(report);
+    }
+
     public UserUpdater<QuizMetadata> getQuizUpdater() {
         return quizUpdater;
     }
 
     public String getUserUid() {
-        return userUid;
+        return FirebaseAuth.getInstance().getUid();
     }
 
     public void getUsers(OnUpdateUserListener onUpdateUserListener) {
@@ -201,23 +189,36 @@ public class UserHandler {
         userCollectionRef.document(firebaseUid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        Log.e(TAG, "User already exist");
-                        User user = documentSnapshot.toObject(User.class);
-                        onUpdateUserListener.onUserUpdate(user, UPDATED);
-                    } else {
-                        User user = new User(firebaseUid, "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
-                        userCollectionRef.document(firebaseUid)
-                                .set(user, SetOptions.merge())
-                                .addOnSuccessListener(aVoid -> {
+                    CollectionReference adminCollection = db.collection("admins");
+                    adminCollection.document(FirebaseAuth.getInstance().getUid())
+                            .get()
+                            .addOnSuccessListener(docSnap -> {
+                                if (docSnap.exists()) {
+                                    isAdmin = true;
+                                    SharedPreferences.Editor editor = preferences.edit();
+                                    editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
+                                    editor.apply();
+                                }
+                                if (documentSnapshot.exists()) {
+                                    Log.e(TAG, "User already exist");
+                                    User user = documentSnapshot.toObject(User.class);
                                     onUpdateUserListener.onUserUpdate(user, UPDATED);
-                                })
-                                .addOnFailureListener(e -> {
-                                    onUpdateUserListener.onUserUpdate(null, FAILED);
-                                });
-                    }
+                                } else {
+                                    User user = new User(firebaseUid, "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
+                                    userCollectionRef.document(firebaseUid)
+                                            .set(user, SetOptions.merge())
+                                            .addOnSuccessListener(aVoid -> {
+                                                onUpdateUserListener.onUserUpdate(user, UPDATED);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                onUpdateUserListener.onUserUpdate(null, FAILED);
+                                            });
+                                }
+                            });
+
                 })
-                .addOnFailureListener(e -> {
+                .addOnFailureListener(e ->
+                {
                     Log.e(TAG, "Cannot get user info");
                     onUpdateUserListener.onUserUpdate(null, FAILED);
                 });
@@ -247,7 +248,7 @@ public class UserHandler {
 
 
     public void updateUserWithQuiz(QuizMetadata quizMetadata) {
-        userCollectionRef.document(userUid).collection("quiz")
+        userCollectionRef.document(FirebaseAuth.getInstance().getUid()).collection("quiz")
                 .add(quizMetadata);
         getUser((user, flag) -> {
             setUser(user, (usr, flg) -> {
@@ -299,19 +300,17 @@ public class UserHandler {
             return;
         }
         //if the user name changes in object update in FirebaseAuth
-        if (!user.getName().equals(this.user.getName())) {
-            UserProfileChangeRequest userUpdate = new UserProfileChangeRequest.Builder()
-                    .setDisplayName(user.getName())
-                    .build();
-            auth.getCurrentUser().updateProfile(userUpdate)
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            Log.e(TAG, "User name update failed");
-                        } else {
-                            Log.i(TAG, "User name update success");
-                        }
-                    });
-        }
+        UserProfileChangeRequest userUpdate = new UserProfileChangeRequest.Builder()
+                .setDisplayName(user.getName())
+                .build();
+        auth.getCurrentUser().updateProfile(userUpdate)
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.e(TAG, "User name update failed");
+                    } else {
+                        Log.i(TAG, "User name update success");
+                    }
+                });
         usersCollectionRef.document(user.getFirebaseUid())
                 .set(user, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> onUpdateUserListener.onUserUpdate(user, UPDATED))
