@@ -54,12 +54,15 @@
                     android:layout_height="wrap_content"
                     android:text="Branch" />
 
-                <TextView
+                <EditText
                     android:id="@+id/profileBranch"
                     style="@style/Base.TextAppearance.AppCompat.Title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/activity_horizontal_margin" />
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:background="@android:color/transparent"
+                    android:cursorVisible="false"
+                    android:lines="1" />
             </LinearLayout>
 
             <EditText

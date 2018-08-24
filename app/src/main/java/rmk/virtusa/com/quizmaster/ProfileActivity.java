@@ -2,6 +2,7 @@ package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -20,7 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
@@ -40,6 +46,7 @@ import rmk.virtusa.com.quizmaster.adapter.LinkAdapter;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList.OnLoadListener;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.Branch;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
@@ -66,7 +73,7 @@ public class ProfileActivity extends AppActivity {
     @BindView(R.id.profileToolbarLayout)
     CollapsingToolbarLayout profileToolbarLayout;
     @BindView(R.id.profileBranch)
-    TextView profileBranch;
+    EditText profileBranch;
     @BindView(R.id.profileAppBarLayout)
     AppBarLayout profileAppBarLayout;
     @BindView(R.id.profileMessageBtn)
@@ -147,10 +154,10 @@ public class ProfileActivity extends AppActivity {
         profileProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
     }
 
-
     private void initializeUI(User user, String firebaseUid, boolean isEditable) {
         showLoading(false);
-        quizMetadataFirestoreList = UserHandler.getInstance().getUserQuizData(didLoad -> {
+        boolean isAdmin = UserHandler.getInstance().getIsAdmin();
+        quizMetadataFirestoreList = UserHandler.getInstance().getUserQuizData(user.getFirebaseUid(), didLoad -> {
             quizProgressGraphView.setTitle("Quiz Stats");
             LineGraphSeries<DataPoint> dataPointLineGraphSeries = new LineGraphSeries<>(toDataPoint(quizMetadataFirestoreList));
             quizProgressGraphView.addSeries(dataPointLineGraphSeries);
@@ -162,17 +169,28 @@ public class ProfileActivity extends AppActivity {
             quizProgressGraphView.getViewport().setScrollable(true);
         });
         this.user = user;
+
+        profileBranch.setText(user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch());
+        profileBranch.setEnabled(isAdmin);
+        profileBranch.setCompoundDrawablesWithIntrinsicBounds(0, 0, isAdmin ? android.R.drawable.ic_menu_edit : 0, 0);
+
+        name.setEnabled(isEditable);
         name.setText(user.getName() == null || user.getName().isEmpty() ? "No name" : user.getName());
         name.setCompoundDrawablesWithIntrinsicBounds(0, 0, isEditable ? android.R.drawable.ic_menu_edit : 0, 0);
         profilePoints.setText(String.valueOf(user.getPoints()));
-        profileBranch.setText(user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch());
-        Glide.with(this).load(user.getDisplayImage() == null || user.getDisplayImage().isEmpty() ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
 
-        userSummaryEditText.setVisibility((user.getSummary() == null || user.getSummary().isEmpty())
-                && isEditable ? View.VISIBLE : View.GONE);
+        Glide.with(this).load(user.getDisplayImage() == null || user.getDisplayImage().isEmpty() ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
+        profileImage.setEnabled(isEditable);
+
         profileLinkAddTextView.setVisibility(isEditable ? View.VISIBLE : View.GONE);
+
+        userSummaryEditText.setVisibility((user.getSummary() == null
+                || user.getSummary().isEmpty())
+                && isEditable ? View.VISIBLE : View.GONE);
         userSummaryEditText.setText(user.getSummary() == null || user.getSummary().isEmpty() ? "" : user.getSummary());
         userSummaryEditText.setEnabled(isEditable);
+        userSummaryEditText.setVisibility(isEditable ? View.VISIBLE : View.GONE);
+        userSummaryEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_menu_edit, 0);
 
         profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         OnLoadListener<Link> onLoadListener = didLoad -> {
@@ -187,28 +205,31 @@ public class ProfileActivity extends AppActivity {
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
         useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
-        name.setEnabled(isEditable);
-        profileImage.setEnabled(isEditable);
 
         profileMessageBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
         profileVideoBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
 
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                fab.setVisibility(View.VISIBLE);
+            }
+        };
+
+        if (isAdmin) {
+            profileBranch.addTextChangedListener(textWatcher);
+        }
+
         if (isEditable) {
-            TextWatcher textWatcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    fab.setVisibility(View.VISIBLE);
-
-                }
-            };
             name.addTextChangedListener(textWatcher);
             userSummaryEditText.addTextChangedListener(textWatcher);
             profileLinkAddTextView.setOnClickListener(this::add);
@@ -301,7 +322,9 @@ public class ProfileActivity extends AppActivity {
             return;
         }
         showLoading(true);
+        fab.setVisibility(View.GONE);
         user.setName(name.getText().toString());
+        user.setBranch(profileBranch.getText().toString());
         if (userSummaryEditText.getText() != null) {
             user.setSummary(userSummaryEditText.getText().toString());
         }
@@ -309,12 +332,29 @@ public class ProfileActivity extends AppActivity {
             UserHandler.getInstance().setUser(user, (usr, flags) -> {
                 switch (flags) {
                     case UPDATED:
-                        fab.setVisibility(View.GONE);
-                        showLoading(false);
+                        CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("branches");
+                        collectionReference
+                                .whereEqualTo("name", profileBranch.getText().toString())
+                                .get()
+                                .addOnSuccessListener(queryDocumentSnapshots -> {
+                                    if (queryDocumentSnapshots.getDocuments().size() > 0){
+                                        //no-op
+                                    } else {
+                                        collectionReference.add(new Branch(profileBranch.getText().toString(), "", null));
+                                    }
+                                    showLoading(false);
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        showLoading(false);
+                                    }
+                                });
                         Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
                         break;
                     case FAILED:
                         Toast.makeText(this, "User update failed", Toast.LENGTH_LONG).show();
+                        showLoading(false);
                         break;
                 }
             });

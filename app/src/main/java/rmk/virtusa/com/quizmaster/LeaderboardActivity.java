@@ -1,77 +1,65 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import rmk.virtusa.com.quizmaster.adapter.UserListAdapter;
-import rmk.virtusa.com.quizmaster.handler.UserHandler;
-import rmk.virtusa.com.quizmaster.model.User;
-
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import rmk.virtusa.com.quizmaster.adapter.LeaderboardPagerAdapter;
+import rmk.virtusa.com.quizmaster.fragment.LeaderboardFragment;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
+import rmk.virtusa.com.quizmaster.model.Branch;
 
 public class LeaderboardActivity extends AppActivity {
 
-    ListView listviewusers;
-    List<User> ulist;
     EditText editText;
     ImageButton imageButton;
-    UserListAdapter adapter;
     SwipeRefreshLayout mySwipeRefreshLayout;
+    @BindView(R.id.leaderboardViewPager)
+    ViewPager leaderboardViewPager;
+    @BindView(R.id.leaderTabLayout)
+    TabLayout leaderTabLayout;
+    FirestoreList<Branch> branchFirestoreList;
+    LeaderboardPagerAdapter leaderboardPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
+        ButterKnife.bind(this);
         editText = (EditText) findViewById(R.id.editText);
         imageButton = (ImageButton) findViewById(R.id.imageButton);
-        listviewusers = (ListView) findViewById(R.id.listviewusers);
         mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
-
-        ulist = new ArrayList<>();
 
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String stext = editText.getText().toString().toUpperCase();
-                adapter.getFilter().filter(stext);
-                listviewusers.setAdapter(adapter);
+                String query = editText.getText().toString().toUpperCase();
+                getCurrentFragment().performSearch(query);
             }
         });
+
+        branchFirestoreList = new FirestoreList<>(Branch.class, FirebaseFirestore.getInstance().collection("branches"), didLoad -> {
+            if (didLoad) {
+                leaderboardPagerAdapter = new LeaderboardPagerAdapter(this, branchFirestoreList, getSupportFragmentManager());
+                leaderboardViewPager.setAdapter(leaderboardPagerAdapter);
+                leaderTabLayout.setupWithViewPager(leaderboardViewPager);
+            }
+        });
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        Collections.sort(ulist, new Comparator<User>() {
-            @Override
-            public int compare(User u1, User u2) {
-                return Integer.compare(u2.getPoints(), u1.getPoints());
-            }
-        });
-
-        UserHandler.getInstance().getUsers((user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    ulist.add(user);
-                    break;
-                case FAILED:
-                    //TODO use better checks
-                    Toast.makeText(LeaderboardActivity.this, "Failed to fetch some users", Toast.LENGTH_LONG).show();
-                    break;
-            }
-        });
 
         mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -80,21 +68,19 @@ public class LeaderboardActivity extends AppActivity {
                 doUpdate();
             }
         });
+    }
 
-        adapter = new UserListAdapter(LeaderboardActivity.this, ulist);
-        listviewusers.setAdapter(adapter);
+    private LeaderboardFragment getCurrentFragment() {
+        LeaderboardFragment leaderboardFragment = null;
+        if (leaderboardPagerAdapter != null) {
+            leaderboardFragment = (LeaderboardFragment) leaderboardPagerAdapter.getItem(leaderboardViewPager.getCurrentItem());
+        }
+        return leaderboardFragment;
     }
 
     private void doUpdate() {
-        Collections.sort(ulist, new Comparator<User>() {
-            @Override
-            public int compare(User u1, User u2) {
-                return Integer.compare(u2.getPoints(), u1.getPoints());
-            }
-        });
-
-        adapter.notifyDataSetChanged();
         mySwipeRefreshLayout.setRefreshing(false);
+        getCurrentFragment().update();
 
     }
 

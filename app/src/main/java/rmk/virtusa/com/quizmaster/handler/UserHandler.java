@@ -141,6 +141,27 @@ public class UserHandler {
                 });
     }
 
+    public void getUsersByBranch(OnUpdateUserListener onUpdateUserListener, String branch) {
+        if (branch == null || branch.isEmpty()) {
+            branch = "Other";
+        }
+        userCollectionRef.whereEqualTo("branch", branch)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                    for (User user : users) {
+                        if (user == null) {
+                            onUpdateUserListener.onUserUpdate(null, FAILED);
+                        } else {
+                            onUpdateUserListener.onUserUpdate(user, UPDATED);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    onUpdateUserListener.onUserUpdate(null, FAILED);
+                });
+    }
+
     public FirestoreList<QuizMetadata> getUserQuizData(@NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
         FirestoreList<QuizMetadata> quizMetadataFirestoreList = new FirestoreList<>(QuizMetadata.class, userRef.collection("quizzes"), onLoadListener);
         return quizMetadataFirestoreList;

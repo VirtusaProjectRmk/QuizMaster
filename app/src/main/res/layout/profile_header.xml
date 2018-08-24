@@ -60,7 +60,10 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:cursorVisible="false"
-                android:enabled="false" />
+                android:enabled="false"
+                android:fadingEdge="horizontal"
+                android:fadingEdgeLength="@dimen/fading_edge_length"
+                android:lines="1" />
 
             <TextView
                 android:id="@+id/useremail"
