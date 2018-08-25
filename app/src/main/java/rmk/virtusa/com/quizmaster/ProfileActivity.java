@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -338,9 +339,16 @@ public class ProfileActivity extends AppActivity {
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots -> {
                                     if (queryDocumentSnapshots.getDocuments().size() > 0){
-                                        //no-op
+                                        showLoading(false);
                                     } else {
-                                        collectionReference.add(new Branch(profileBranch.getText().toString(), "", null));
+                                        String brnch = profileBranch.getText().toString();
+                                        collectionReference.document(brnch).set(new Branch(brnch, "", null))
+                                                .addOnSuccessListener(documentReference -> {
+                                                    showLoading(false);
+                                                })
+                                                .addOnFailureListener(e -> {
+                                                    showLoading(false);
+                                                });
                                     }
                                     showLoading(false);
                                 })

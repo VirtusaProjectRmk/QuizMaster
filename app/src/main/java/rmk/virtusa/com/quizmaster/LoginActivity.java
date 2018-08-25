@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -96,6 +97,7 @@ public class LoginActivity extends AppActivity {
                                     if (password.length() < 6) {
                                         inputPassword.setError("Enter Password with minimum 6 characters");
                                     } else {
+                                        Log.e(TAG, task.getException().getMessage());
                                         Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                                     }
                                 } else {
