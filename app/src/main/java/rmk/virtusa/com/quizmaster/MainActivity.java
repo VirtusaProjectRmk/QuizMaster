@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -21,7 +22,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -32,18 +32,19 @@ import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
 import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
+import rmk.virtusa.com.quizmaster.fragment.AnnouncementFragment;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class MainActivity extends AppActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
 
 
     @BindView(R.id.toolbar)
@@ -63,9 +64,11 @@ public class MainActivity extends AppActivity
 
     AlertDialog alertDialog;
 
+    Bundle savedInstanceState;
 
     UsersListAdapter usersListAdapter;
     FirebaseAuth auth;
+    MainPagerFragmentAdapter pagerAdapter;
     private List<User> users = new ArrayList<>();
 
     public MainActivity() {
@@ -103,6 +106,7 @@ public class MainActivity extends AppActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        this.savedInstanceState = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
@@ -149,7 +153,8 @@ public class MainActivity extends AppActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        mainViewPager.setAdapter(new MainPagerFragmentAdapter(this, getSupportFragmentManager()));
+        pagerAdapter = new MainPagerFragmentAdapter(this, getSupportFragmentManager());
+        mainViewPager.setAdapter(pagerAdapter);
         mainTabLayout.setupWithViewPager(mainViewPager);
 
 

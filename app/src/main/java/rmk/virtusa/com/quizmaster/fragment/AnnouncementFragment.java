@@ -1,6 +1,7 @@
 package rmk.virtusa.com.quizmaster.fragment;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -37,6 +38,7 @@ public class AnnouncementFragment extends Fragment {
     List<Announcement> announcements;
     @BindView(R.id.announcementRecyclerView)
     RecyclerView announcementRecyclerView;
+    AnnouncementAdapter adapter;
     Unbinder unbinder;
 
     // TODO: Rename and change types of parameters
@@ -72,13 +74,26 @@ public class AnnouncementFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        AnnouncementHandler.getInstance().setAddedNew(announcement -> {
+            if (announcement == null) {
+                Toast.makeText(context, "Cannot add announcement, please try again later", Toast.LENGTH_LONG).show();
+                return;
+            }
+            announcements.add(announcement);
+            adapter.notifyDataSetChanged();
+        });
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_announcement, container, false);
         unbinder = ButterKnife.bind(this, view);
 
-        AnnouncementAdapter adapter = new AnnouncementAdapter(getContext(), announcements);
+        adapter = new AnnouncementAdapter(getContext(), announcements);
         announcementRecyclerView.setAdapter(adapter);
         announcementRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         ItemOffsetDecoration itemOffsetDecoration = new ItemOffsetDecoration(getContext(), R.dimen.announcement_item_margin);
@@ -103,6 +118,7 @@ public class AnnouncementFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        AnnouncementHandler.getInstance().setAddedNew(null);
         unbinder.unbind();
     }
 }

@@ -81,7 +81,6 @@ public class LeaderboardActivity extends AppActivity {
     private void doUpdate() {
         mySwipeRefreshLayout.setRefreshing(false);
         getCurrentFragment().update();
-
     }
 
 

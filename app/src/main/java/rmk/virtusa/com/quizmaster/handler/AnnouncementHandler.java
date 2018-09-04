@@ -14,8 +14,8 @@ public class AnnouncementHandler {
     public static final int UPDATED = 0;
     public static final int FAILED = 1;
     private static final String TAG = "AnnouncementHandler";
-
     private static final AnnouncementHandler ourInstance = new AnnouncementHandler();
+    OnAddedNew onAddedNew;
     private CollectionReference announcementCollectionRef = null;
     private FirebaseFirestore db;
     private FirebaseAuth auth;
@@ -36,14 +36,16 @@ public class AnnouncementHandler {
         return ourInstance;
     }
 
-    public void addAnnouncement(Announcement announcement, OnAnnouncementUpdateListener onAnnouncementUpdateListener) {
+    public void addAnnouncement(Announcement announcement) {
         announcementCollectionRef.document()
                 .set(announcement, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
-                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, UPDATED);
+                    if (onAddedNew != null) {
+                        onAddedNew.onAddedNew(announcement);
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    onAnnouncementUpdateListener.onAnnouncementUpdate(announcement, FAILED);
+                    onAddedNew.onAddedNew(null);
                 });
     }
 
@@ -69,7 +71,15 @@ public class AnnouncementHandler {
         */
     }
 
+    public void setAddedNew(OnAddedNew onAddedNew) {
+        this.onAddedNew = onAddedNew;
+    }
+
     public interface OnAnnouncementUpdateListener {
-        public void onAnnouncementUpdate(Announcement announcement, int flags);
+        void onAnnouncementUpdate(Announcement announcement, int flags);
+    }
+
+    public interface OnAddedNew {
+        void onAddedNew(Announcement announcement);
     }
 }

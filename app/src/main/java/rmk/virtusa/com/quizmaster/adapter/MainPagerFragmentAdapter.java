@@ -6,10 +6,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.fragment.AnnouncementFragment;
 import rmk.virtusa.com.quizmaster.fragment.InboxFragment;
+import rmk.virtusa.com.quizmaster.model.Announcement;
 
-public class MainPagerFragmentAdapter extends FragmentPagerAdapter {
+public class MainPagerFragmentAdapter extends FragmentPagerAdapter{
 
     private Context mContext;
 

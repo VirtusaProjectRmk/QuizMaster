@@ -1,5 +1,6 @@
 package rmk.virtusa.com.quizmaster.fragment;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -56,7 +57,6 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
     @BindView(R.id.expiryCheckBox)
     CheckBox expiryCheckBox;
 
-
     public AnnounceFragment() {
     }
 
@@ -106,20 +106,8 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
             }
 
             Announcement announcement = new Announcement(FirebaseAuth.getInstance().getUid(), announceAnonymousPostCheckBox.isChecked(), announceTitle.getText().toString(), annnounceMessage.getText().toString(), attachments, new Date(), expiryDate);
-
-            AnnouncementHandler.getInstance().addAnnouncement(announcement, (ann, flag) -> {
-                switch (flag) {
-                    case UPDATED:
-                        //TODO change from toast to "Updating UI in dialog"
-                        Toast.makeText(getActivity(), "Announcement updated successfully", Toast.LENGTH_LONG).show();
-                        dismiss();
-                        break;
-                    case FAILED:
-                        Toast.makeText(getActivity(), "Cannot add announcement", Toast.LENGTH_LONG).show();
-                        dismiss();
-                        break;
-                }
-            });
+            AnnouncementHandler.getInstance().addAnnouncement(announcement);
+            AnnounceFragment.this.dismiss();
         });
         return rootView;
     }
