@@ -19,6 +19,7 @@ import com.google.firebase.storage.StorageReference;
 import java.util.List;
 
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.Gender;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
@@ -55,6 +56,7 @@ public class UserHandler {
     private FirebaseAuth auth;
     private boolean isAdmin = false;
     private SharedPreferences preferences;
+    private FirestoreList<Announcement> announcementFriestoreList;
 
     private UserHandler() {
         db = FirebaseFirestore.getInstance();
@@ -199,6 +201,13 @@ public class UserHandler {
                 });
         */
         return "";
+    }
+
+    public FirestoreList<Announcement> getAnnouncements(FirestoreList.OnLoadListener<Announcement> onLoadListener) {
+        if (announcementFriestoreList == null) {
+            announcementFriestoreList = new FirestoreList<Announcement>(Announcement.class, FirebaseFirestore.getInstance().collection("announcements"), onLoadListener);
+        }
+        return announcementFriestoreList;
     }
 
     public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {

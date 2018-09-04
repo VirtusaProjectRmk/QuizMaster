@@ -3,7 +3,6 @@ package rmk.virtusa.com.quizmaster.handler;
 import android.util.Log;
 
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -61,6 +60,10 @@ public class FirestoreList<T> extends HashMap<T, String> {
      * Tries to push and updates to the list locally after succesfully completed
      */
     public void add(T t) {
+        add(t, onAddListener);
+    }
+
+    public void add(T t, OnAddListener<T> onAddListener) {
         collectionReference.add(t)
                 .addOnSuccessListener(documentReference -> {
                     put(t, documentReference.getId());
@@ -73,6 +76,10 @@ public class FirestoreList<T> extends HashMap<T, String> {
 
 
     public void set(T t) {
+        set(t, onModifiedListener);
+    }
+
+    public void set(T t, OnModifiedListener<T> onModifiedListener) {
         String id = get(t);
         DocumentReference documentReference = id.isEmpty() ? collectionReference.document() : collectionReference.document(id);
         documentReference.set(t)
@@ -92,6 +99,10 @@ public class FirestoreList<T> extends HashMap<T, String> {
 
     @Override
     public String remove(Object o) {
+        return remove(o, onRemoveListener);
+    }
+
+    public String remove(Object o, OnRemoveListener<T> onRemoveListener) {
         String id = get(o);
         if (id.isEmpty()) {
             //remove(t);

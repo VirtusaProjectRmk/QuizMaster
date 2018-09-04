@@ -21,6 +21,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
 
@@ -29,9 +30,9 @@ import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
     private static final String TAG = "AnnouncementAdapter";
     Context context;
-    List<Announcement> announcements;
+    FirestoreList<Announcement> announcements;
 
-    public AnnouncementAdapter(Context context, List<Announcement> announcements) {
+    public AnnouncementAdapter(Context context, FirestoreList<Announcement> announcements) {
         this.context = context;
         this.announcements = announcements;
     }
@@ -45,7 +46,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
 
     @Override
     public void onBindViewHolder(@NonNull AnnouncementViewHolder holder, int position) {
-        Announcement announcement = announcements.get(position);
+        Announcement announcement = announcements.get(position).getKey();
         UserHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
             switch (flag) {
                 case UPDATED:

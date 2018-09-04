@@ -1,6 +1,5 @@
 package rmk.virtusa.com.quizmaster.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +15,7 @@ import android.widget.Toast;
 
 import com.github.badoualy.datepicker.DatePickerTimeline;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,11 +26,9 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.adapter.AttachmentAdapter;
-import rmk.virtusa.com.quizmaster.handler.AnnouncementHandler;
+import rmk.virtusa.com.quizmaster.handler.FirestoreList;
+import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
-
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class AnnounceFragment extends BottomSheetDialogFragment {
     @BindView(R.id.announceTitle)
@@ -56,6 +54,7 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
     DatePickerTimeline expiryDatePicker;
     @BindView(R.id.expiryCheckBox)
     CheckBox expiryCheckBox;
+    FirestoreList<Announcement> announcementFirestoreList;
 
     public AnnounceFragment() {
     }
@@ -65,6 +64,12 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
         AnnounceFragment fragment = new AnnounceFragment();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstance) {
+        super.onCreate(savedInstance);
+        announcementFirestoreList = new FirestoreList<>(Announcement.class, FirebaseFirestore.getInstance().collection("announcement"), null);
     }
 
     @Override
@@ -106,7 +111,7 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
             }
 
             Announcement announcement = new Announcement(FirebaseAuth.getInstance().getUid(), announceAnonymousPostCheckBox.isChecked(), announceTitle.getText().toString(), annnounceMessage.getText().toString(), attachments, new Date(), expiryDate);
-            AnnouncementHandler.getInstance().addAnnouncement(announcement);
+            UserHandler.getInstance().getAnnouncements(null).add(announcement);
             AnnounceFragment.this.dismiss();
         });
         return rootView;
