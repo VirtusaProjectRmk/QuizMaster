@@ -158,7 +158,7 @@ public class ProfileActivity extends AppActivity {
     private void initializeUI(User user, String firebaseUid, boolean isEditable) {
         showLoading(false);
         boolean isAdmin = UserHandler.getInstance().getIsAdmin();
-        quizMetadataFirestoreList = UserHandler.getInstance().getUserQuizData(user.getFirebaseUid(), didLoad -> {
+        quizMetadataFirestoreList = UserHandler.getInstance().getUserQuizData(user.getFirebaseUid(), () -> {
             quizProgressGraphView.setTitle("Quiz Stats");
             LineGraphSeries<DataPoint> dataPointLineGraphSeries = new LineGraphSeries<>(toDataPoint(quizMetadataFirestoreList));
             quizProgressGraphView.addSeries(dataPointLineGraphSeries);
@@ -194,7 +194,7 @@ public class ProfileActivity extends AppActivity {
         userSummaryEditText.setCompoundDrawablesWithIntrinsicBounds(0, 0, android.R.drawable.ic_menu_edit, 0);
 
         profileLinkRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        OnLoadListener<Link> onLoadListener = didLoad -> {
+        OnLoadListener<Link> onLoadListener = () -> {
             if (linkAdapter != null) {
                 linkAdapter.notifyDataSetChanged();
             }

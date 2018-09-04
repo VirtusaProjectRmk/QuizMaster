@@ -17,7 +17,7 @@ import rmk.virtusa.com.quizmaster.fragment.LeaderboardFragment;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.model.Branch;
 
-public class LeaderboardActivity extends AppActivity {
+public class LeaderboardActivity extends AppActivity implements FirestoreList.OnLoadListener<Branch>, FirestoreList.OnModifiedListener<Branch>, FirestoreList.OnRemoveListener<Branch> {
 
     EditText editText;
     ImageButton imageButton;
@@ -46,14 +46,7 @@ public class LeaderboardActivity extends AppActivity {
             }
         });
 
-        branchFirestoreList = new FirestoreList<>(Branch.class, FirebaseFirestore.getInstance().collection("branches"), didLoad -> {
-            if (didLoad) {
-                leaderboardPagerAdapter = new LeaderboardPagerAdapter(this, branchFirestoreList, getSupportFragmentManager());
-                leaderboardViewPager.setAdapter(leaderboardPagerAdapter);
-                leaderTabLayout.setupWithViewPager(leaderboardViewPager);
-            }
-        });
-
+        branchFirestoreList = new FirestoreList<>(Branch.class, FirebaseFirestore.getInstance().collection("branches"), this);
     }
 
     @Override
@@ -83,5 +76,23 @@ public class LeaderboardActivity extends AppActivity {
         getCurrentFragment().update();
     }
 
+    @Override
+    public void onRemove(Branch branch) {
+        leaderboardPagerAdapter.notifyDataSetChanged();
+    }
 
+    @Override
+    public void onLoad() {
+        leaderboardPagerAdapter = new LeaderboardPagerAdapter(this, branchFirestoreList, getSupportFragmentManager());
+        leaderboardViewPager.setAdapter(leaderboardPagerAdapter);
+        leaderTabLayout.setupWithViewPager(leaderboardViewPager);
+        branchFirestoreList.setOnRemoveListener(this);
+        branchFirestoreList.setOnModifiedListener(this);
+        leaderboardPagerAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onModified(Branch branch) {
+        leaderboardPagerAdapter.notifyDataSetChanged();
+    }
 }

@@ -5,12 +5,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import rmk.virtusa.com.quizmaster.model.Branch;
 import rmk.virtusa.com.quizmaster.model.Chat;
 import rmk.virtusa.com.quizmaster.model.Inbox;
 
@@ -42,9 +40,8 @@ public class InboxHandler {
         return ourInstance;
     }
 
-    public FirestoreList<Chat> getChats(String inboxId, FirestoreList.OnLoadListener<Chat> onLoadListener) {
-        final FirestoreList<Chat> firestoreList = new FirestoreList<>(Chat.class, inboxCollectionRef.document(inboxId).collection("chats"), onLoadListener);
-        return firestoreList;
+    public CollectionReference getChatsCollectionReferenceFor(String inboxId) {
+        return inboxCollectionRef.document(inboxId).collection("chats");
     }
 
     public void getInboxes(OnUpdateInboxListener onUpdateInbox) {
@@ -143,19 +140,6 @@ public class InboxHandler {
                         });
             } else onUpdateInbox.onUpdateInbox(inb, UPDATED);
         });
-    }
-
-    public void addChat(String inboxId, Chat chat, OnUpdateChatListener onUpdateChat) {
-        CollectionReference chatCollectionRef = inboxCollectionRef.document(inboxId).collection("chats");
-        chatCollectionRef
-                .document()
-                .set(chat, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> {
-                    onUpdateChat.onUpdateChat(chat, UPDATED);
-                })
-                .addOnFailureListener(e -> {
-                    onUpdateChat.onUpdateChat(null, FAILED);
-                });
     }
 
     public interface OnUpdateInboxListener {

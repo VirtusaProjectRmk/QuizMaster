@@ -1,9 +1,13 @@
 package rmk.virtusa.com.quizmaster.handler;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.MetadataChanges;
 import com.google.firebase.firestore.SetOptions;
 
 import java.util.List;
@@ -30,6 +34,12 @@ public class AnnouncementHandler {
         db.setFirestoreSettings(settings);
 
         announcementCollectionRef = db.collection("announcements");
+        announcementCollectionRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
+            if (e != null) {
+                Log.e(TAG, "Listen Failed: " + e.getMessage());
+                return;
+            }
+        });
     }
 
     public static AnnouncementHandler getInstance() {

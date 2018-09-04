@@ -84,6 +84,7 @@ public class AnnouncementFragment extends Fragment {
             announcements.add(announcement);
             adapter.notifyDataSetChanged();
         });
+
     }
 
     @Override

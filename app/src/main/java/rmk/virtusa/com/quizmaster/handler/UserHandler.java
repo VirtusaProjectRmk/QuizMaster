@@ -242,7 +242,7 @@ public class UserHandler {
      * Gets the user based on the specified userUid
      */
     public void getUser(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
-        if (firebaseUid.isEmpty()) {
+        if (firebaseUid == null || firebaseUid.isEmpty()) {
             onUpdateUserListener.onUserUpdate(null, FAILED);
             return;
         }

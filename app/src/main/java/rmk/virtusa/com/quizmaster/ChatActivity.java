@@ -33,7 +33,7 @@ import rmk.virtusa.com.quizmaster.model.Chat;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.InboxHandler.UPDATED;
 
-public class ChatActivity extends AppActivity implements FirestoreList.OnLoadListener<Chat> {
+public class ChatActivity extends AppActivity implements FirestoreList.OnLoadListener<Chat>, FirestoreList.OnAddListener<Chat>, FirestoreList.OnRemoveListener<Chat>, FirestoreList.OnModifiedListener<Chat> {
 
     private static final String TAG = "ChatActivity";
     @BindView(R.id.chatProfileImageView)
@@ -132,7 +132,10 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
                     chatToolbarTitle.setText(inbox.getName());
                     Glide.with(this).load(inbox.getInboxImage()).into(chatToolbarInboxImage);
                     //Get chats with the given inboxId
-                    chats = InboxHandler.getInstance().getChats(inboxId, this);
+                    chats = new FirestoreList<Chat>(Chat.class, InboxHandler.getInstance().getChatsCollectionReferenceFor(inboxId), ChatActivity.this);
+                    chats.setOnAddListener(ChatActivity.this);
+                    chats.setOnRemoveListener(ChatActivity.this);
+                    chats.setOnModifiedListener(ChatActivity.this);
                     chatAdapter = new ChatAdapter(this, chats, inbox);
                     chatRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
                     chatRecyclerView.setAdapter(chatAdapter);
@@ -144,31 +147,33 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
             }
         });
 
+
         chatSendButton.setOnClickListener(view -> {
             Chat chat = new Chat(FirebaseAuth.getInstance().getCurrentUser().getUid(), false, chatMessageEditText.getText().toString(), new Date(), null);
-            InboxHandler.getInstance().addChat(inboxId, chat, (cht, flg) -> {
-                switch (flg) {
-                    case UPDATED:
-                        chats.add(cht, (ct, didUpdate) -> {
-                            chatAdapter.notifyDataSetChanged();
-                            chatMessageEditText.setText("");
-                        });
-                        //TODO UI indicating success probably single tick
-                        break;
-                    case FAILED:
-                        //TODO UI indicating failure probably error icon
-                        break;
-                }
-            });
+            chats.add(chat);
+            chatMessageEditText.setText("");
         });
 
 
     }
 
     @Override
-    public void onLoad(boolean didLoad) {
+    public void onLoad() {
         if (chatAdapter != null) {
             chatAdapter.notifyDataSetChanged();
         }
+    }
+
+    @Override
+    public void onAdd(Chat chat) {
+        chatAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onRemove(Chat chat) {
+    }
+
+    @Override
+    public void onModified(Chat chat) {
     }
 }

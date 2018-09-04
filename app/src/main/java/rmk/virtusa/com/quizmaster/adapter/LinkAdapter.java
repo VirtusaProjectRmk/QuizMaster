@@ -24,7 +24,7 @@ import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.model.Link;
 
-public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> {
+public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> implements FirestoreList.OnRemoveListener<Link>, FirestoreList.OnModifiedListener<Link> {
     private static final String TAG = "LinkAdapter";
     private Context context;
     private FirestoreList<Link> linkList;
@@ -34,6 +34,9 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         this.context = context;
         this.linkList = linkList;
         this.isEditable = isEditable;
+        linkList.setOnModifiedListener(this);
+        linkList.setOnRemoveListener(this);
+
     }
 
     @NonNull
@@ -59,15 +62,12 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
             }
 
             link.setUrl(in);
-            linkList.set(link, (link1, didUpdate) -> {
-                holder.linkUrl.setText(in);
-            });
+            linkList.set(link);
+            holder.linkUrl.setText(in);
+
         });
         builder.setNegativeButton("Remove", (dialog, which) -> {
-            linkList.remove(link, (link12, didUpdate) -> {
-                Toast.makeText(context, "Item removed", Toast.LENGTH_LONG).show();
-                notifyDataSetChanged();
-            });
+            linkList.remove(link);
         });
         builder.show();
     }
@@ -99,6 +99,16 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
     @Override
     public int getItemCount() {
         return linkList.size();
+    }
+
+    @Override
+    public void onRemove(Link link) {
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onModified(Link link) {
+        notifyDataSetChanged();
     }
 
     private static class LinkFactory {
