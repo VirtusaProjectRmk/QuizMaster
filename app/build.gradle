@@ -10,7 +10,7 @@ android {
         renderscriptSupportModeEnabled true
         multiDexEnabled true
         versionCode 1
-        versionName "0.7"
+        versionName "0.7.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
