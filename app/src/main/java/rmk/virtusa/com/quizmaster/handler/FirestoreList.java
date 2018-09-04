@@ -63,6 +63,10 @@ public class FirestoreList<T> extends HashMap<T, String> {
         add(t, onAddListener);
     }
 
+    public void addLocally(T t, String val) {
+        put(t, val);
+    }
+
     public void add(T t, OnAddListener<T> onAddListener) {
         collectionReference.add(t)
                 .addOnSuccessListener(documentReference -> {

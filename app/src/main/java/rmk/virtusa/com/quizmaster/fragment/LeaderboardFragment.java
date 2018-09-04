@@ -57,15 +57,26 @@ public class LeaderboardFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
         userListAdapter = new UserListAdapter(getContext(), ulist);
-        UserHandler.getInstance().getUsersByBranch((user, flags) -> {
-            switch (flags) {
-                case UPDATED:
+        Collections.sort(ulist, (u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints()));
+        if (mParam1 != null && mParam1.equals("ALL")) {
+            listAllBranch();
+        } else {
+            UserHandler.getInstance().getUsersByBranch(mParam1, (user, flags) -> {
+                if (flags == UPDATED) {
                     ulist.add(user);
                     userListAdapter.notifyDataSetChanged();
-                    break;
+                }
+            });
+        }
+    }
+
+    private void listAllBranch() {
+        UserHandler.getInstance().getUsers((user, flags) -> {
+            if (flags == UPDATED) {
+                ulist.add(user);
+                userListAdapter.notifyDataSetChanged();
             }
-        }, mParam1);
-        Collections.sort(ulist, (u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints()));
+        });
     }
 
     @Override

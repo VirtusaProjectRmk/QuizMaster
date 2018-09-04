@@ -143,7 +143,7 @@ public class UserHandler {
                 });
     }
 
-    public void getUsersByBranch(OnUpdateUserListener onUpdateUserListener, String branch) {
+    public void getUsersByBranch(String branch, OnUpdateUserListener onUpdateUserListener) {
         if (branch == null || branch.isEmpty()) {
             branch = "Other";
         }
