@@ -46,14 +46,15 @@ public class UserListAdapter extends ArrayAdapter<User> {
 
         if(admin) {
             score.setText(String.valueOf(users.getPoints()));
-            listViewItem.setOnClickListener(view ->{
-                Intent intent = new Intent(getContext(), ProfileActivity.class);
-                intent.putExtra(getContext().getString(R.string.extra_profile_firebase_uid), users.getFirebaseUid());
-                getContext().startActivity(intent);
-            });
         }
         else
             score.setText("");
+
+        listViewItem.setOnClickListener(view ->{
+            Intent intent = new Intent(getContext(), ProfileActivity.class);
+            intent.putExtra(getContext().getString(R.string.extra_profile_firebase_uid), users.getFirebaseUid());
+            getContext().startActivity(intent);
+        });
 
         return  listViewItem;
     }
