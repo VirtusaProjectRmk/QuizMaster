@@ -1,4 +1,4 @@
-package rmk.virtusa.com.quizmaster;
+package rmk.virtusa.com.quizmaster.model;
 
 public class Question {
     private String answer;

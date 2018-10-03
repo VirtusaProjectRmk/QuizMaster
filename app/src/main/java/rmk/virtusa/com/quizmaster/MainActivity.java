@@ -44,7 +44,7 @@ import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class MainActivity extends AppActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener {
 
 
     @BindView(R.id.toolbar)
@@ -215,6 +215,16 @@ public class MainActivity extends AppActivity
             } else {
                 Intent myIntent = new Intent(MainActivity.this, ScheduleActivity.class);
                 MainActivity.this.startActivity(myIntent);
+            }
+        } else if (id == R.id.nav_add_test) {
+            if (UserHandler.getInstance().getIsAdmin()) {
+                Intent intent = new Intent(this, AdminActivity.class);
+                startActivity(intent);
+            }
+        } else if (id == R.id.nav_remove_test) {
+            if (UserHandler.getInstance().getIsAdmin()) {
+                Intent intent = new Intent(this, AdminDelete.class);
+                startActivity(intent);
             }
         } else if (id == R.id.nav_leaderboard) {
 

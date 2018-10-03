@@ -15,6 +15,14 @@
             android:icon="@drawable/ic_menu_camera"
             android:title="Schedule" />
         <item
+            android:id="@+id/nav_add_test"
+            android:icon="@drawable/ic_add"
+            android:title="Add Test"/>
+        <item
+            android:id="@+id/nav_remove_test"
+            android:icon="@android:drawable/ic_delete"
+            android:title="Remove Test"/>
+        <item
             android:id="@+id/nav_leaderboard"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Leaderboard" />

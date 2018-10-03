@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
+import rmk.virtusa.com.quizmaster.model.Question;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
 import rmk.virtusa.com.quizmaster.model.User;
 
