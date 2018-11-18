@@ -77,7 +77,7 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
         switch (item.getItemId()) {
             case R.id.chatVideoCallBtn:
                 //TODO implement video call
-                Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
+                AIToast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
                 //Intent intent = new Intent(this, CallActivity.class);
                 //startActivity(intent);
                 return true;
@@ -85,7 +85,7 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
                 super.onBackPressed();
                 return true;
             case R.id.chatAddBtn:
-                Toast.makeText(this, "Feature not implemented: Creates a group with the selected user", Toast.LENGTH_LONG).show();
+                AIToast.makeText(this, "Feature not implemented: Creates a group with the selected user", Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -103,12 +103,12 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
         }
 
         if (inboxId == null) {
-            Toast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();
+            AIToast.makeText(this, "Inbox invalid, please try again later", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
         if (inboxId.isEmpty()) {
-            Toast.makeText(ChatActivity.this, "InboxId error", Toast.LENGTH_LONG).show();
+            AIToast.makeText(ChatActivity.this, "InboxId error", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -141,7 +141,7 @@ public class ChatActivity extends AppActivity implements FirestoreList.OnLoadLis
                     chatRecyclerView.setAdapter(chatAdapter);
                     break;
                 case FAILED:
-                    Toast.makeText(this, "Cannot find the specified inbox", Toast.LENGTH_LONG).show();
+                    AIToast.makeText(this, "Cannot find the specified inbox", Toast.LENGTH_LONG).show();
                     finish();
                     return;
             }

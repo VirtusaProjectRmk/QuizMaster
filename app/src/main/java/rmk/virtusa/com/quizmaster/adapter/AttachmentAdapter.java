@@ -41,6 +41,7 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
     @Override
     public void onBindViewHolder(@NonNull AttachmentViewHolder holder, int position) {
         String fileUrl = attachments.get(position);
+        holder.setIsRecyclable(false);
         //TODO Get filename from url
         holder.itemView.setOnClickListener(view -> {
             try {
@@ -52,7 +53,7 @@ public class AttachmentAdapter extends RecyclerView.Adapter<AttachmentAdapter.At
             }
         });
         String fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-        holder.attachmentName.setText(fileName);
+        holder.attachmentName.setText(context.getString(R.string.attachment_link_format, fileName));
     }
 
     @Override

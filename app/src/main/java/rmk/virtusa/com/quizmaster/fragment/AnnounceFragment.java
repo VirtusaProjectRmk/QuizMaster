@@ -1,9 +1,13 @@
 package rmk.virtusa.com.quizmaster.fragment;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,14 +42,12 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
     @BindView(R.id.announceAttachmentRecyclerView)
     RecyclerView announceAttachmentRecyclerView;
     @BindView(R.id.dismiss)
-    Button dismiss;
+    ImageButton dismiss;
     Unbinder unbinder;
     @BindView(R.id.announceAnonymousPostCheckBox)
     CheckBox announceAnonymousPostCheckBox;
     @BindView(R.id.attachmentAddButton)
     ImageButton attachmentAddButton;
-    @BindView(R.id.attachmentAddEditText)
-    EditText attachmentAddEditText;
 
     List<String> attachments = new ArrayList<>();
 
@@ -59,12 +61,6 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
     public AnnounceFragment() {
     }
 
-    public static AnnounceFragment newInstance() {
-        Bundle args = new Bundle();
-        AnnounceFragment fragment = new AnnounceFragment();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstance) {
@@ -74,25 +70,40 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_announce, container, false);
+        ContextThemeWrapper contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.AppTheme);
+        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+        View rootView = localInflater.inflate(R.layout.fragment_announce, container, false);
         unbinder = ButterKnife.bind(this, rootView);
+
+        return rootView;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         expiryCheckBox.setChecked(true);
         expiryCheckBox.setOnCheckedChangeListener((compoundButton, b) -> expiryDatePicker.setEnabled(true));
 
-        announceAttachmentRecyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext(), LinearLayoutManager.HORIZONTAL, false));
-        AttachmentAdapter attachmentAdapter = new AttachmentAdapter(rootView.getContext(), attachments);
+        announceAttachmentRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext(), LinearLayoutManager.HORIZONTAL, false));
+        AttachmentAdapter attachmentAdapter = new AttachmentAdapter(view.getContext(), attachments);
         announceAttachmentRecyclerView.setAdapter(attachmentAdapter);
 
-        attachmentAddButton.setOnClickListener(view -> {
-            String attachmentFile = attachmentAddEditText.getText().toString();
-            if (attachmentFile == null || attachmentFile.isEmpty()) {
-                Toast.makeText(rootView.getContext(), "Attachment should be empty, provide a valid url or browse a file", Toast.LENGTH_LONG).show();
-                return;
-            }
-            attachments.add(attachmentFile);
-            attachmentAddEditText.setText("");
-            attachmentAdapter.notifyDataSetChanged();
+        attachmentAddButton.setOnClickListener(v -> {
+            EditText editText = new EditText(getContext());
+            new AlertDialog.Builder(getContext())
+                    .setTitle(R.string.attachment_input_title)
+                    .setView(editText)
+                    .setPositiveButton("Ok", (l, d) -> {
+                        String attachmentFile = editText.getText().toString();
+                        if (attachmentFile.isEmpty()) {
+                            Toast.makeText(view.getContext(), R.string.attachment_input_empty, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        attachments.add(attachmentFile);
+                        attachmentAdapter.notifyDataSetChanged();
+                    })
+                    .create().show();
         });
 
         Date date = new Date();
@@ -114,7 +125,6 @@ public class AnnounceFragment extends BottomSheetDialogFragment {
             UserHandler.getInstance().getAnnouncements(null).add(announcement);
             AnnounceFragment.this.dismiss();
         });
-        return rootView;
     }
 
     @Override

@@ -7,31 +7,31 @@
     android:fitsSystemWindows="true"
     tools:context=".LoginActivity">
 
-    <ImageView
-        android:id="@+id/loginBgImageView"
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-
-    <ImageView
-        android:id="@+id/overlayIV"
-        android:src="@drawable/overlay_black"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="wrap_content"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="@dimen/activity_horizontal_margin"
         android:gravity="center"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:orientation="vertical">
 
         <ImageView
+            android:layout_width="108dp"
+            android:layout_height="108dp"
+            android:src="@drawable/ic_send" />
+
+        <TextView
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/login_hint"
             android:layout_width="wrap_content"
-            android:layout_height="100dp"
-            android:layout_marginBottom="32dp"
-            android:src="@drawable/welcome_logo" />
+            android:layout_height="wrap_content" />
 
 
         <EditText
@@ -49,6 +49,7 @@
             android:id="@+id/password"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"
             android:layout_marginBottom="10dp"
             android:hint="Password"
             android:inputType="textPassword"
@@ -67,12 +68,4 @@
             app:borderWidth="0dp" />
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="64dp"
-        android:visibility="gone" />
 </RelativeLayout>

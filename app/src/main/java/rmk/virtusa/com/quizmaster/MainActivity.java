@@ -3,6 +3,7 @@ package rmk.virtusa.com.quizmaster;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -23,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -77,12 +79,12 @@ public class MainActivity extends AppActivity
     }
 
     private void onAddClick(View view) {
-        AnnounceFragment fragment = AnnounceFragment.newInstance();
+        AnnounceFragment fragment = new AnnounceFragment();
         fragment.show(getSupportFragmentManager(), "announce_modal_dialog");
     }
 
     private void onSearchClick(View view) {
-        Toast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
+        AIToast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
     }
 
     private void animateFab(int position) {
@@ -110,6 +112,20 @@ public class MainActivity extends AppActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        View headerView = navView.inflateHeaderView(R.layout.profile_header);
+        headerView.setOnClickListener(v -> {
+            Intent myIntent = new Intent(this, ProfileActivity.class);
+            myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
+            MainActivity.this.startActivity(myIntent);
+        });
+//        UserHandler.getInstance().getUser((user, flags) -> {
+//            Glide.with(this)
+//                    .load(user.getDisplayImage())
+//                    .into((ImageView) headerView.findViewById(R.id.profileImage));
+//            ((TextView) headerView.findViewById(R.id.profileName)).setText(user.getName());
+//            ((TextView) headerView.findViewById(R.id.profilePoints)).setText(user.getPoints());
+//        });
 
         alertDialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.no_test_header))
@@ -230,15 +246,10 @@ public class MainActivity extends AppActivity
 
             Intent myIntent = new Intent(MainActivity.this, LeaderboardActivity.class);
             MainActivity.this.startActivity(myIntent);
-        } else if (id == R.id.nav_profile) {
-            Intent myIntent = new Intent(this, ProfileActivity.class);
-            myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
-            MainActivity.this.startActivity(myIntent);
         } else if (id == R.id.nav_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

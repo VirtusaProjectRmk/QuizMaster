@@ -33,8 +33,6 @@ public class LoginActivity extends AppActivity {
     private FirebaseAuth auth;
     private ProgressBar progressBar;
     private FloatingActionButton btnLogin;
-    private ImageView bgImageView;
-    private ImageView overlayIV;
 
     static final String TAG = "LoginActivity";
 
@@ -54,69 +52,54 @@ public class LoginActivity extends AppActivity {
         inputPassword = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btn_login);
-        bgImageView = findViewById(R.id.loginBgImageView);
-        overlayIV = findViewById(R.id.overlayIV);
-
-        Glide.with(context)
-                .asGif()
-                .load(R.drawable.texas)
-                .into(bgImageView);
-
-        BlurImage.with(getApplicationContext()).load(R.drawable.overlay_black).intensity(20).Async(true).into(overlayIV);
 
         auth = FirebaseAuth.getInstance();
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = inputEmail.getText().toString();
-                final String password = inputPassword.getText().toString();
+        btnLogin.setOnClickListener(v -> {
+            String email = inputEmail.getText().toString();
+            final String password = inputPassword.getText().toString();
 
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (TextUtils.isEmpty(password)) {
-                    Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                progressBar.setVisibility(View.VISIBLE);
-
-                //authenticate user
-                auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                // If sign in fails, display a message to the user. If sign in succeeds
-                                // the auth state listener will be notified and logic to handle the
-                                // signed in user can be handled in the listener.
-                                progressBar.setVisibility(View.GONE);
-                                if (!task.isSuccessful()) {
-                                    // there was an error
-                                    if (password.length() < 6) {
-                                        inputPassword.setError("Enter Password with minimum 6 characters");
-                                    } else {
-                                        Log.e(TAG, task.getException().getMessage());
-                                        Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                                    }
-                                } else {
-                                    UserHandler.getInstance(LoginActivity.this.getApplicationContext()).updateUserFromAuth(auth.getUid(), (user, flag) -> {
-                                        switch (flag) {
-                                            case UPDATED:
-                                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                startActivity(intent);
-                                                break;
-                                            case FAILED:
-                                                Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                                                break;
-                                        }
-                                    });
-
-                                }
-                            }
-                        });
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            if (TextUtils.isEmpty(password)) {
+                Toast.makeText(getApplicationContext(), "Enter password!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            progressBar.setVisibility(View.VISIBLE);
+
+            //authenticate user
+            auth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(LoginActivity.this, task -> {
+                        // If sign in fails, display a message to the user. If sign in succeeds
+                        // the auth state listener will be notified and logic to handle the
+                        // signed in user can be handled in the listener.
+                        progressBar.setVisibility(View.GONE);
+                        if (!task.isSuccessful()) {
+                            // there was an error
+                            if (password.length() < 6) {
+                                inputPassword.setError("Enter Password with minimum 6 characters");
+                            } else {
+                                Log.e(TAG, task.getException().getMessage());
+                                Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            UserHandler.getInstance(LoginActivity.this.getApplicationContext()).updateUserFromAuth(auth.getUid(), (user, flag) -> {
+                                switch (flag) {
+                                    case UPDATED:
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
+                                        break;
+                                    case FAILED:
+                                        Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
+                                        break;
+                                }
+                            });
+
+                        }
+                    });
         });
 
     }

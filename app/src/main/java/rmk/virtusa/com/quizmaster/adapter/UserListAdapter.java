@@ -1,6 +1,5 @@
 package rmk.virtusa.com.quizmaster.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -36,7 +35,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
         View listViewItem = LayoutInflater.from(context).inflate(R.layout.listlayout,null,true);
 
         TextView empid = (TextView) listViewItem.findViewById(R.id.empid);
-        TextView name = (TextView) listViewItem.findViewById(R.id.name);
+        TextView name = (TextView) listViewItem.findViewById(R.id.profileName);
         TextView score = (TextView) listViewItem.findViewById(R.id.score);
 
         User users = ulist.get(position);

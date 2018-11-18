@@ -6,22 +6,17 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_profile"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Profile" />
-
-        <item
             android:id="@+id/nav_dashboard"
             android:icon="@drawable/ic_menu_camera"
             android:title="Schedule" />
         <item
             android:id="@+id/nav_add_test"
             android:icon="@drawable/ic_add"
-            android:title="Add Test"/>
+            android:title="Add Test" />
         <item
             android:id="@+id/nav_remove_test"
             android:icon="@android:drawable/ic_delete"
-            android:title="Remove Test"/>
+            android:title="Remove Test" />
         <item
             android:id="@+id/nav_leaderboard"
             android:icon="@drawable/ic_menu_gallery"

@@ -24,9 +24,9 @@ public class MainPagerFragmentAdapter extends FragmentPagerAdapter{
     @Override
     public Fragment getItem(int position) {
         if (position == 0) {
-            return AnnouncementFragment.newInstance("");
+            return new AnnouncementFragment();
         } else {
-            return InboxFragment.newInstance();
+            return new InboxFragment();
         }
     }
 

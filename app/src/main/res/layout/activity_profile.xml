@@ -1,110 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:focusableInTouchMode="true"
     android:orientation="vertical"
-    tools:context=".ProfileActivity">
+    android:padding="@dimen/view_padding_small">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/profileAppBarLayout"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:orientation="vertical">
 
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/profileToolbarLayout"
+        <ProgressBar
+            android:id="@+id/profileProgressBar"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <include layout="@layout/profile_header" />
+
+
+        <EditText
+            android:id="@+id/profileBranch"
+            style="@style/Base.TextAppearance.AppCompat.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            android:cursorVisible="false"
+            android:hint="@string/branch"
+            android:lines="1" />
 
-            <include layout="@layout/profile_header" />
-
-            <ProgressBar
-                android:id="@+id/profileProgressBar"
-                style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </android.support.design.widget.CollapsingToolbarLayout>
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
+        <EditText
+            android:id="@+id/userSummaryEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="@dimen/view_padding_small">
+            android:layout_marginTop="@dimen/view_padding_small"
+            android:gravity="top|start"
+            android:hint="@string/profile_add_summary"
+            android:lines="3"
+            android:visibility="gone" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/attachment_bg"
-                android:padding="@dimen/view_padding_small">
+        <com.jjoe64.graphview.GraphView
+            android:id="@+id/quizProgressGraphView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="@dimen/view_padding_small" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Branch" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/profileLinkRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="true"
+            android:layout_marginTop="@dimen/view_padding_small"
+            android:background="@drawable/attachment_bg" />
 
-                <EditText
-                    android:id="@+id/profileBranch"
-                    style="@style/Base.TextAppearance.AppCompat.Title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/activity_horizontal_margin"
-                    android:background="@android:color/transparent"
-                    android:cursorVisible="false"
-                    android:lines="1" />
-            </LinearLayout>
+        <TextView
+            android:id="@+id/profileLinkAddTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/view_padding_small"
+            android:text="@string/profile_add_link" />
 
-            <EditText
-                android:id="@+id/userSummaryEditText"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/view_padding_small"
-                android:background="?attr/colorPrimary"
-                android:hint="@string/profile_add_summary"
-                android:padding="@dimen/attachment_card_radius"
-                android:visibility="gone" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            android:src="@drawable/tick_icon"
+            android:tint="@color/colorPrimary" />
+    </LinearLayout>
 
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/quizProgressGraphView"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="@dimen/view_padding_small" />
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/profileLinkRecyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/view_padding_small"
-                android:background="@drawable/attachment_bg"
-                android:nestedScrollingEnabled="false" />
-
-            <TextView
-                android:id="@+id/profileLinkAddTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/view_padding_small"
-                android:text="@string/profile_add_link" />
-        </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/tick_icon"
-        android:tint="@color/colorPrimary"
-        android:translationZ="13dp" />
-</android.support.design.widget.CoordinatorLayout>
+</android.support.v4.widget.NestedScrollView>

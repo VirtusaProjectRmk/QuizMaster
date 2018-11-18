@@ -17,6 +17,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
         <item name="android:buttonStyle">@style/AppTheme.Button</item>
+        <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
+        <item name="editTextStyle">@style/AppTheme.EditText</item>
+
         <!--chat-->
         <item name="chatMeBackground">@color/colorPrimaryDark</item>
         <item name="chatOthersBackground">@color/colorPrimary</item>
@@ -28,22 +31,28 @@
         <item name="colorAccent">@color/colorLightAccent</item>
         <item name="android:windowBackground">@color/colorLightPrimaryDark</item>
         <item name="android:buttonStyle">@style/AppTheme.Button</item>
+        <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
+        <item name="editTextStyle">@style/AppTheme.EditText</item>
 
         <!--chat-->
         <item name="chatMeBackground">@color/colorHardGrey</item>
         <item name="chatOthersBackground">@color/colorSoftGrey</item>
     </style>
 
-    <style name="AppTheme.Amoled" parent="Theme.AppCompat.NoActionBar">
-        <item name="colorPrimary">@android:color/black</item>
-        <item name="colorPrimaryDark">@android:color/black</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowBackground">@android:color/black</item>
+    <style name="AppTheme.ImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:tint">@color/colorAccent</item>
+        <item name="android:padding">@dimen/activity_horizontal_margin</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.EditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/attachment_bg</item>
+        <item name="android:padding">@dimen/view_padding_small</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -52,7 +61,7 @@
 
     <style name="AppTheme.DangerFullPageButtons">
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:backgroundTint">@color/colorHardRed</item>
+        <item name="android:background">@color/colorHardRed</item>
     </style>
 
 </resources>

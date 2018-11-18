@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/profile_header_layout"
     android:layout_gravity="center_horizontal"
     android:orientation="horizontal"
     app:layout_collapseMode="parallax"
@@ -54,7 +54,8 @@
             android:padding="@dimen/view_padding_small">
 
             <EditText
-                android:id="@+id/name"
+                android:text="@string/default_user_name"
+                android:id="@+id/profileName"
                 style="@style/Base.TextAppearance.AppCompat.Display1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,25 +66,9 @@
                 android:fadingEdgeLength="@dimen/fading_edge_length"
                 android:lines="1" />
 
-            <TextView
-                android:id="@+id/useremail"
-                style="@style/Base.TextAppearance.AppCompat.Body2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
 
                 <TextView
-                    style="@style/Base.TextAppearance.AppCompat.Title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/total_points" />
-
-                <TextView
+                    android:text="@string/default_user_points"
                     android:id="@+id/profilePoints"
                     style="@style/Base.TextAppearance.AppCompat.Body2"
                     android:layout_width="wrap_content"
@@ -92,7 +77,6 @@
                     android:fadingEdge="horizontal"
                     android:fadingEdgeLength="@dimen/fading_edge_length"
                     android:lines="1" />
-            </LinearLayout>
         </LinearLayout>
 
 

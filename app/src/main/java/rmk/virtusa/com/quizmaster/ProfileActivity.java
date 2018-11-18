@@ -22,12 +22,9 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
@@ -67,16 +64,10 @@ public class ProfileActivity extends AppActivity {
     Toolbar profileToolbar;
     @BindView(R.id.profileImage)
     CircleImageView profileImage;
-    @BindView(R.id.name)
-    EditText name;
-    @BindView(R.id.useremail)
-    TextView useremail;
-    @BindView(R.id.profileToolbarLayout)
-    CollapsingToolbarLayout profileToolbarLayout;
+    @BindView(R.id.profileName)
+    EditText profileName;
     @BindView(R.id.profileBranch)
     EditText profileBranch;
-    @BindView(R.id.profileAppBarLayout)
-    AppBarLayout profileAppBarLayout;
     @BindView(R.id.profileMessageBtn)
     FloatingActionButton profileMessageBtn;
     @BindView(R.id.profileVideoBtn)
@@ -99,19 +90,19 @@ public class ProfileActivity extends AppActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (user == null) {
-            Toast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
+            AIToast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
             return;
         }
         if (requestCode == PICK_IMAGE && resultCode == AppCompatActivity.RESULT_OK) {
             if (data == null) {
                 //Display an error
-                Toast.makeText(this, "Image not picked", Toast.LENGTH_SHORT).show();
+                AIToast.makeText(this, "Image not picked", Toast.LENGTH_SHORT).show();
                 return;
             }
             try {
                 InputStream inputStream = getContentResolver().openInputStream(data.getData());
                 if (inputStream == null) {
-                    Toast.makeText(this, "Cannot read the provided image", Toast.LENGTH_SHORT).show();
+                    AIToast.makeText(this, "Cannot read the provided image", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (user == null) return;
@@ -125,10 +116,10 @@ public class ProfileActivity extends AppActivity {
                                         switch (flag) {
                                             case UPDATED:
                                                 Glide.with(ProfileActivity.this).load(uri.toString()).into(profileImage);
-                                                Toast.makeText(ProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
+                                                AIToast.makeText(ProfileActivity.this, "Profile image updated", Toast.LENGTH_SHORT).show();
                                                 break;
                                             case FAILED:
-                                                Toast.makeText(ProfileActivity.this, "Cannot update profile photo", Toast.LENGTH_SHORT).show();
+                                                AIToast.makeText(ProfileActivity.this, "Cannot update profile photo", Toast.LENGTH_SHORT).show();
                                                 break;
                                         }
                                     });
@@ -175,10 +166,10 @@ public class ProfileActivity extends AppActivity {
         profileBranch.setEnabled(isAdmin);
         profileBranch.setCompoundDrawablesWithIntrinsicBounds(0, 0, isAdmin ? android.R.drawable.ic_menu_edit : 0, 0);
 
-        name.setEnabled(isEditable);
-        name.setText(user.getName() == null || user.getName().isEmpty() ? "No name" : user.getName());
-        name.setCompoundDrawablesWithIntrinsicBounds(0, 0, isEditable ? android.R.drawable.ic_menu_edit : 0, 0);
-        profilePoints.setText(String.valueOf(user.getPoints()));
+        profileName.setEnabled(isEditable);
+        profileName.setText(user.getName() == null || user.getName().isEmpty() ? "No profileName" : user.getName());
+        profileName.setCompoundDrawablesWithIntrinsicBounds(0, 0, isEditable ? android.R.drawable.ic_menu_edit : 0, 0);
+        profilePoints.setText(getString(R.string.points_formatter, String.valueOf(user.getPoints())));
 
         Glide.with(this).load(user.getDisplayImage() == null || user.getDisplayImage().isEmpty() ? R.drawable.default_user : user.getDisplayImage()).into(profileImage);
         profileImage.setEnabled(isEditable);
@@ -205,7 +196,6 @@ public class ProfileActivity extends AppActivity {
 
         fab.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
-        useremail.setVisibility(isEditable ? View.VISIBLE : View.GONE);
 
         profileMessageBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
         profileVideoBtn.setVisibility(!isEditable ? View.VISIBLE : View.GONE);
@@ -231,7 +221,7 @@ public class ProfileActivity extends AppActivity {
         }
 
         if (isEditable) {
-            name.addTextChangedListener(textWatcher);
+            profileName.addTextChangedListener(textWatcher);
             userSummaryEditText.addTextChangedListener(textWatcher);
             profileLinkAddTextView.setOnClickListener(this::add);
 
@@ -242,17 +232,16 @@ public class ProfileActivity extends AppActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
             });
             fab.setOnClickListener(this::update);
-            useremail.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         } else {
             profileVideoBtn.setOnClickListener(view -> {
                 if (!userCheck()) return;
-                Toast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
+                AIToast.makeText(this, "Feature not implemented", Toast.LENGTH_LONG).show();
             });
             profileMessageBtn.setOnClickListener(view -> {
                 if (!userCheck()) return;
                 Intent intent = new Intent(this, ChatActivity.class);
                 //intent.putExtra(getString(R.string.extra_chat_inboxId), UserHandler.getInstance().sendRequest());
-                Toast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
+                AIToast.makeText(this, "Work in progress", Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -260,7 +249,7 @@ public class ProfileActivity extends AppActivity {
 
     private boolean userCheck() {
         if (user == null) {
-            Toast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
+            AIToast.makeText(this, "Please wait while the profile loads", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -303,7 +292,7 @@ public class ProfileActivity extends AppActivity {
                     initializeUI(user, finalFirebaseUid, isEditable);
                     break;
                 case FAILED:
-                    Toast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
+                    AIToast.makeText(ProfileActivity.this, "User not found", Toast.LENGTH_LONG).show();
                     finish();
                     break;
             }
@@ -319,12 +308,12 @@ public class ProfileActivity extends AppActivity {
 
     public void update(View view) {
         if (user == null) {
-            Toast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
+            AIToast.makeText(this, "Please try again later", Toast.LENGTH_SHORT).show();
             return;
         }
         showLoading(true);
         fab.setVisibility(View.GONE);
-        user.setName(name.getText().toString());
+        user.setName(profileName.getText().toString());
         user.setBranch(profileBranch.getText().toString());
         if (userSummaryEditText.getText() != null) {
             user.setSummary(userSummaryEditText.getText().toString());
@@ -335,10 +324,10 @@ public class ProfileActivity extends AppActivity {
                     case UPDATED:
                         CollectionReference collectionReference = FirebaseFirestore.getInstance().collection("branches");
                         collectionReference
-                                .whereEqualTo("name", profileBranch.getText().toString())
+                                .whereEqualTo("profileName", profileBranch.getText().toString())
                                 .get()
                                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                                    if (queryDocumentSnapshots.getDocuments().size() > 0){
+                                    if (queryDocumentSnapshots.getDocuments().size() > 0) {
                                         showLoading(false);
                                     } else {
                                         String brnch = profileBranch.getText().toString();
@@ -358,10 +347,10 @@ public class ProfileActivity extends AppActivity {
                                         showLoading(false);
                                     }
                                 });
-                        Toast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
+                        AIToast.makeText(this, "User updated Successfully", Toast.LENGTH_LONG).show();
                         break;
                     case FAILED:
-                        Toast.makeText(this, "User update failed", Toast.LENGTH_LONG).show();
+                        AIToast.makeText(this, "User update failed", Toast.LENGTH_LONG).show();
                         showLoading(false);
                         break;
                 }

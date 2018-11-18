@@ -47,9 +47,10 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.InboxViewHol
     @Override
     public void onBindViewHolder(@NonNull InboxViewHolder holder, int position) {
         Inbox inbox = inboxes.get(position);
+        holder.setIsRecyclable(false);
+
         holder.inboxName.setText(inbox.getName());
         holder.inboxStatus.setText(inbox.getStatus());
-
 
         if (inbox.getInboxImage() == null) {
             Glide.with(context).load(R.drawable.default_user).into(holder.inboxImageView);

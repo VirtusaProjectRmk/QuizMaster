@@ -2,6 +2,8 @@ package rmk.virtusa.com.quizmaster.fragment;
 
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,12 +40,6 @@ public class InboxFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static InboxFragment newInstance() {
-        InboxFragment fragment = new InboxFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,11 +53,15 @@ public class InboxFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_inbox, container, false);
         unbinder = ButterKnife.bind(this, view);
+        return view;
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         InboxAdapter inboxAdapter = new InboxAdapter(getContext(), inboxes);
         inboxRecyclerView.setAdapter(inboxAdapter);
         inboxRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-
         InboxHandler.getInstance().getInboxes((inbox, flag) -> {
             switch (flag) {
                 case UPDATED:
@@ -76,7 +76,6 @@ public class InboxFragment extends Fragment {
                     break;
             }
         });
-        return view;
     }
 
     @Override

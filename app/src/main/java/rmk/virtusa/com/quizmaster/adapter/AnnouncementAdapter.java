@@ -29,8 +29,8 @@ import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
     private static final String TAG = "AnnouncementAdapter";
-    Context context;
-    FirestoreList<Announcement> announcements;
+    private Context context;
+    private FirestoreList<Announcement> announcements;
 
     public AnnouncementAdapter(Context context, FirestoreList<Announcement> announcements) {
         this.context = context;
@@ -73,10 +73,8 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         holder.announcementTitle.setText(announcement.getTitle());
         holder.announcementMessage.setText(announcement.getMessage());
         List<String> attachments = announcement.getAttachments();
-        if (attachments == null) {
-            holder.attachmentContainer.setVisibility(View.GONE);
-        } else if (attachments.size() == 0) {
-            holder.attachmentContainer.setVisibility(View.GONE);
+        if (attachments == null || attachments.size() == 0) {
+            holder.attachementRecyclerView.setVisibility(View.GONE);
         } else {
             holder.attachementRecyclerView.setAdapter(new AttachmentAdapter(context, attachments));
             holder.attachementRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
@@ -96,8 +94,6 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         TextView announcementTitle;
         @BindView(R.id.announcementMessage)
         TextView announcementMessage;
-        @BindView(R.id.attachmentContainer)
-        LinearLayout attachmentContainer;
         @BindView(R.id.attachementRecyclerView)
         RecyclerView attachementRecyclerView;
 
