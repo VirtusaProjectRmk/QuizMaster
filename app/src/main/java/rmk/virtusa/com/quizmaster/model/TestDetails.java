@@ -2,9 +2,9 @@ package rmk.virtusa.com.quizmaster.model;
 
 public class TestDetails {
 
-    String mcqTest;
-    String fromTime;
-    String toTime;
+    private String mcqTest;
+    private String fromTime;
+    private String toTime;
 
 
     public TestDetails(String mcqTest, String fromTime, String toTime) {
