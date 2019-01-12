@@ -19,12 +19,15 @@ import rmk.virtusa.com.quizmaster.model.Branch;
 
 public class LeaderboardActivity extends AppCompatActivity implements FirestoreList.OnLoadListener<Branch> {
 
-    EditText editText;
-    ImageButton imageButton;
     @BindView(R.id.leaderboardViewPager)
     ViewPager leaderboardViewPager;
     @BindView(R.id.leaderTabLayout)
     TabLayout leaderTabLayout;
+    @BindView(R.id.leaderboardEditText)
+    EditText leaderboardEditText;
+    @BindView(R.id.leaderboardSearchBtn)
+    ImageButton leaderboardSearchBtn;
+
     FirestoreList<Branch> branchFirestoreList;
     LeaderboardPagerAdapter leaderboardPagerAdapter;
 
@@ -33,13 +36,11 @@ public class LeaderboardActivity extends AppCompatActivity implements FirestoreL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
         ButterKnife.bind(this);
-        editText = (EditText) findViewById(R.id.leaderboardEditText);
-        imageButton = (ImageButton) findViewById(R.id.leaderboardSearchBtn);
 
-        imageButton.setOnClickListener(new View.OnClickListener() {
+        leaderboardSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String query = editText.getText().toString().toUpperCase();
+                String query = leaderboardEditText.getText().toString().toUpperCase();
                 getCurrentFragment().performSearch(query);
             }
         });

@@ -58,6 +58,9 @@ public class LeaderboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //TODO Remove hard firebase calls. After including in a few fragments the bloat is noticeable
+        if (bid.equals("Other")) {
+            bid = "";
+        }
         UserHandler.getInstance().getUsers(bid).addOnSuccessListener(it -> {
             List<User> users = it.toObjects(User.class);
             if (users.size() == 0) {
