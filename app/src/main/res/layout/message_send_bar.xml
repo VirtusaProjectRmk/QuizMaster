@@ -7,24 +7,18 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/chatProfileImageView"
-        android:layout_width="@dimen/image_tiny"
-        android:layout_height="@dimen/image_tiny"
-        android:src="@drawable/default_user" />
-
     <EditText
         android:id="@+id/chatMessageEditText"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
         android:layout_weight="1"
         android:background="@android:color/transparent"
         android:cursorVisible="false"
         android:fadingEdge="horizontal"
         android:fadingEdgeLength="@dimen/fading_edge_length"
-        android:hint="Say something..." />
+        android:hint="@string/send_bar_hint" />
 
     <ImageView
         android:id="@+id/chatSendButton"

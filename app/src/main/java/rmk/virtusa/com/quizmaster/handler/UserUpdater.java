@@ -20,13 +20,6 @@ public class UserUpdater<T> {
     public UserUpdater(String ref) {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
-
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        db.setFirestoreSettings(settings);
-        collectionReference = db.collection(ref);
-        documentReference = collectionReference.document();
     }
 
     public T get() {

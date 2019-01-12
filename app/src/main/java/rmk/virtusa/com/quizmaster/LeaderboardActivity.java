@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -17,11 +18,10 @@ import rmk.virtusa.com.quizmaster.fragment.LeaderboardFragment;
 import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.model.Branch;
 
-public class LeaderboardActivity extends AppActivity implements FirestoreList.OnLoadListener<Branch>{
+public class LeaderboardActivity extends AppCompatActivity implements FirestoreList.OnLoadListener<Branch> {
 
     EditText editText;
     ImageButton imageButton;
-    SwipeRefreshLayout mySwipeRefreshLayout;
     @BindView(R.id.leaderboardViewPager)
     ViewPager leaderboardViewPager;
     @BindView(R.id.leaderTabLayout)
@@ -36,7 +36,6 @@ public class LeaderboardActivity extends AppActivity implements FirestoreList.On
         ButterKnife.bind(this);
         editText = (EditText) findViewById(R.id.editText);
         imageButton = (ImageButton) findViewById(R.id.imageButton);
-        mySwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefresh);
 
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,24 +46,9 @@ public class LeaderboardActivity extends AppActivity implements FirestoreList.On
         });
 
         branchFirestoreList = new FirestoreList<>(Branch.class, FirebaseFirestore.getInstance().collection("branches"), this);
-        branchFirestoreList.addLocally(new Branch("ALL", "", null), "ALL");
         leaderboardPagerAdapter = new LeaderboardPagerAdapter(this, branchFirestoreList, getSupportFragmentManager());
         leaderboardViewPager.setAdapter(leaderboardPagerAdapter);
         leaderTabLayout.setupWithViewPager(leaderboardViewPager);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-        mySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mySwipeRefreshLayout.setRefreshing(true);
-                doUpdate();
-            }
-        });
     }
 
     private LeaderboardFragment getCurrentFragment() {
@@ -73,11 +57,6 @@ public class LeaderboardActivity extends AppActivity implements FirestoreList.On
             leaderboardFragment = (LeaderboardFragment) leaderboardPagerAdapter.getItem(leaderboardViewPager.getCurrentItem());
         }
         return leaderboardFragment;
-    }
-
-    private void doUpdate() {
-        mySwipeRefreshLayout.setRefreshing(false);
-        getCurrentFragment().update();
     }
 
     @Override

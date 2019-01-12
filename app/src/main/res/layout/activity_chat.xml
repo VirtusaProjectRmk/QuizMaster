@@ -7,10 +7,17 @@
     android:orientation="vertical"
     tools:context=".ChatActivity">
 
+    <ProgressBar
+        android:id="@+id/chatProgressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/chatToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
 
         <LinearLayout
             android:id="@+id/chatToolbarInboxContainer"
@@ -44,6 +51,5 @@
         android:layout_weight="1"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <include
-        layout="@layout/chat_send_bar" />
+    <include layout="@layout/message_send_bar" />
 </LinearLayout>

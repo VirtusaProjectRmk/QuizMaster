@@ -13,12 +13,6 @@
         android:padding="@dimen/activity_horizontal_margin">
 
 
-        <com.github.badoualy.datepicker.DatePickerTimeline
-            android:id="@+id/expiryDatePicker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
         <EditText
             android:id="@+id/announceTitle"
             android:layout_width="match_parent"
@@ -36,22 +30,6 @@
             android:hint="@string/announce_message_hint"
             android:lines="12"
             android:padding="@dimen/view_padding_small" />
-
-
-        <CheckBox
-            android:id="@+id/announceAnonymousPostCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/announce_post_anonymous"
-            android:visibility="gone" />
-
-        <CheckBox
-            android:id="@+id/expiryCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/announce_expiry_date"
-            android:visibility="gone" />
-
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/announceAttachmentRecyclerView"

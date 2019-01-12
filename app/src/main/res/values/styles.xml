@@ -20,7 +20,21 @@
         <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
         <item name="editTextStyle">@style/AppTheme.EditText</item>
 
-        <!--chat-->
+        <!--message-->
+        <item name="chatMeBackground">@color/colorPrimaryDark</item>
+        <item name="chatOthersBackground">@color/colorPrimary</item>
+    </style>
+
+    <style name="AppTheme.Indigo" parent="Theme.Design.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorLightPrimary</item>
+        <item name="colorPrimaryDark">@color/colorIndigo</item>
+        <item name="colorAccent">@color/colorNegativeIndigo</item>
+        <item name="android:windowBackground">@color/colorLightPrimaryDark</item>
+        <item name="android:buttonStyle">@style/AppTheme.Button</item>
+        <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
+        <item name="editTextStyle">@style/AppTheme.EditText</item>
+
+        <!--message-->
         <item name="chatMeBackground">@color/colorPrimaryDark</item>
         <item name="chatOthersBackground">@color/colorPrimary</item>
     </style>
@@ -34,7 +48,7 @@
         <item name="imageButtonStyle">@style/AppTheme.ImageButton</item>
         <item name="editTextStyle">@style/AppTheme.EditText</item>
 
-        <!--chat-->
+        <!--message-->
         <item name="chatMeBackground">@color/colorHardGrey</item>
         <item name="chatOthersBackground">@color/colorSoftGrey</item>
     </style>

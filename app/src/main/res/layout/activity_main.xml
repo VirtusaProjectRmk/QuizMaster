@@ -14,8 +14,7 @@
 
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="0dp">
+            android:layout_height="wrap_content">
 
             <android.support.design.widget.CollapsingToolbarLayout
                 android:layout_width="match_parent"
@@ -31,13 +30,13 @@
                     <android.support.v7.widget.Toolbar
                         android:id="@+id/toolbar"
                         android:layout_width="match_parent"
-                        android:layout_height="?attr/actionBarSize"
-                        android:elevation="0dp" />
+                        android:layout_height="?attr/actionBarSize" />
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/usersListRecyclerView"
+                    <FrameLayout
+                        android:id="@+id/usersFrameLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
+
                 </LinearLayout>
             </android.support.design.widget.CollapsingToolbarLayout>
 

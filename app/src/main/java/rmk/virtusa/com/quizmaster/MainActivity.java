@@ -1,13 +1,13 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.constraint.ConstraintLayout;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -19,13 +19,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,16 +41,15 @@ import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
 import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
-import rmk.virtusa.com.quizmaster.fragment.AnnouncementFragment;
+import rmk.virtusa.com.quizmaster.fragment.SelectUserFragment;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
-import rmk.virtusa.com.quizmaster.model.Announcement;
 import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class MainActivity extends AppActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends BaseActivity
+        implements NavigationView.OnNavigationItemSelectedListener, SelectUserFragment.OnUserSelectListener {
 
 
     @BindView(R.id.toolbar)
@@ -61,22 +64,11 @@ public class MainActivity extends AppActivity
     DrawerLayout drawerLayout;
     @BindView(R.id.mainFabBtn)
     FloatingActionButton mainFabBtn;
-    @BindView(R.id.usersListRecyclerView)
-    RecyclerView usersListRecyclerView;
+    @BindView(R.id.usersFrameLayout)
+    FrameLayout usersFramgeLayout;
 
-    AlertDialog alertDialog;
-
-    Bundle savedInstanceState;
-
-    UsersListAdapter usersListAdapter;
-    FirebaseAuth auth;
+    View headerView;
     MainPagerFragmentAdapter pagerAdapter;
-    private List<User> users = new ArrayList<>();
-
-    public MainActivity() {
-        super();
-        auth = FirebaseAuth.getInstance();
-    }
 
     private void onAddClick(View view) {
         AnnounceFragment fragment = new AnnounceFragment();
@@ -84,7 +76,7 @@ public class MainActivity extends AppActivity
     }
 
     private void onSearchClick(View view) {
-        AIToast.makeText(this, "Search clicked", Toast.LENGTH_SHORT).show();
+        Felix.show(this, "Search clicked");
     }
 
     private void animateFab(int position) {
@@ -106,59 +98,35 @@ public class MainActivity extends AppActivity
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUser(User user) {
+        ((TextView) headerView.findViewById(R.id.profileName)).setText(user.getName());
+        ((TextView) headerView.findViewById(R.id.profilePoints)).setText(user.getPoints());
+        headerView.setOnClickListener(v -> {
+            Intent myIntent = new Intent(this, ProfileActivity.class);
+            myIntent.putExtra(getString(R.string.extra_profile_id), UserHandler.getUserId());
+            MainActivity.this.startActivity(myIntent);
+        });
+        if (!user.getDisplayImage().isEmpty()) {
+            Picasso.get()
+                    .load(user.getDisplayImage())
+                    .error(R.drawable.default_user)
+                    .into((ImageView) headerView.findViewById(R.id.profileImage));
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        this.savedInstanceState = savedInstanceState;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        View headerView = navView.inflateHeaderView(R.layout.profile_header);
-        headerView.setOnClickListener(v -> {
-            Intent myIntent = new Intent(this, ProfileActivity.class);
-            myIntent.putExtra(getString(R.string.extra_profile_firebase_uid), FirebaseAuth.getInstance().getCurrentUser().getUid());
-            MainActivity.this.startActivity(myIntent);
-        });
-//        UserHandler.getInstance().getUser((user, flags) -> {
-//            Glide.with(this)
-//                    .load(user.getDisplayImage())
-//                    .into((ImageView) headerView.findViewById(R.id.profileImage));
-//            ((TextView) headerView.findViewById(R.id.profileName)).setText(user.getName());
-//            ((TextView) headerView.findViewById(R.id.profilePoints)).setText(user.getPoints());
-//        });
-
-        alertDialog = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.no_test_header))
-                .setMessage(getString(R.string.no_test))
-                .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
-                    dialog.dismiss();
-                }).create();
+        headerView = navView.inflateHeaderView(R.layout.profile_header);
 
         animateFab(0);
 
-        if (UserHandler.getInstance().getIsAdmin()) {
-            usersListRecyclerView.setVisibility(View.VISIBLE);
-            usersListAdapter = new UsersListAdapter(this, users);
-
-            UserHandler.getInstance().getUsers(((user, flag) -> {
-                switch (flag) {
-                    case UPDATED:
-                        if (auth.getCurrentUser() == null)
-                            return;
-                        if (user.getFirebaseUid() == null) return;
-                        if (user.getFirebaseUid().equals(auth.getCurrentUser().getUid()))
-                            return;
-                        users.add(user);
-                        usersListAdapter.notifyDataSetChanged();
-                        break;
-                    case FAILED:
-                        break;
-                }
-            }));
-
-            usersListRecyclerView.setAdapter(usersListAdapter);
-            usersListRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        }
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.usersFrameLayout, SelectUserFragment.newInstance("")).commit();
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.app_name);
@@ -176,7 +144,7 @@ public class MainActivity extends AppActivity
 
         for (int i = 0; i < 2; i++) {
             LinearLayout view = (LinearLayout) LayoutInflater.from(MainActivity.this).inflate(R.layout.icon_tab_main, null, false);
-            ((TextView) view.findViewById(R.id.tabHeaderText)).setText(getString(i == 0 ? R.string.announcement_fragment_title : R.string.inbox_fragment_title));
+            ((TextView) view.findViewById(R.id.tabHeaderText)).setText(getString(i == 0 ? R.string.announcement_fragment_title : R.string.chat_fragment_title));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 ((ImageView) view.findViewById(R.id.tabHeaderBadge)).setImageDrawable(i == 0 ? null : getDrawable(R.drawable.alpha_icon));
             }
@@ -199,9 +167,9 @@ public class MainActivity extends AppActivity
 
             }
         });
-
         navView.setNavigationItemSelectedListener(this);
 
+        UserHandler.getInstance().getUser();
     }
 
     @Override
@@ -219,7 +187,7 @@ public class MainActivity extends AppActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         int id = item.getItemId();
 
@@ -227,7 +195,12 @@ public class MainActivity extends AppActivity
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Calcutta"));
             int day = calendar.get(Calendar.DAY_OF_WEEK);
             if (day == Calendar.SATURDAY || day == Calendar.SUNDAY) {
-                alertDialog.show();
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.no_test_header))
+                        .setMessage(getString(R.string.no_test))
+                        .setPositiveButton(getString(R.string.ok), (dialog, which) -> {
+                            dialog.dismiss();
+                        }).create().show();
             } else {
                 Intent myIntent = new Intent(MainActivity.this, ScheduleActivity.class);
                 MainActivity.this.startActivity(myIntent);
@@ -253,5 +226,15 @@ public class MainActivity extends AppActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onUserSelect(@NotNull List<User> users) {
+        //TODO callback for user select
+        if (users.size() == 0) {
+            //disable toolbar
+        } else {
+            //enable toolbar
+        }
     }
 }

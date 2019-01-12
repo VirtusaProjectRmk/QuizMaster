@@ -1,10 +1,14 @@
 package rmk.virtusa.com.quizmaster;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class AppActivity extends AppCompatActivity {
+import org.greenrobot.eventbus.EventBus;
+
+@SuppressLint("Registered")
+public class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle args) {
@@ -15,7 +19,20 @@ public class AppActivity extends AppCompatActivity {
         if (isDark) {
             setTheme(R.style.AppTheme);
         } else {
-            this.setTheme(R.style.AppTheme_Light);
+            this.setTheme(R.style.AppTheme_Indigo);
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        EventBus.getDefault().unregister(this);
+    }
+
 }

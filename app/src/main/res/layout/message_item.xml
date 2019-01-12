@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    android:background="?chatMeBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="fill_horizontal"
+    android:orientation="vertical"
+    android:padding="8dp">
+    <!--message header-->
+    <TextView
+        android:id="@+id/chatHeaderTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fadingEdge="horizontal"
+        android:fadingEdgeLength="@dimen/fading_edge_length"
+        android:textColor="@color/colorHardTeal" />
+    <!--message body-->
+    <LinearLayout
+        android:id="@+id/chatContentContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="100dp"
+        android:orientation="vertical" />
+
+    <TextView
+        android:id="@+id/chatSentTimeTextView"
+        style="@style/Base.TextAppearance.AppCompat.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:layout_marginStart="8dp"
+        android:textAlignment="viewEnd" />
+</LinearLayout>
+

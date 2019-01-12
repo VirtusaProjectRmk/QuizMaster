@@ -2,11 +2,19 @@ package rmk.virtusa.com.quizmaster.fragment;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+
+import com.google.android.gms.tasks.OnFailureListener;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +35,6 @@ public class LeaderboardFragment extends Fragment {
     @BindView(R.id.listviewusers)
     ListView listviewusers;
     Unbinder unbinder;
-    List<User> ulist = new ArrayList<>();
     UserListAdapter userListAdapter;
 
 
@@ -37,11 +44,6 @@ public class LeaderboardFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * @param param1 Parameter 1.
-     * @return A new instance of fragment LeaderboardFragment.
-     */
-    // TODO: Rename and change types and number of parameters
     public static LeaderboardFragment newInstance(String param1) {
         LeaderboardFragment fragment = new LeaderboardFragment();
         Bundle args = new Bundle();
@@ -56,26 +58,23 @@ public class LeaderboardFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
         }
-        userListAdapter = new UserListAdapter(getContext(), ulist);
-        Collections.sort(ulist, (u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints()));
-        if (mParam1 != null && mParam1.equals("ALL")) {
-            listAllBranch();
-        } else {
-            UserHandler.getInstance().getUsersByBranch(mParam1, (user, flags) -> {
-                if (flags == UPDATED) {
-                    ulist.add(user);
-                    userListAdapter.notifyDataSetChanged();
-                }
-            });
-        }
     }
 
-    private void listAllBranch() {
-        UserHandler.getInstance().getUsers((user, flags) -> {
-            if (flags == UPDATED) {
-                ulist.add(user);
-                userListAdapter.notifyDataSetChanged();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        //TODO Remove hard firebase calls. After including in a few fragments the bloat is noticeable
+        UserHandler.getInstance().getUsers(mParam1).addOnSuccessListener(it -> {
+            List<User> users = it.toObjects(User.class);
+            if (users.size() == 0) {
+                //TODO handle: display "branch is empty" message
+                return;
             }
+            Collections.sort(users, (u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints()));
+            userListAdapter = new UserListAdapter(getContext(), users);
+            listviewusers.setAdapter(userListAdapter);
+        }).addOnFailureListener(e -> {
+            //TODO handle: display error message
         });
     }
 
@@ -85,7 +84,6 @@ public class LeaderboardFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         unbinder = ButterKnife.bind(this, view);
-        listviewusers.setAdapter(userListAdapter);
         return view;
     }
 

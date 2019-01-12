@@ -130,7 +130,7 @@ JSONArray jsonArray = new JSONArray();
                 String end = null;
                 TestDetails testDetails = new TestDetails(mcq, start, end);
                 databaseTest.child(id).setValue(testDetails);
-               // Toast.makeText(this, "value added", Toast.LENGTH_LONG).show();// */
+               // Toast.show(this, "value added", Toast.LENGTH_LONG).show();// */
 
 
               Log.d(TAG, "JSONARRay: "+ jsonArray.toString());

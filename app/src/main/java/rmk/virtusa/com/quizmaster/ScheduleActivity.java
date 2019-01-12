@@ -147,12 +147,12 @@ public class ScheduleActivity extends AppCompatActivity{
                         }
                     });
                     //  sample.setText("enabled");
-                    // Toast.makeText(getApplicationContext(), "Button Enabled", Toast.LENGTH_SHORT).show();
+                    // Toast.show(getApplicationContext(), "Button Enabled", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "onCreate: buttoncalled.");
 
                 } else {
 
-                    //  Toast.makeText(getApplicationContext(), "Come back later", Toast.LENGTH_SHORT).show();
+                    //  Toast.show(getApplicationContext(), "Come back later", Toast.LENGTH_SHORT).show();
 
                     b.setText("Come back later");
                     b.setClickable(false);

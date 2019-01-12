@@ -1,37 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    android:background="?chatMeBackground"
     android:clickable="true"
     android:focusable="true"
-    android:gravity="fill_horizontal"
-    android:orientation="vertical"
-    android:padding="8dp">
-    <!--chat header-->
-    <TextView
-        android:id="@+id/chatHeaderTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:fadingEdge="horizontal"
-        android:fadingEdgeLength="@dimen/fading_edge_length"
-        android:textColor="@color/colorHardTeal" />
-    <!--chat body-->
+    android:foreground="?android:attr/selectableItemBackground"
+    android:orientation="horizontal">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/inboxImageView"
+        android:layout_width="@dimen/image_small"
+        android:layout_height="@dimen/image_small"
+        android:layout_margin="@dimen/activity_horizontal_margin" />
+
     <LinearLayout
-        android:id="@+id/chatContentContainer"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minWidth="100dp"
-        android:orientation="vertical" />
+        android:layout_gravity="center"
+        android:layout_marginEnd="@dimen/activity_horizontal_margin"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/chatSentTimeTextView"
-        style="@style/Base.TextAppearance.AppCompat.Caption"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="3dp"
-        android:layout_marginStart="8dp"
-        android:textAlignment="viewEnd" />
+        <TextView
+            android:id="@+id/inboxName"
+            style="@style/Base.TextAppearance.AppCompat.Body2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1" />
+
+        <TextView
+            android:id="@+id/inboxStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="@dimen/fading_edge_length"
+            android:lines="2" />
+    </LinearLayout>
 </LinearLayout>
-

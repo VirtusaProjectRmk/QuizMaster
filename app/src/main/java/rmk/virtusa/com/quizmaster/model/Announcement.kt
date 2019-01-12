@@ -4,7 +4,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 data class Announcement(
-        var firebaseUid: String,
+        var userId: String,
         var title: String,
         var message: String,
         var attachments: List<String>,

@@ -51,7 +51,7 @@ public class UserListAdapter extends ArrayAdapter<User> {
 
         listViewItem.setOnClickListener(view ->{
             Intent intent = new Intent(getContext(), ProfileActivity.class);
-            intent.putExtra(getContext().getString(R.string.extra_profile_firebase_uid), users.getFirebaseUid());
+            intent.putExtra(getContext().getString(R.string.extra_profile_id), users.getId());
             getContext().startActivity(intent);
         });
 

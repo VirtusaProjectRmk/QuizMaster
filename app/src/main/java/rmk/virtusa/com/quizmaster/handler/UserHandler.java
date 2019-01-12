@@ -1,93 +1,62 @@
 package rmk.virtusa.com.quizmaster.handler;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.google.android.gms.tasks.Task;
 import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.util.ArrayList;
 import java.util.List;
 
-import rmk.virtusa.com.quizmaster.R;
 import rmk.virtusa.com.quizmaster.model.Announcement;
-import rmk.virtusa.com.quizmaster.model.Gender;
 import rmk.virtusa.com.quizmaster.model.Link;
 import rmk.virtusa.com.quizmaster.model.QuizMetadata;
-import rmk.virtusa.com.quizmaster.model.Report;
 import rmk.virtusa.com.quizmaster.model.User;
 
-import static android.content.Context.MODE_PRIVATE;
-
 /*
- * UserHandler does the following tasks asynchronously for updating the
- * cache of information to be updated as possible,
- * Updates the users cache every 45secs or when getUsers() is called explicitly
- *
+ * UserHandler provides popular functions used throughout the app
+ * org.greenrobot.eventbus.EventBus is used as the medium to send requested object
  */
 public class UserHandler {
-
     public static final int UPDATED = 0;
     public static final int FAILED = 1;
 
     private static final String TAG = "UserHandler";
     private static UserHandler instance;
-    private static Context context;
-    /*
-     * Cached users list for leaderboard purposes
-     */
-    private CollectionReference userCollectionRef = null;
-    private DocumentReference userRef = null;
-    //private CollectionReference userInboxCollection = null;
-    //private CollectionReference userContactCollectionRef = null;
-    //private CollectionReference userDetailCollectionRef = null;
+
+    public CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
+    public CollectionReference announcementsRef = FirebaseFirestore.getInstance()
+            .collection("announcements");
     private CollectionReference userQuizCollectionRef = null;
     private UserUpdater<QuizMetadata> quizUpdater;
-    private FirebaseFirestore db;
-    private FirebaseAuth auth;
-    private boolean isAdmin = false;
     private SharedPreferences preferences;
-    private FirestoreList<Announcement> announcementFriestoreList;
+    private boolean isAdmin = false;
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
 
     private UserHandler() {
-        db = FirebaseFirestore.getInstance();
-        auth = FirebaseAuth.getInstance();
-
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        db.setFirestoreSettings(settings);
-
-        if (auth.getCurrentUser() == null) {
+        if (UserHandler.getUserId().isEmpty()) {
             Log.e(TAG, "Fatal error");
             return;
         }
 
-        preferences = context.getSharedPreferences(context.getString(R.string.settings_pref_file), MODE_PRIVATE);
-        isAdmin = preferences.getBoolean(context.getString(R.string.settings_isAdmin), false);
-
-        userCollectionRef = db.collection("users");
-        userRef = userCollectionRef.document(FirebaseAuth.getInstance().getUid());
-
-        quizUpdater = new UserUpdater<>(userRef.collection("quizzes").getPath());
-
-        //userContactCollectionRef = userRef.collection("contacts");
-        //userDetailCollectionRef = userRef.collection("details");
-        //userInboxCollection = userRef.collection("inboxes");
-    }
-
-    public static UserHandler getInstance(Context context) {
-        UserHandler.context = context;
-        return getInstance();
+        quizUpdater = new UserUpdater<>(usersRef.document(UserHandler.getUserId()).
+                collection("quizzes").getPath());
     }
 
     public static UserHandler getInstance() {
@@ -97,24 +66,32 @@ public class UserHandler {
         return instance;
     }
 
-    public boolean getIsAdmin() {
-        return isAdmin;
+
+    public static String getUserId() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    public FirestoreList<Link> getUserLink(FirestoreList.OnLoadListener<Link> onLoadListener) {
-        FirestoreList<Link> linkList = new FirestoreList<>(Link.class, userRef.collection("links"), onLoadListener);
-        return linkList;
+    public void listenForAnnouncements() {
+        announcementsRef.addSnapshotListener((queryDocumentSnapshots, e) -> {
+            for (DocumentChange dC : queryDocumentSnapshots.getDocumentChanges()) {
+                Announcement ann = dC.getDocument().toObject(Announcement.class);
+                switch (dC.getType()) {
+                    case ADDED:
+                        EventBus.getDefault().post(ann);
+                        break;
+                    case REMOVED:
+                        ann.setUserId("");
+                        EventBus.getDefault().post(ann);
+                }
+            }
+        });
     }
 
-
-    public FirestoreList<Link> getUserLink(@NonNull String firebaseUid, FirestoreList.OnLoadListener<Link> onLoadListener) {
-        FirestoreList<Link> links = new FirestoreList<>(Link.class, userCollectionRef.document(firebaseUid).collection("links"), onLoadListener);
-        return links;
-    }
-
-    public void reportToxic(Report report, OnUpdateUserListener onUpdateUserListener) {
-        CollectionReference reportsRef = db.collection("reports");
-        reportsRef.add(report);
+    public void getAnnouncements() {
+        announcementsRef.get().addOnSuccessListener(queryDocumentSnapshots -> {
+            List<Announcement> announcements = queryDocumentSnapshots.toObjects(Announcement.class);
+            EventBus.getDefault().post(announcements);
+        });
     }
 
     public UserUpdater<QuizMetadata> getQuizUpdater() {
@@ -125,53 +102,12 @@ public class UserHandler {
         return FirebaseAuth.getInstance().getUid();
     }
 
-    public void getUsers(OnUpdateUserListener onUpdateUserListener) {
-        //TODO call method as soon as we get a user than fetching all users at a time
-        userCollectionRef
-                .get()
+    public void getUserQuizData(String userId) {
+        usersRef.document(userId).collection("quizzes").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
-                    for (User user : users) {
-                        if (user == null) {
-                            onUpdateUserListener.onUserUpdate(null, FAILED);
-                        }
-                        onUpdateUserListener.onUserUpdate(user, UPDATED);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    onUpdateUserListener.onUserUpdate(null, FAILED);
+                    List<QuizMetadata> qm = queryDocumentSnapshots.toObjects(QuizMetadata.class);
+                    EventBus.getDefault().post(qm);
                 });
-    }
-
-    public void getUsersByBranch(String branch, OnUpdateUserListener onUpdateUserListener) {
-        if (branch == null || branch.isEmpty()) {
-            branch = "Other";
-        }
-        userCollectionRef.whereEqualTo("branch", branch)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
-                    for (User user : users) {
-                        if (user == null) {
-                            onUpdateUserListener.onUserUpdate(null, FAILED);
-                        } else {
-                            onUpdateUserListener.onUserUpdate(user, UPDATED);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    onUpdateUserListener.onUserUpdate(null, FAILED);
-                });
-    }
-
-    public FirestoreList<QuizMetadata> getUserQuizData(@NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
-        FirestoreList<QuizMetadata> quizMetadataFirestoreList = new FirestoreList<>(QuizMetadata.class, userRef.collection("quizzes"), onLoadListener);
-        return quizMetadataFirestoreList;
-    }
-
-    public FirestoreList<QuizMetadata> getUserQuizData(@NonNull String userUid, @NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
-        FirestoreList<QuizMetadata> quizMetadataFirestoreList = new FirestoreList<>(QuizMetadata.class, userCollectionRef.document(userUid).collection("quizzes"), onLoadListener);
-        return quizMetadataFirestoreList;
     }
 
     /*
@@ -203,38 +139,33 @@ public class UserHandler {
         return "";
     }
 
-    public FirestoreList<Announcement> getAnnouncements(FirestoreList.OnLoadListener<Announcement> onLoadListener) {
-        if (announcementFriestoreList == null) {
-            announcementFriestoreList = new FirestoreList<Announcement>(Announcement.class, FirebaseFirestore.getInstance().collection("announcements"), onLoadListener);
-        }
-        return announcementFriestoreList;
-    }
-
-    public void updateUserFromAuth(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
-        userCollectionRef.document(firebaseUid)
+    public void updateUserFromAuth(@NonNull String firebaseUid) {
+        usersRef.document(firebaseUid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    CollectionReference adminCollection = db.collection("admins");
-                    adminCollection.document(FirebaseAuth.getInstance().getUid())
+                    CollectionReference adminCollection = FirebaseFirestore.getInstance().collection("admins");
+                    adminCollection.document(UserHandler.getUserId())
                             .get()
                             .addOnSuccessListener(docSnap -> {
                                 isAdmin = docSnap.exists();
-                                SharedPreferences.Editor editor = preferences.edit();
-                                editor.putBoolean(context.getString(R.string.settings_isAdmin), isAdmin);
-                                editor.commit();
                                 if (documentSnapshot.exists()) {
                                     Log.e(TAG, "User already exist");
                                     User user = documentSnapshot.toObject(User.class);
-                                    onUpdateUserListener.onUserUpdate(user, UPDATED);
+                                    if (user == null) {
+                                        EventBus.getDefault().post(new User());
+                                        return;
+                                    }
+                                    EventBus.getDefault().post(user);
                                 } else {
-                                    User user = new User(firebaseUid, "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
-                                    userCollectionRef.document(firebaseUid)
+                                    User user = new User();
+                                    user.setId(firebaseUid);
+                                    usersRef.document(firebaseUid)
                                             .set(user, SetOptions.merge())
                                             .addOnSuccessListener(aVoid -> {
-                                                onUpdateUserListener.onUserUpdate(user, UPDATED);
+                                                EventBus.getDefault().post(user);
                                             })
                                             .addOnFailureListener(e -> {
-                                                onUpdateUserListener.onUserUpdate(null, FAILED);
+                                                EventBus.getDefault().post(new User());
                                             });
                                 }
                             });
@@ -243,104 +174,122 @@ public class UserHandler {
                 .addOnFailureListener(e ->
                 {
                     Log.e(TAG, "Cannot get user info");
-                    onUpdateUserListener.onUserUpdate(null, FAILED);
+                    EventBus.getDefault().post(new User());
                 });
     }
 
-    /*
-     * Gets the user based on the specified userUid
-     */
-    public void getUser(@NonNull String firebaseUid, @NonNull OnUpdateUserListener onUpdateUserListener) {
-        if (firebaseUid == null || firebaseUid.isEmpty()) {
-            onUpdateUserListener.onUserUpdate(null, FAILED);
+    public void getUser(@NonNull String firebaseUid) {
+        if (firebaseUid.isEmpty()) {
+            EventBus.getDefault().post(new User());
             return;
         }
-        userCollectionRef.document(firebaseUid)
+        usersRef.document(firebaseUid)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                        User user = documentSnapshot.toObject(User.class);
+                        EventBus.getDefault().post(user == null ? new User() : user);
                     }
                 })
-                .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(null, FAILED));
+                .addOnFailureListener(e -> EventBus.getDefault().post(new User()));
     }
 
-    /*
-     * Queries databases for a list of users and returns them through callback
-     */
 
-
-    public void updateUserWithQuiz(QuizMetadata quizMetadata) {
-        userCollectionRef.document(FirebaseAuth.getInstance().getUid()).collection("quiz")
+    public void updateUserWithQuiz(User user, QuizMetadata quizMetadata) {
+        usersRef.document(UserHandler.getUserId()).collection("quiz")
                 .add(quizMetadata);
-        getUser((user, flag) -> {
-            setUser(user, (usr, flg) -> {
-                int points = quizMetadata.getAnsweredCorrectly() * quizMetadata.getMultiplier();
-                usr.setPoints(user.getPoints() + points);
-            });
+        setUser(user, (usr, flg) -> {
+            int points = quizMetadata.getAnsweredCorrectly() * quizMetadata.getMultiplier();
+            usr.setPoints(user.getPoints() + points);
         });
     }
 
-    /*
-     * Gets the user registered in firebase auth
-     */
-    public void getUser(@NonNull OnUpdateUserListener onUpdateUserListener) {
-        userCollectionRef
-                .document(auth.getCurrentUser().getUid())
+
+    public void getUser() {
+        usersRef
+                .document(UserHandler.getUserId())
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        onUpdateUserListener.onUserUpdate(documentSnapshot.toObject(User.class), UPDATED);
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user == null) {
+                            EventBus.getDefault().post(new User());
+                            return;
+                        }
+                        EventBus.getDefault().post(user);
                     } else {
                         //if user object does'nt exist, create one
-                        User user = new User(auth.getCurrentUser().getUid(), "", auth.getCurrentUser().getDisplayName(), 0, "", "", Gender.OTHER, "", null);
-                        userCollectionRef.document(auth.getCurrentUser().getUid())
+                        User user = new User();
+                        user.setId(UserHandler.getUserId());
+                        usersRef.document(UserHandler.getUserId())
                                 .set(user, SetOptions.merge())
                                 .addOnSuccessListener(aVoid -> {
-                                    onUpdateUserListener.onUserUpdate(user, UPDATED);
+                                    EventBus.getDefault().post(user);
                                     Log.i(TAG, "Added new user to firestore");
                                 })
                                 .addOnFailureListener(e -> {
-                                    onUpdateUserListener.onUserUpdate(user, FAILED);
+                                    EventBus.getDefault().post(new User());
                                     Log.i(TAG, "Adding registration failed, contact administrator if the problem persists");
                                 });
                     }
                 })
-                .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(null, FAILED));
+                .addOnFailureListener(e -> EventBus.getDefault().post(new User()));
     }
 
-    /*
-     * Sets the user registered in firebase auth
-     */
+    //TODO: Remove FirestoreList all together
+    public FirestoreList<Link> getLinks(String userId, FirestoreList.OnLoadListener<Link> onLoadListener) {
+        return new FirestoreList<Link>(Link.class, usersRef.document(userId).collection("links"), onLoadListener);
+    }
+
+    public FirestoreList<QuizMetadata> getUserQuizData(@NonNull String userUid, @NonNull FirestoreList.OnLoadListener<QuizMetadata> onLoadListener) {
+        return new FirestoreList<>(QuizMetadata.class, usersRef.document(userUid).collection("quizzes"), onLoadListener);
+    }
+
+
+    //FIXME: WARNING: The following functions were created only because of time constrains, if given chance destroy it, with fire if possible
+
+    public Task<QuerySnapshot> getUsers(String branchId) {
+        return usersRef.whereEqualTo("branchId", branchId).get();
+    }
+
     public void setUser(User user, OnUpdateUserListener onUpdateUserListener) {
-        CollectionReference usersCollectionRef = db.collection("users");
         if (user == null) {
             onUpdateUserListener.onUserUpdate(user, FAILED);
             return;
         }
-        if (user.getFirebaseUid() == null) {
+        if (user.getId().isEmpty()) {
             onUpdateUserListener.onUserUpdate(user, FAILED);
             return;
         }
-        //if the user name changes in object update in FirebaseAuth
-        UserProfileChangeRequest userUpdate = new UserProfileChangeRequest.Builder()
-                .setDisplayName(user.getName())
-                .build();
-        auth.getCurrentUser().updateProfile(userUpdate)
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        Log.e(TAG, "User name update failed");
-                    } else {
-                        Log.i(TAG, "User name update success");
-                    }
-                });
-        usersCollectionRef.document(user.getFirebaseUid())
+        usersRef.document(user.getId())
                 .set(user, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> onUpdateUserListener.onUserUpdate(user, UPDATED))
                 .addOnFailureListener(e -> onUpdateUserListener.onUserUpdate(user, FAILED));
     }
 
-    public interface OnUpdateUserListener {
-        void onUserUpdate(User user, int flags);
+    public void getUsersByBranch(String branch, OnUpdateUserListener onUpdateUserListener) {
+        if (branch == null || branch.isEmpty()) {
+            branch = "Other";
+        }
+        usersRef.whereEqualTo("branch", branch)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<User> users = queryDocumentSnapshots.toObjects(User.class);
+                    for (User user : users) {
+                        if (user == null) {
+                            onUpdateUserListener.onUserUpdate(null, FAILED);
+                        } else {
+                            onUpdateUserListener.onUserUpdate(user, UPDATED);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    onUpdateUserListener.onUserUpdate(null, FAILED);
+                });
     }
+
+    public interface OnUpdateUserListener {
+        public void onUserUpdate(User user, int flag);
+    }
+
 }

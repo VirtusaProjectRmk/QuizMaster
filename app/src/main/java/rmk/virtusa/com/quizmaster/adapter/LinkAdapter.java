@@ -27,15 +27,15 @@ import rmk.virtusa.com.quizmaster.model.Link;
 public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder> implements FirestoreList.OnRemoveListener<Link>, FirestoreList.OnModifiedListener<Link> {
     private static final String TAG = "LinkAdapter";
     private Context context;
-    private FirestoreList<Link> linkList;
+    private FirestoreList<Link> links;
     private boolean isEditable;
 
-    public LinkAdapter(Context context, FirestoreList<Link> linkList, boolean isEditable) {
+    public LinkAdapter(Context context, FirestoreList<Link> links, boolean isEditable) {
         this.context = context;
-        this.linkList = linkList;
+        this.links = links;
         this.isEditable = isEditable;
-        linkList.setOnModifiedListener(this);
-        linkList.setOnRemoveListener(this);
+        links.setOnModifiedListener(this);
+        links.setOnRemoveListener(this);
 
     }
 
@@ -46,7 +46,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         return new LinkViewHolder(view);
     }
 
-    public void showAlertDialog(LinkViewHolder holder, Link link) {
+    private void showAlertDialog(LinkViewHolder holder, Link link) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Edit Url");
 
@@ -62,12 +62,12 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
             }
 
             link.setUrl(in);
-            linkList.set(link);
+            links.set(link);
             holder.linkUrl.setText(in);
 
         });
         builder.setNegativeButton("Remove", (dialog, which) -> {
-            linkList.remove(link);
+            links.remove(link);
         });
         builder.show();
     }
@@ -75,7 +75,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull LinkViewHolder holder, int position) {
-        Map.Entry<Link, String> linkPair = linkList.get(position);
+        Map.Entry<Link, String> linkPair = links.get(position);
         Link link = linkPair.getKey();
         holder.linkUrl.setText(link.getUrl());
         holder.linkWebsite.setText(LinkFactory.getWebsite(link.getUrl()));
@@ -98,7 +98,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
 
     @Override
     public int getItemCount() {
-        return linkList.size();
+        return links.size();
     }
 
     @Override
@@ -134,7 +134,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
 
     }
 
-    public class LinkViewHolder extends RecyclerView.ViewHolder {
+    class LinkViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.linkImageView)
         ImageView linkImageView;
         @BindView(R.id.linkWebsite)
@@ -142,7 +142,7 @@ public class LinkAdapter extends RecyclerView.Adapter<LinkAdapter.LinkViewHolder
         @BindView(R.id.linkUrl)
         TextView linkUrl;
 
-        public LinkViewHolder(View itemView) {
+        LinkViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
 

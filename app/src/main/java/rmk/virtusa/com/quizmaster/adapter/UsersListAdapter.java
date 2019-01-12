@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -42,16 +42,13 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
         User user = users.get(position);
         holder.itemView.setOnClickListener(view -> {
             Intent intent = new Intent(context, ProfileActivity.class);
-            intent.putExtra(context.getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
+            intent.putExtra(context.getString(R.string.extra_profile_id), user.getId());
             context.startActivity(intent);
         });
         holder.usersListName.setText(user.getName());
         String userDp = user.getDisplayImage();
-        if (userDp != null) {
-            if (!userDp.isEmpty()) {
-                Glide.with(context).load(userDp).into(holder.usersListImageView);
-            }
-        }
+        if (user.getDisplayImage().isEmpty()) return;
+        Picasso.get().load(userDp).error(R.drawable.default_user).into(holder.usersListImageView);
     }
 
     @Override
@@ -60,14 +57,14 @@ public class UsersListAdapter extends RecyclerView.Adapter<UsersListAdapter.User
     }
 
 
-    public class UsersListViewHolder extends RecyclerView.ViewHolder {
+    class UsersListViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.usersListImageView)
         CircleImageView usersListImageView;
         @BindView(R.id.usersListName)
         TextView usersListName;
 
-        public UsersListViewHolder(View itemView) {
+        UsersListViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

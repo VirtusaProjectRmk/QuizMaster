@@ -16,6 +16,10 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -28,9 +32,8 @@ import rmk.virtusa.com.quizmaster.model.User;
 
 import static rmk.virtusa.com.quizmaster.FinishActivity.NETWORK_DOWN;
 import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
-public class QuizActivity extends AppActivity {
+public class QuizActivity extends BaseActivity {
 
     private static String TAG = "QuizActivity";
 
@@ -45,7 +48,7 @@ public class QuizActivity extends AppActivity {
     QuizMetadata quizMetadata = new QuizMetadata(0, 0, 0, new Date());
     public ArrayList<Question> questions = new ArrayList<>();
     User user = null;
-    public String branch = new String();
+    public String branch;
     CountDownTimer countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
         @Override
         public void onTick(long millisUntilFinished) {
@@ -64,6 +67,30 @@ public class QuizActivity extends AppActivity {
         }
     }.start();
     private TextView mQuestion, quesNum, timer;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onUser(User user) {
+        if (user.getId().isEmpty()) {
+            //TODO Show dismissible dialog than Toast
+            Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            updateQuestion(user);
+            QuizActivity.this.user = user;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,19 +113,7 @@ public class QuizActivity extends AppActivity {
          * Fetch user information first before entering into quiz
          */
         Firebase.setAndroidContext(this);
-        UserHandler.getInstance().getUser((user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    updateQuestion(user);
-                    QuizActivity.this.user = user;
-                    break;
-                case FAILED:
-                    //TODO Show dismissible dialog than Toast
-                    Toast.makeText(QuizActivity.this, "Quiz is not available for this user at this time, try again later", Toast.LENGTH_LONG).show();
-                    finish();
-                    break;
-            }
-        });
+        UserHandler.getInstance().getUser();
 
         nextButton.setOnClickListener(v -> {
             //if user is being fetched, don't submit yet
@@ -159,9 +174,9 @@ public class QuizActivity extends AppActivity {
 
     }
 
-    private void updateQuestion (User user) {
+    private void updateQuestion(User user) {
 
-        branch = user.getBranch() == null || user.getBranch().isEmpty() ? "Other" : user.getBranch();
+        branch = user.getBranchId().isEmpty() ? "Other" : user.getBranchId();
 
         switch (branch) {
             case "Mobility":

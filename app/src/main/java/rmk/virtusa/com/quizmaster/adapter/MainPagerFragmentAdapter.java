@@ -6,10 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.fragment.AnnouncementFragment;
-import rmk.virtusa.com.quizmaster.fragment.InboxFragment;
-import rmk.virtusa.com.quizmaster.model.Announcement;
+import rmk.virtusa.com.quizmaster.fragment.ChatsFragment;
 
 public class MainPagerFragmentAdapter extends FragmentPagerAdapter{
 
@@ -26,7 +24,7 @@ public class MainPagerFragmentAdapter extends FragmentPagerAdapter{
         if (position == 0) {
             return new AnnouncementFragment();
         } else {
-            return new InboxFragment();
+            return new ChatsFragment();
         }
     }
 
@@ -44,7 +42,7 @@ public class MainPagerFragmentAdapter extends FragmentPagerAdapter{
             case 0:
                 return mContext.getString(R.string.announcement_fragment_title);
             case 1:
-                return mContext.getString(R.string.inbox_fragment_title);
+                return mContext.getString(R.string.chat_fragment_title);
             default:
                 return null;
         }

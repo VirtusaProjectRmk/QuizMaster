@@ -7,7 +7,7 @@
 
         <item
             android:id="@+id/nav_dashboard"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@android:drawable/ic_menu_edit"
             android:title="Schedule" />
         <item
             android:id="@+id/nav_add_test"
@@ -19,7 +19,7 @@
             android:title="Remove Test" />
         <item
             android:id="@+id/nav_leaderboard"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@android:drawable/arrow_up_float"
             android:title="Leaderboard" />
         <item
             android:id="@+id/nav_settings"

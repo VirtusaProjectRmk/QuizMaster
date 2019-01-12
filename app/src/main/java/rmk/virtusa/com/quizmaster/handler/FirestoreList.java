@@ -85,7 +85,7 @@ public class FirestoreList<T> extends HashMap<T, String> {
 
     public void set(T t, OnModifiedListener<T> onModifiedListener) {
         String id = get(t);
-        DocumentReference documentReference = id.isEmpty() ? collectionReference.document() : collectionReference.document(id);
+        DocumentReference documentReference = id == null || id.isEmpty() ? collectionReference.document() : collectionReference.document(id);
         documentReference.set(t)
                 .addOnSuccessListener(aVoid -> {
                     if (onModifiedListener != null) {
@@ -108,7 +108,7 @@ public class FirestoreList<T> extends HashMap<T, String> {
 
     public String remove(Object o, OnRemoveListener<T> onRemoveListener) {
         String id = get(o);
-        if (id.isEmpty()) {
+        if (id == null || id.isEmpty()) {
             //remove(t);
             //onChangeListener.onChange(null, false);
             return id;

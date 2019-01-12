@@ -6,8 +6,11 @@
     <color name="colorAccent">#2CF6B3</color>
 
     <color name="colorLightPrimary">#fff</color>
-    <color name="colorLightPrimaryDark">#dedede</color>
+    <color name="colorLightPrimaryDark">#efefef</color>
     <color name="colorLightAccent">#2ecc71</color>
+
+    <color name="colorIndigo">#1f3c92</color>
+    <color name="colorNegativeIndigo">#f7941e</color>
 
     <color name="colorHardRed">#d63031</color>
     <color name="colorSoftRed">#ff7675</color>

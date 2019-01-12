@@ -8,11 +8,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -21,18 +19,16 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.handler.FirestoreList;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.Announcement;
-
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
+import rmk.virtusa.com.quizmaster.model.User;
 
 public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapter.AnnouncementViewHolder> {
     private static final String TAG = "AnnouncementAdapter";
     private Context context;
-    private FirestoreList<Announcement> announcements;
+    private List<Announcement> announcements;
 
-    public AnnouncementAdapter(Context context, FirestoreList<Announcement> announcements) {
+    public AnnouncementAdapter(Context context, List<Announcement> announcements) {
         this.context = context;
         this.announcements = announcements;
     }
@@ -46,34 +42,30 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
 
     @Override
     public void onBindViewHolder(@NonNull AnnouncementViewHolder holder, int position) {
-        Announcement announcement = announcements.get(position).getKey();
-        UserHandler.getInstance().getUser(announcement.getFirebaseUid(), (user, flag) -> {
-            switch (flag) {
-                case UPDATED:
-                    if (user.getDisplayImage() == null) {
-                        Glide.with(context).load(R.drawable.default_user).into(holder.announcerImage);
-                    } else {
-                        Glide.with(context).load(announcement.getAnonymousPost() || user.getDisplayImage().isEmpty() ?
-                                R.drawable.default_user :
-                                user.getDisplayImage()).into(holder.announcerImage);
-                    }
-                    holder.announcerImage.setOnClickListener((view -> {
-                        if (announcement.getAnonymousPost()) {
-                            Toast.makeText(context, "Posted Anonymously only admin users can view the profile", Toast.LENGTH_LONG).show();
-                        } else {
-                            Intent intent = new Intent(context, ProfileActivity.class);
-                            intent.putExtra(context.getString(R.string.extra_profile_firebase_uid), user.getFirebaseUid());
-                            context.startActivity(intent);
-                        }
-                    }));
-                    break;
-            }
-        });
+        final Announcement announcement = announcements.get(position);
+
+        //TODO remove this ugly piece of code
+        //NOTE data should never be attached like this
+        UserHandler.getInstance().usersRef.document(announcement.getUserId()).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    final User user = documentSnapshot.toObject(User.class);
+                    if (user == null || user.getId().isEmpty()) return;
+                    holder.announcerImage.setOnClickListener(v -> {
+                        Intent intent = new Intent(context, ProfileActivity.class);
+                        intent.putExtra(context.getString(R.string.extra_profile_id), user.getId());
+                        context.startActivity(intent);
+                    });
+                    if (user.getDisplayImage().isEmpty()) return;
+                    Picasso.get()
+                            .load(user.getDisplayImage())
+                            .error(R.drawable.default_user)
+                            .into(holder.announcerImage);
+                });
 
         holder.announcementTitle.setText(announcement.getTitle());
         holder.announcementMessage.setText(announcement.getMessage());
         List<String> attachments = announcement.getAttachments();
-        if (attachments == null || attachments.size() == 0) {
+        if (attachments.size() == 0) {
             holder.attachementRecyclerView.setVisibility(View.GONE);
         } else {
             holder.attachementRecyclerView.setAdapter(new AttachmentAdapter(context, attachments));
@@ -86,8 +78,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         return announcements.size();
     }
 
-    public class AnnouncementViewHolder extends RecyclerView.ViewHolder {
-
+    class AnnouncementViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.announcerImage)
         CircleImageView announcerImage;
         @BindView(R.id.announcementTitle)
@@ -97,7 +88,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
         @BindView(R.id.attachementRecyclerView)
         RecyclerView attachementRecyclerView;
 
-        public AnnouncementViewHolder(View itemView) {
+        AnnouncementViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }

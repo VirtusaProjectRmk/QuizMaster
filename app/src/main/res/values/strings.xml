@@ -7,7 +7,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
-    <string name="Questions">Questions appear here...</string>
+    <string name="Questions">Questions appear here…</string>
     <string name="take_quiz">Take Quiz</string>
     <string name="instructions1">1. Do not navigate out of the quiz screen. If you do so, the test will be closed.</string>
     <string name="instructions2">2. You cannot navigate to the previous question.</string>
@@ -29,13 +29,13 @@
     <string name="start">Start Quiz</string>
     <string name="ok">OK</string>
     <string name="init_30">00:30</string>
-    <string name="No">You don\'t have any test scheduled today...</string>
+    <string name="No">You don\'t have any test scheduled today…</string>
     <string name="username">Username</string>
     <string name="update">Update</string>
     <string name="user">User</string>
     <string name="prev">Prev</string>
     <string name="finish">Finish Test</string>
-    <string name="timeup">Your time is up...</string>
+    <string name="timeup">Your time is up…</string>
     <string name="questions_total_attended">Attended</string>
     <string name="questions_total_answered">Answered correctly</string>
     <string name="total_points">Points</string>
@@ -45,18 +45,17 @@
     <string name="profile_add_link_title">Link</string>
 
     <!--intent extras-->
-    <string name="extra_profile_firebase_uid">extraProfileFirebaseUid</string>
+    <string name="extra_profile_id">extraProfileFirebaseUid</string>
 
     <string name="extra_chat_inboxId">extraChatInboxId</string>
     <string name="extra_chat_userId">extraChatUserId</string>
 
     <string name="announcement_fragment_title">Announcement</string>
-    <string name="inbox_fragment_title">Inbox</string>
+    <string name="chat_fragment_title">Chat</string>
 
     <!--fragment_announce-->
     <string name="announce_title_hint">Title</string>
     <string name="announce_message_hint">Message</string>
-    <string name="announce_post_anonymous">Post as Anonymous</string>
     <string name="announce_action_announce">Announce</string>
     <string name="announce_action_add_attachment">Add attachment</string>
 
@@ -76,7 +75,6 @@
 
     <string name="finishNetworkDown">An error has occurred, please try again later</string>
 
-    <string name="announce_expiry_date">Post with expiry date</string>
     <string name="announce_add_file_hint">Add files with url</string>
     <string name="profile_add_link">Tap to add link</string>
     <string name="no_test">Test will be scheduled only from Monday to Friday</string>
@@ -90,4 +88,10 @@
     <string name="default_user_points">0 points</string>
     <string name="points_formatter">%1$s points</string>
     <string name="branch">Branch</string>
+    <string name="chat_fetch_error">Error fetching chat, try again later</string>
+    <string name="send_bar_hint">Say something...</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search_branch">Search Branch</string>
 </resources>
