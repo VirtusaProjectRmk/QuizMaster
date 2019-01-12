@@ -26,7 +26,6 @@ public class LoginActivity extends BaseActivity {
 
     private EditText inputEmail, inputPassword;
     private ProgressBar progressBar;
-    private FirebaseAuth auth;
     private FloatingActionButton btnLogin;
 
     static final String TAG = "LoginActivity";
@@ -45,9 +44,8 @@ public class LoginActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        auth = FirebaseAuth.getInstance();
 
-        if (auth.getCurrentUser() != null) {
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             startActivity(new Intent(this, MainActivity.class));
             return;
         }
@@ -75,7 +73,7 @@ public class LoginActivity extends BaseActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             //authenticate user
-            auth.signInWithEmailAndPassword(email, password)
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(LoginActivity.this, task -> {
                         // If sign in fails, display a message to the user. If sign in succeeds
                         // the auth state listener will be notified and logic to handle the
@@ -90,7 +88,7 @@ public class LoginActivity extends BaseActivity {
                                 Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_LONG).show();
                             }
                         } else {
-                            UserHandler.getInstance().updateUserFromAuth(auth.getUid());
+                            UserHandler.getInstance().getUser();
                         }
                     });
         });

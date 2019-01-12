@@ -7,7 +7,7 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:paddingStart="@dimen/view_padding_small">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/usersListImageView"

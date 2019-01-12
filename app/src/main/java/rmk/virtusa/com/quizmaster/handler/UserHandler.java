@@ -7,7 +7,6 @@ import android.util.Log;
 import com.google.android.gms.tasks.Task;
 import com.google.common.io.ByteStreams;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,7 +17,6 @@ import com.google.firebase.storage.StorageReference;
 
 import org.greenrobot.eventbus.EventBus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import rmk.virtusa.com.quizmaster.model.Announcement;
@@ -37,9 +35,13 @@ public class UserHandler {
     private static final String TAG = "UserHandler";
     private static UserHandler instance;
 
-    public CollectionReference usersRef = FirebaseFirestore.getInstance().collection("users");
+    public CollectionReference usersRef = FirebaseFirestore.getInstance()
+            .collection("users");
     public CollectionReference announcementsRef = FirebaseFirestore.getInstance()
             .collection("announcements");
+
+    private CollectionReference adminsRef = FirebaseFirestore.getInstance()
+            .collection("admins");
     private CollectionReference userQuizCollectionRef = null;
     private UserUpdater<QuizMetadata> quizUpdater;
     private SharedPreferences preferences;
@@ -139,45 +141,6 @@ public class UserHandler {
         return "";
     }
 
-    public void updateUserFromAuth(@NonNull String firebaseUid) {
-        usersRef.document(firebaseUid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    CollectionReference adminCollection = FirebaseFirestore.getInstance().collection("admins");
-                    adminCollection.document(UserHandler.getUserId())
-                            .get()
-                            .addOnSuccessListener(docSnap -> {
-                                isAdmin = docSnap.exists();
-                                if (documentSnapshot.exists()) {
-                                    Log.e(TAG, "User already exist");
-                                    User user = documentSnapshot.toObject(User.class);
-                                    if (user == null) {
-                                        EventBus.getDefault().post(new User());
-                                        return;
-                                    }
-                                    EventBus.getDefault().post(user);
-                                } else {
-                                    User user = new User();
-                                    user.setId(firebaseUid);
-                                    usersRef.document(firebaseUid)
-                                            .set(user, SetOptions.merge())
-                                            .addOnSuccessListener(aVoid -> {
-                                                EventBus.getDefault().post(user);
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                EventBus.getDefault().post(new User());
-                                            });
-                                }
-                            });
-
-                })
-                .addOnFailureListener(e ->
-                {
-                    Log.e(TAG, "Cannot get user info");
-                    EventBus.getDefault().post(new User());
-                });
-    }
-
     public void getUser(@NonNull String firebaseUid) {
         if (firebaseUid.isEmpty()) {
             EventBus.getDefault().post(new User());
@@ -206,6 +169,13 @@ public class UserHandler {
 
 
     public void getUser() {
+        adminsRef.document(UserHandler.getUserId()).get().addOnSuccessListener(q -> {
+            if (q.exists()) {
+                isAdmin = true;
+            }
+        }).addOnFailureListener(e -> {
+            isAdmin = false;
+        });
         usersRef
                 .document(UserHandler.getUserId())
                 .get()
