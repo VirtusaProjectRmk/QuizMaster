@@ -4,7 +4,7 @@
         <item name="android:background">@drawable/button_background</item>
         <item name="android:foreground">?attr/selectableItemBackground</item>
         <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:padding">@dimen/activity_horizontal_margin</item>
+        <item name="android:padding">@dimen/view_padding_medium</item>
         <item name="android:drawable">@null</item>
         <item name="android:gravity">center</item>
     </style>
@@ -56,7 +56,7 @@
     <style name="AppTheme.ImageButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:background">@android:color/transparent</item>
         <item name="android:tint">@color/colorAccent</item>
-        <item name="android:padding">@dimen/activity_horizontal_margin</item>
+        <item name="android:padding">@dimen/view_padding_medium</item>
     </style>
 
     <style name="AppTheme.NoActionBar">

@@ -17,10 +17,10 @@
         style="@style/AppTheme.DangerFullPageButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/view_padding_medium"
         android:drawableStart="@drawable/logout_icon"
         android:gravity="start|center_vertical"
-        android:drawablePadding="@dimen/activity_horizontal_margin"
+        android:drawablePadding="@dimen/view_padding_medium"
         android:text="Leave Group" />
 
 </LinearLayout>
