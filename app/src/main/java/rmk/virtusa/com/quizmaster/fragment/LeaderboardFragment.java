@@ -1,53 +1,47 @@
 package rmk.virtusa.com.quizmaster.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import rmk.virtusa.com.quizmaster.ProfileActivity;
 import rmk.virtusa.com.quizmaster.R;
-import rmk.virtusa.com.quizmaster.adapter.UserListAdapter;
+import rmk.virtusa.com.quizmaster.adapter.LeaderboardAdapter;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
 
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
-
 public class LeaderboardFragment extends Fragment {
-    private static final String ARG_PARAM1 = "param1";
-    @BindView(R.id.listviewusers)
-    ListView listviewusers;
+    private static final String ARG_BID = "bid";
+    @BindView(R.id.leaderboardRecyclerView)
+    RecyclerView leaderboardUserRecyclerView;
     Unbinder unbinder;
-    UserListAdapter userListAdapter;
+    LeaderboardAdapter leaderboardAdapter;
 
 
-    private String mParam1;
+    private String bid;
 
     public LeaderboardFragment() {
         // Required empty public constructor
     }
 
-    public static LeaderboardFragment newInstance(String param1) {
+    public static LeaderboardFragment newInstance(String bid) {
         LeaderboardFragment fragment = new LeaderboardFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_BID, bid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,7 +50,7 @@ public class LeaderboardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            bid = getArguments().getString(ARG_BID);
         }
     }
 
@@ -64,15 +58,22 @@ public class LeaderboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //TODO Remove hard firebase calls. After including in a few fragments the bloat is noticeable
-        UserHandler.getInstance().getUsers(mParam1).addOnSuccessListener(it -> {
+        UserHandler.getInstance().getUsers(bid).addOnSuccessListener(it -> {
             List<User> users = it.toObjects(User.class);
             if (users.size() == 0) {
                 //TODO handle: display "branch is empty" message
                 return;
             }
             Collections.sort(users, (u1, u2) -> Integer.compare(u2.getPoints(), u1.getPoints()));
-            userListAdapter = new UserListAdapter(getContext(), users);
-            listviewusers.setAdapter(userListAdapter);
+            leaderboardAdapter = new LeaderboardAdapter(getContext(), users);
+            leaderboardAdapter.setOnUserClickListener(user -> {
+                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                intent.putExtra(getString(R.string.extra_profile_id), user.getId());
+                startActivity(intent);
+            });
+            leaderboardUserRecyclerView.setAdapter(leaderboardAdapter);
+            leaderboardUserRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(),
+                    LinearLayoutManager.VERTICAL, false));
         }).addOnFailureListener(e -> {
             //TODO handle: display error message
         });
@@ -81,21 +82,20 @@ public class LeaderboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leaderboard, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
 
     public void performSearch(String query) {
-        if (userListAdapter == null) return;
-        userListAdapter.getFilter().filter(query);
-        userListAdapter.notifyDataSetChanged();
+        if (leaderboardAdapter == null) return;
+//        leaderboardAdapter.getFilter().filter(query);
+        leaderboardAdapter.notifyDataSetChanged();
     }
 
     public void update() {
-        if (userListAdapter == null) return;
-        userListAdapter.notifyDataSetChanged();
+        if (leaderboardAdapter == null) return;
+        leaderboardAdapter.notifyDataSetChanged();
     }
 
     @Override

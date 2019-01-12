@@ -3,7 +3,6 @@ package rmk.virtusa.com.quizmaster;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -34,8 +33,8 @@ public class LeaderboardActivity extends AppCompatActivity implements FirestoreL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_leaderboard);
         ButterKnife.bind(this);
-        editText = (EditText) findViewById(R.id.editText);
-        imageButton = (ImageButton) findViewById(R.id.imageButton);
+        editText = (EditText) findViewById(R.id.leaderboardEditText);
+        imageButton = (ImageButton) findViewById(R.id.leaderboardSearchBtn);
 
         imageButton.setOnClickListener(new View.OnClickListener() {
             @Override

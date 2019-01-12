@@ -1,7 +1,6 @@
 package rmk.virtusa.com.quizmaster;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,8 +12,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -24,14 +21,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -39,14 +34,10 @@ import java.util.TimeZone;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rmk.virtusa.com.quizmaster.adapter.MainPagerFragmentAdapter;
-import rmk.virtusa.com.quizmaster.adapter.UsersListAdapter;
 import rmk.virtusa.com.quizmaster.fragment.AnnounceFragment;
 import rmk.virtusa.com.quizmaster.fragment.SelectUserFragment;
 import rmk.virtusa.com.quizmaster.handler.UserHandler;
 import rmk.virtusa.com.quizmaster.model.User;
-
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.FAILED;
-import static rmk.virtusa.com.quizmaster.handler.UserHandler.UPDATED;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, SelectUserFragment.OnUserSelectListener {
@@ -100,7 +91,7 @@ public class MainActivity extends BaseActivity
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onUser(User user) {
-        ((TextView) headerView.findViewById(R.id.profileName)).setText(user.getName());
+        ((TextView) headerView.findViewById(R.id.userName)).setText(user.getName());
         ((TextView) headerView.findViewById(R.id.profilePoints)).setText(user.getPoints());
         headerView.setOnClickListener(v -> {
             Intent myIntent = new Intent(this, ProfileActivity.class);

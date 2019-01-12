@@ -55,7 +55,7 @@
             android:padding="@dimen/view_padding_small">
 
             <EditText
-                android:id="@+id/profileName"
+                android:id="@+id/userName"
                 style="@style/Base.TextAppearance.AppCompat.Display1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
